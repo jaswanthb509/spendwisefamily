@@ -2,13 +2,15 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
-const xss = require('xss-clean');
-const mongoSanitize = require('express-mongo-sanitize');
+//const xss = require('xss-clean');
+//const mongoSanitize = require('express-mongo-sanitize');
 const dotenv = require('dotenv');
 const expenseRoutes = require('./routes/expenseRoutes'); // Make sure this path is correct
 const authRoutes = require('./routes/authRoutes');
+const memberRoutes = require("./routes/memberRoutes");
 
-dotenv.config(); // Load environment variables
+dotenv.config();
+console.log("JWT_SECRET =", process.env.JWT_SECRET); // Load environment variables
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -16,13 +18,14 @@ const PORT = process.env.PORT || 5000;
 // Middlewares
 app.use(cors());
 app.use(helmet());
-app.use(xss());
-app.use(mongoSanitize());
+//app.use(xss());
+//app.use(mongoSanitize());
 app.use(express.json());
 
 // Routes
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/auth', authRoutes);
+app.use("/api/members",memberRoutes);
 
 // MongoDB Connection
 mongoose

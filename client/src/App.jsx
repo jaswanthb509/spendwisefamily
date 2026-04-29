@@ -1,147 +1,184 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { Routes, Route, Link, useNavigate } from "react-router-dom";
-import ExpenseForm from "./components/ExpenseForm";
-import ExpenseList from "./components/ExpenseList";
-import Summary from "./components/Summary";
-import ExpenseChart from "./components/ExpenseChart";
-import Register from "./pages/Register";
+import { useState } from "react";
+import "./App.css";
+
 import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
-  const [expenses, setExpenses] = useState([]);
-  const [darkMode, setDarkMode] = useState(false);
-  const navigate = useNavigate();
-  const token = localStorage.getItem("token");
-
-  const [activeLink, setActiveLink] = useState("");
-
-  const fetchExpenses = async () => {
-    if (!token) return;
-    try {
-      const res = await axios.get("http://localhost:5000/api/expenses", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setExpenses(res.data);
-    } catch (err) {
-      console.error("Error fetching expenses:", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchExpenses();
-  }, []);
+  const [page, setPage] =
+    useState(
+      localStorage.getItem(
+        "token"
+      )
+        ? "dashboard"
+        : "home"
+    );
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    setExpenses([]);
-    navigate("/login");
-  };
+    localStorage.removeItem(
+      "token"
+    );
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle("dark");
+    setPage("home");
   };
 
   return (
-    <div
-      className={`min-h-screen px-4 sm:px-6 lg:px-8 py-6 transition-colors duration-300 ${
-        darkMode ? "bg-gray-900" : "bg-gray-100"
-      }`}
-    >
-      <div className={`max-w-4xl mx-auto  ${darkMode ? "bg-slate-700" : "bg-slate-200"} rounded-xl shadow p-4 sm:p-6`}>
-        <div className="flex justify-between items-center mb-6">
-          
-          <Link className={`text-3xl font-bold ${darkMode ? "text-violet-800" : "text-green-600"}`} to="/">
-          💰 Expense Tracker
-          </Link>
+    <div className="app">
 
-          <button
-            onClick={toggleDarkMode}
-            className={`text-sm px-3 py-1 ${darkMode ?"bg-gray-700" : "bg-gray-200"} ${darkMode ? "text-white" : "text-black"} rounded ${darkMode ? "hover:bg-gray-600": "hover:bg-gray-300"} transition`}
-          >
-            {darkMode ? "🌞 Light Mode" : "🌙 Dark Mode"}
-          </button>
-        </div>
+      {/* HOME */}
+      {page === "home" && (
+        <div className="home-page">
 
-        {/* Navigation */}
-        <nav className={`flex flex-wrap justify-center gap-4 sm:gap-6 text-lg font-medium mb-8 ${ darkMode ? "text-blue-300" : "text-blue-500"}`}>
-          {token ? (
-            <>
-              <Link to="/add" className="text-stone-800 transition">
-                Add
-              </Link>
-              <Link to="/history" className="text-stone-800 transition">
-                History
-              </Link>
-              <Link to="/summary" className="text-stone-800 transition">
-                Summary
-              </Link>
+          <nav className="navbar">
+            <h2 className="logo">
+              SpendWiseFamily
+            </h2>
+
+            <div className="nav-actions">
               <button
-                onClick={handleLogout}
-                className="text-red-500 hover:text-red-600 transition"
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <Link
-                to="/register"
-                onClick={() => setActiveLink("register")}
-                className={`px-3 py-1 rounded transition ${
-                  activeLink === "register"
-                    ? "bg-blue-500 text-white"
-                    : "hover:text-green-500 text-blue-1000 dark:text-blue-400 "
-                }`}
-              >
-                Register
-              </Link>
-              <Link
-                to="/login"
-                onClick={() => setActiveLink("login")}
-                className={`px-3 py-1 rounded transition ${
-                  activeLink === "login"
-                    ? "bg-blue-500 text-white"
-                    : "hover:text-green-500 text-blue-900 dark:text-blue-400"
-                }`}
+                className="nav-btn"
+                onClick={() =>
+                  setPage(
+                    "login"
+                  )
+                }
               >
                 Login
-              </Link>
-            </>
-          )}
-        </nav>
+              </button>
 
-        {/* Routes */}
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <p className={`text-center text-lg font-semibold ${ darkMode ? "text-white" : "text-black"  }`}>
-                Welcome! Choose an option above.
+              <button
+                className="primary-btn"
+                onClick={() =>
+                  setPage(
+                    "register"
+                  )
+                }
+              >
+                Get Started
+              </button>
+            </div>
+          </nav>
+
+          <section className="hero">
+            <h1>
+              Manage Family
+              Expenses Smarter
+            </h1>
+
+            <p>
+              Track spending,
+              analyze trends,
+              save more and
+              grow together.
+            </p>
+
+            <div className="hero-buttons">
+              <button
+                className="primary-btn"
+                onClick={() =>
+                  setPage(
+                    "register"
+                  )
+                }
+              >
+                Start Free
+              </button>
+
+              <button
+                className="secondary-btn"
+                onClick={() =>
+                  setPage(
+                    "login"
+                  )
+                }
+              >
+                Login
+              </button>
+            </div>
+          </section>
+
+          <section className="features">
+
+            <div className="card">
+              <h3>
+                Expense Tracking
+              </h3>
+              <p>
+                Add and manage
+                expenses easily.
               </p>
-            }
-          />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/add" element={<ExpenseForm onAdd={fetchExpenses} darkMode={darkMode}/>} />
-          <Route
-            path="/history"
-            element={<ExpenseList expenses={expenses} darkMode={darkMode} />}
-          />
-          <Route
-            path="/summary"
-            element={
-              <>
-                <Summary expenses={expenses} darkMode={darkMode}/>
-                <ExpenseChart expenses={expenses} darkMode={darkMode} />
-              </>
-            }
-          />
-        </Routes>
-      </div>
+            </div>
+
+            <div className="card">
+              <h3>
+                Smart Charts
+              </h3>
+              <p>
+                Visual analytics
+                of spending.
+              </p>
+            </div>
+
+            <div className="card">
+              <h3>
+                PDF Reports
+              </h3>
+              <p>
+                Export reports
+                anytime.
+              </p>
+            </div>
+
+          </section>
+
+          <footer className="footer">
+            <p>
+              © 2026
+              SpendWiseFamily
+            </p>
+          </footer>
+
+        </div>
+      )}
+
+      {/* LOGIN */}
+      {page === "login" && (
+        <Login
+          goToRegister={() =>
+            setPage(
+              "register"
+            )
+          }
+          goToDashboard={() =>
+            setPage(
+              "dashboard"
+            )
+          }
+        />
+      )}
+
+      {/* REGISTER */}
+      {page === "register" && (
+        <Register
+          goToLogin={() =>
+            setPage(
+              "login"
+            )
+          }
+        />
+      )}
+
+      {/* DASHBOARD */}
+      {page ===
+        "dashboard" && (
+        <Dashboard
+          goHome={
+            handleLogout
+          }
+        />
+      )}
+
     </div>
   );
 }

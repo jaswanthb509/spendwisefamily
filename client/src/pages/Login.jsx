@@ -1,76 +1,97 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { useLocation } from "react-router-dom";
+import { useState } from "react";
+import "../App.css";
 
-function Login() {
+function Login({ goToRegister, goToDashboard }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // const [loginSuccess, setLoginSuccess] = useState(false);
-  const navigate = useNavigate();
-const location = useLocation();
 
-useEffect(() => {
-  const params = new URLSearchParams(location.search);
-  const token = params.get('token');
-  if (token) {
-    localStorage.setItem('token', token);
-    navigate('/add');
-  }
-}, [location]);
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const handleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password,
-      });
+      const res = await fetch(
+        "http://localhost:5000/api/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        }
+      );
 
-      // Save token
-      localStorage.setItem("token", res.data.token);
+      const data = await res.json();
 
-      // setLoginSuccess(true);
-      alert("Login successful!");
-      navigate("/add");
-    } catch (err) {
-      alert(err.response.data.message || "Login failed");
+      console.log("Login Response:", data);
+
+      if (res.ok && data.token) {
+        localStorage.setItem(
+          "token",
+          data.token
+        );
+
+        console.log(
+          "Saved Token:",
+          localStorage.getItem("token")
+        );
+
+        goToDashboard();
+      } else {
+        alert(data.message || "Login failed");
+      }
+
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
     }
   };
 
-
   return (
-    <form onSubmit={handleLogin} className="max-w-md mx-auto mt-10 space-y-4">
-      <h2 className="text-xl font-bold">Login</h2>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="w-full border p-2 rounded"
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="w-full border p-2 rounded"
-      />
-      <button
-        type="submit"
-        className="bg-blue-500 text-white px-4 py-2 rounded"
-      >
-        Login
-      </button>
+    <div className="auth-page">
+      <div className="auth-box">
+        <h2>Welcome Back</h2>
 
-      <a
-    href="http://localhost:5000/api/auth/google"
-    className="bg-red-500 text-white px-4 py-2 rounded inline-block mt-4"
-  >
-    Login with Google
-  </a>
+        <p className="auth-subtitle">
+          Login to manage family finances
+        </p>
 
-    </form>
+        <input
+          type="email"
+          placeholder="Email Address"
+          value={email}
+          onChange={(e) =>
+            setEmail(e.target.value)
+          }
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) =>
+            setPassword(e.target.value)
+          }
+        />
+
+        <button
+          className="primary-btn auth-btn"
+          onClick={handleLogin}
+        >
+          Login
+        </button>
+
+        <p className="switch-text">
+          Don’t have an account?{" "}
+          <span
+            className="link-text"
+            onClick={goToRegister}
+          >
+            Register
+          </span>
+        </p>
+      </div>
+    </div>
   );
 }
 

@@ -1,76 +1,79 @@
 import { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import "../App.css";
 
-function Register() {
+function Register({ goToLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // 1. ✨ Added state for the confirm password field
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-
-    // 2. ✨ Check if the passwords match before sending the request
-    if (password !== confirmPassword) {
-      alert("Passwords do not match! Please try again. 😉");
-      return; // Stop the function if they don't match
-    }
-
+  const handleRegister = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", {
-        email,
-        password,
-      });
+      const res = await fetch(
+        "http://localhost:5000/api/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        }
+      );
 
-      // Save token to localStorage
-      localStorage.setItem("token", res.data.token);
-      alert("Registration successful! Welcome aboard! 🚀");
-      navigate('/add');
-    } catch (err) {
-      alert(err.response?.data?.message || "Registration failed");
+      const data = await res.json();
+
+      alert(data.message);
+
+      if (res.ok) {
+        goToLogin();
+      }
+    } catch (error) {
+      alert("Server error");
     }
   };
 
   return (
-    <form
-      onSubmit={handleRegister}
-      className="max-w-md mx-auto mt-10 space-y-4"
-    >
-      <h2 className="text-xl font-bold">Register</h2>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="w-full border p-2 rounded"
-        required
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="w-full border p-2 rounded"
-        required
-      />
-      {/* 3. ✨ Added the new input field for confirming the password */}
-      <input
-        type="password"
-        placeholder="Confirm Password"
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-        className="w-full border p-2 rounded"
-        required
-      />
-      <button
-        type="submit"
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-      >
-        Register
-      </button>
-    </form>
+    <div className="auth-page">
+      <div className="auth-box">
+        <h2>Create Account</h2>
+
+        <p className="auth-subtitle">
+          Start managing family finances smarter
+        </p>
+
+        <input
+          type="email"
+          placeholder="Email Address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <button
+          className="primary-btn auth-btn"
+          onClick={handleRegister}
+        >
+          Register
+        </button>
+
+        <p className="switch-text">
+          Already have an account?{" "}
+          <span
+            className="link-text"
+            onClick={goToLogin}
+          >
+            Login
+          </span>
+        </p>
+      </div>
+    </div>
   );
 }
 

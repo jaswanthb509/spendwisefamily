@@ -1,47 +1,87 @@
-
-
-const express = require('express');
-const { body } = require('express-validator');
-const { registerUser, loginUser } = require('../controllers/authController');
-const validate = require('../middleware/validate');
-const passport = require('passport');
-
+const express = require("express");
 const router = express.Router();
+const User = require("../models/User");
+const jwt = require("jsonwebtoken");
 
-require('../config/passport'); // load Google strategy
-const { googleAuth } = require('../controllers/authController');
+const generateToken = (id) => {
+  return jwt.sign(
+    { id },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
+};
 
-router.post(
-  '/register',
-  [
-    body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
-    body('password')
-      .isString()
-      .isLength({ min: 8, max: 128 })
-      .withMessage('Password must be 8-128 characters'),
-  ],
-  validate,
-  registerUser
-);
+/* REGISTER */
+router.post("/register", async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-router.post(
-  '/login',
-  [
-    body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
-    body('password').isString().isLength({ min: 8 }).withMessage('Password is required'),
-  ],
-  validate,
-  loginUser
-);
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Please fill all fields",
+      });
+    }
 
-// Start Google login
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+    const existingUser =
+      await User.findOne({ email });
 
-// Google OAuth callback
-router.get(
-  '/google/callback',
-  passport.authenticate('google', { session: false }),
-  googleAuth
-);
+    if (existingUser) {
+      return res.status(400).json({
+        message: "User already exists",
+      });
+    }
+
+    const user = new User({
+      email,
+      password,
+    });
+
+    await user.save();
+
+    res.status(201).json({
+      message: "Registration successful",
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error",
+    });
+  }
+});
+
+/* LOGIN */
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user =
+      await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid email",
+      });
+    }
+
+    const isMatch =
+      await user.matchPassword(password);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Invalid password",
+      });
+    }
+
+    res.status(200).json({
+      message: "Login successful",
+      token: generateToken(user._id),
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error",
+    });
+  }
+});
 
 module.exports = router;
