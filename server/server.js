@@ -8,6 +8,7 @@ const dotenv = require('dotenv');
 const expenseRoutes = require('./routes/expenseRoutes'); // Make sure this path is correct
 const authRoutes = require('./routes/authRoutes');
 const memberRoutes = require("./routes/memberRoutes");
+const familyRoutes =require("./routes/familyRoutes");
 
 dotenv.config();
 console.log("JWT_SECRET =", process.env.JWT_SECRET); // Load environment variables
@@ -26,6 +27,7 @@ app.use(express.json());
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/auth', authRoutes);
 app.use("/api/members",memberRoutes);
+app.use("/api/family",familyRoutes);
 
 // MongoDB Connection
 mongoose

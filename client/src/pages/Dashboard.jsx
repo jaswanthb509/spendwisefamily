@@ -18,12 +18,24 @@ function Dashboard({ goHome }) {
   const [dateFilter, setDateFilter] =
     useState("All Time");
 
+  const [family, setFamily] =
+  useState(null);
+
+  const [familyName,
+  setFamilyName] =
+  useState("");
+
+  const [inviteCode,
+  setInviteCode] =
+  useState("");
+
   const token =
     localStorage.getItem("token");
 
-  useEffect(() => {
-    fetchExpenses();
-  }, []);
+ useEffect(() => {
+  fetchExpenses();
+  fetchFamily();
+}, []);
 
   const fetchExpenses = async () => {
     try {
@@ -36,6 +48,118 @@ function Dashboard({ goHome }) {
           },
         }
       );
+
+      const fetchFamily =
+  async () => {
+    try {
+      const res =
+        await fetch(
+          "http://localhost:5000/api/family/me",
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+      const data =
+        await res.json();
+
+      if (res.ok) {
+        setFamily(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+const createFamily =
+  async () => {
+    try {
+      const res =
+        await fetch(
+          "http://localhost:5000/api/family/create",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              Authorization:
+                `Bearer ${token}`,
+            },
+
+            body:
+              JSON.stringify({
+                name:
+                  familyName,
+              }),
+          }
+        );
+
+      const data =
+        await res.json();
+
+      if (res.ok) {
+        alert(
+          "Family Created"
+        );
+
+        fetchFamily();
+      } else {
+        alert(
+          data.message
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+const joinFamily =
+  async () => {
+    try {
+      const res =
+        await fetch(
+          "http://localhost:5000/api/family/join",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              Authorization:
+                `Bearer ${token}`,
+            },
+
+            body:
+              JSON.stringify({
+                inviteCode,
+              }),
+          }
+        );
+
+      const data =
+        await res.json();
+
+      if (res.ok) {
+        alert(
+          "Joined Family"
+        );
+
+        fetchFamily();
+      } else {
+        alert(
+          data.message
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
       const data = await res.json();
 
@@ -273,6 +397,113 @@ function Dashboard({ goHome }) {
           </p>
         </div>
       </div>
+
+      <div
+  className="stat-card"
+  style={{
+    marginTop: "20px",
+  }}
+>
+  <h2>
+    Family Group
+  </h2>
+
+  {!family ? (
+    <>
+
+      <input
+        type="text"
+        placeholder="Family Name"
+        value={
+          familyName
+        }
+        onChange={(e) =>
+          setFamilyName(
+            e.target.value
+          )
+        }
+      />
+
+      <button
+        className="main-btn"
+        onClick={
+          createFamily
+        }
+      >
+        Create Family
+      </button>
+
+      <br />
+      <br />
+
+      <input
+        type="text"
+        placeholder="Invite Code"
+        value={
+          inviteCode
+        }
+        onChange={(e) =>
+          setInviteCode(
+            e.target.value
+          )
+        }
+      />
+
+      <button
+        className="main-btn"
+        onClick={
+          joinFamily
+        }
+      >
+        Join Family
+      </button>
+
+    </>
+  ) : (
+    <>
+      <p>
+        <strong>
+          Family:
+        </strong>{" "}
+        {family.name}
+      </p>
+
+      <p>
+        <strong>
+          Invite Code:
+        </strong>{" "}
+        {
+          family.inviteCode
+        }
+      </p>
+
+      <h4>
+        Members
+      </h4>
+
+      {family.members.map(
+        (member) => (
+          <p
+            key={
+              member._id
+            }
+          >
+            {
+              member.user
+                ?.email
+            }
+            {" "}
+            (
+            {
+              member.role
+            }
+            )
+          </p>
+        )
+      )}
+    </>
+  )}
+</div>
 
       {/* Filters + PDF */}
       <div
