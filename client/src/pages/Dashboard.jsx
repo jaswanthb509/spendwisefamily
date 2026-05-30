@@ -37,146 +37,110 @@ function Dashboard({ goHome }) {
   fetchFamily();
 }, []);
 
-  const fetchExpenses = async () => {
-    try {
-      const res = await fetch(
-        "http://localhost:5000/api/expenses",
-        {
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      );
-
-      const fetchFamily =
-  async () => {
-    try {
-      const res =
-        await fetch(
-          "http://localhost:5000/api/family/me",
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
-
-      const data =
-        await res.json();
-
-      if (res.ok) {
-        setFamily(data);
+ const fetchExpenses = async () => {
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/expenses",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    } catch (error) {
-      console.log(error);
+    );
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setExpenses(data);
     }
-  };
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-const createFamily =
-  async () => {
-    try {
-      const res =
-        await fetch(
-          "http://localhost:5000/api/family/create",
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type":
-                "application/json",
-
-              Authorization:
-                `Bearer ${token}`,
-            },
-
-            body:
-              JSON.stringify({
-                name:
-                  familyName,
-              }),
-          }
-        );
-
-      const data =
-        await res.json();
-
-      if (res.ok) {
-        alert(
-          "Family Created"
-        );
-
-        fetchFamily();
-      } else {
-        alert(
-          data.message
-        );
+const fetchFamily = async () => {
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/family/me",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    } catch (error) {
-      console.log(error);
+    );
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setFamily(data);
     }
-  };
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-const joinFamily =
-  async () => {
-    try {
-      const res =
-        await fetch(
-          "http://localhost:5000/api/family/join",
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type":
-                "application/json",
-
-              Authorization:
-                `Bearer ${token}`,
-            },
-
-            body:
-              JSON.stringify({
-                inviteCode,
-              }),
-          }
-        );
-
-      const data =
-        await res.json();
-
-      if (res.ok) {
-        alert(
-          "Joined Family"
-        );
-
-        fetchFamily();
-      } else {
-        alert(
-          data.message
-        );
+const createFamily = async () => {
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/family/create",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: familyName,
+        }),
       }
-    } catch (error) {
-      console.log(error);
+    );
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert("Family Created");
+      fetchFamily();
+    } else {
+      alert(data.message);
     }
-  };
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-      const data = await res.json();
-
-      if (res.ok) {
-        setExpenses(data);
+const joinFamily = async () => {
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/family/join",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          inviteCode,
+        }),
       }
+    );
 
-    } catch (error) {
-      console.log(error);
+    const data = await res.json();
+
+    if (res.ok) {
+      alert("Joined Family");
+      fetchFamily();
+    } else {
+      alert(data.message);
     }
-  };
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    goHome();
-  };
-
+const logout = () => {
+  localStorage.removeItem("token");
+  goHome();
+};
   /* ======================
      FILTER LOGIC
   ====================== */
