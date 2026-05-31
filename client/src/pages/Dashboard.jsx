@@ -4,7 +4,12 @@ import {
   Pie,
   Cell,
   Tooltip,
-  Legend
+  Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid
 } from "recharts";
 
 import jsPDF from "jspdf";
@@ -24,6 +29,10 @@ function Dashboard({ goHome }) {
   const [familyName,
   setFamilyName] =
   useState("");
+
+  const [title, setTitle] = useState("");
+const [amount, setAmount] = useState("");
+const [category, setCategory] = useState("");
 
   const [inviteCode,
   setInviteCode] =
@@ -49,6 +58,7 @@ function Dashboard({ goHome }) {
     );
 
     const data = await res.json();
+    console.log(data);
 
     if (res.ok) {
       setExpenses(data);
@@ -129,6 +139,45 @@ const joinFamily = async () => {
     if (res.ok) {
       alert("Joined Family");
       fetchFamily();
+    } else {
+      alert(data.message);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const addExpense = async () => {
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/expenses",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title,
+          amount: Number(amount),
+          category,
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setTitle("");
+      setAmount("");
+      setCategory("");
+
+      fetchExpenses();
+
+      alert(
+        "Expense Added"
+      );
     } else {
       alert(data.message);
     }
@@ -251,6 +300,33 @@ const logout = () => {
           chartMap[key],
       })
     );
+
+    const memberMap = {};
+
+filteredExpenses.forEach(
+  (expense) => {
+    const email =
+      expense.user?.email ||
+      "Unknown";
+
+    if (memberMap[email]) {
+      memberMap[email] +=
+        expense.amount;
+    } else {
+      memberMap[email] =
+        expense.amount;
+    }
+  }
+);
+
+const memberChartData =
+  Object.keys(memberMap).map(
+    (email) => ({
+      name: email,
+      amount:
+        memberMap[email],
+    })
+  );
 
   const COLORS = [
     "#2563eb",
@@ -469,6 +545,69 @@ const logout = () => {
   )}
 </div>
 
+<div
+  className="stat-card"
+  style={{
+    marginTop: "20px",
+  }}
+>
+  <h2>Add Expense</h2>
+
+  <input
+    type="text"
+    placeholder="Title"
+    value={title}
+    onChange={(e) =>
+      setTitle(e.target.value)
+    }
+  />
+
+  <input
+    type="number"
+    placeholder="Amount"
+    value={amount}
+    onChange={(e) =>
+      setAmount(e.target.value)
+    }
+  />
+
+  <select
+    value={category}
+    onChange={(e) =>
+      setCategory(
+        e.target.value
+      )
+    }
+  >
+    <option value="">
+      Select Category
+    </option>
+
+    <option value="Food">
+      Food
+    </option>
+
+    <option value="Bills">
+      Bills
+    </option>
+
+    <option value="Travel">
+      Travel
+    </option>
+
+    <option value="Shopping">
+      Shopping
+    </option>
+  </select>
+
+  <button
+    className="main-btn"
+    onClick={addExpense}
+  >
+    Add Expense
+  </button>
+</div>
+
       {/* Filters + PDF */}
       <div
         style={{
@@ -578,6 +717,42 @@ const logout = () => {
         </PieChart>
       </div>
 
+      <div
+  style={{
+    background: "white",
+    padding: "30px",
+    borderRadius: "16px",
+    marginTop: "30px",
+  }}
+>
+  <h2>
+    Member Spending
+  </h2>
+
+  <BarChart
+    width={700}
+    height={300}
+    data={memberChartData}
+  >
+    <CartesianGrid
+      strokeDasharray="3 3"
+    />
+
+    <XAxis
+      dataKey="name"
+    />
+
+    <YAxis />
+
+    <Tooltip />
+
+    <Bar
+      dataKey="amount"
+      fill="#2563eb"
+    />
+  </BarChart>
+</div>
+
       {/* Expense List */}
       <div
         style={{
@@ -590,16 +765,24 @@ const logout = () => {
               key={item._id}
               className="expense-card"
             >
-              <div>
-                <h4>
-                  {item.title}
-                </h4>
-                <p>
-                  {
-                    item.category
-                  }
-                </p>
-              </div>
+             <div>
+  <h4>
+    {item.title}
+  </h4>
+
+  <p>
+    {item.category}
+  </p>
+
+  <small>
+    Added by:
+    {" "}
+    {
+      item.user?.email ||
+      "Unknown"
+    }
+  </small>
+</div>
 
               <div>
                 ₹
