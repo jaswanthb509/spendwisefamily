@@ -9,6 +9,8 @@ const expenseRoutes = require('./routes/expenseRoutes'); // Make sure this path 
 const authRoutes = require('./routes/authRoutes');
 const memberRoutes = require("./routes/memberRoutes");
 const familyRoutes =require("./routes/familyRoutes");
+const budgetRoutes =require("./routes/budgetRoutes");
+const goalRoutes =require("./routes/goalRoutes");
 
 dotenv.config();
 console.log("JWT_SECRET =", process.env.JWT_SECRET); // Load environment variables
@@ -28,6 +30,8 @@ app.use('/api/expenses', expenseRoutes);
 app.use('/api/auth', authRoutes);
 app.use("/api/members",memberRoutes);
 app.use("/api/family",familyRoutes);
+app.use("/api/budgets",budgetRoutes);
+app.use("/api/goals",goalRoutes);
 
 // MongoDB Connection
 mongoose

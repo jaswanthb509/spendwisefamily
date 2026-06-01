@@ -19,6 +19,11 @@ import "../App.css";
 
 function Dashboard({ goHome }) {
   const [expenses, setExpenses] = useState([]);
+  const [budgets,setBudgets] = useState([]);
+
+const [budgetCategory,setBudgetCategory] = useState("");
+
+const [budgetAmount,setBudgetAmount] = useState("");
   const [filter, setFilter] = useState("All");
   const [dateFilter, setDateFilter] =
     useState("All Time");
@@ -33,6 +38,21 @@ function Dashboard({ goHome }) {
   const [title, setTitle] = useState("");
 const [amount, setAmount] = useState("");
 const [category, setCategory] = useState("");
+const [goals,
+setGoals] =
+useState([]);
+
+const [goalTitle,
+setGoalTitle] =
+useState("");
+
+const [goalTarget,
+setGoalTarget] =
+useState("");
+
+const [goalDeadline,
+setGoalDeadline] =
+useState("");
 
   const [inviteCode,
   setInviteCode] =
@@ -44,6 +64,7 @@ const [category, setCategory] = useState("");
  useEffect(() => {
   fetchExpenses();
   fetchFamily();
+  fetchBudgets();
 }, []);
 
  const fetchExpenses = async () => {
@@ -83,6 +104,29 @@ const fetchFamily = async () => {
 
     if (res.ok) {
       setFamily(data);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const fetchBudgets = async () => {
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/budgets",
+      {
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data =
+      await res.json();
+
+    if (res.ok) {
+      setBudgets(data);
     }
   } catch (error) {
     console.log(error);
@@ -180,6 +224,49 @@ const addExpense = async () => {
       );
     } else {
       alert(data.message);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const createBudget =
+async () => {
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/budgets",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/json",
+
+          Authorization:
+            `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          category:
+            budgetCategory,
+          amount:
+            Number(
+              budgetAmount
+            ),
+        }),
+      }
+    );
+
+    const data =
+      await res.json();
+
+    if (res.ok) {
+      setBudgetCategory("");
+      setBudgetAmount("");
+
+      fetchBudgets();
+
+      alert(
+        "Budget Created"
+      );
     }
   } catch (error) {
     console.log(error);
@@ -300,6 +387,30 @@ const logout = () => {
           chartMap[key],
       })
     );
+
+function getSpentAmount(
+  category
+) {
+  return expenses
+    .filter(
+      (expense) =>
+        expense.category
+          ?.toLowerCase() ===
+        category
+          ?.toLowerCase()
+    )
+    .reduce(
+      (
+        total,
+        expense
+      ) =>
+        total +
+        Number(
+          expense.amount
+        ),
+      0
+    );
+}
 
     const memberMap = {};
 
@@ -543,6 +654,180 @@ const memberChartData =
       )}
     </>
   )}
+</div>
+
+<div
+  className="stat-card"
+  style={{
+    marginTop: "20px",
+  }}
+>
+  <h2>
+    Budget Tracking
+  </h2>
+
+  <select
+    value={
+      budgetCategory
+    }
+    onChange={(e) =>
+      setBudgetCategory(
+        e.target.value
+      )
+    }
+  >
+    <option value="">
+      Category
+    </option>
+
+    <option value="Food">
+      Food
+    </option>
+
+    <option value="Bills">
+      Bills
+    </option>
+
+    <option value="Travel">
+      Travel
+    </option>
+
+    <option value="Shopping">
+      Shopping
+    </option>
+  </select>
+
+  <input
+    type="number"
+    placeholder="Budget Amount"
+    value={
+      budgetAmount
+    }
+    onChange={(e) =>
+      setBudgetAmount(
+        e.target.value
+      )
+    }
+  />
+
+  <button
+    className="main-btn"
+    onClick={
+      createBudget
+    }
+  >
+    Set Budget
+  </button>
+</div>
+
+<div
+  className="stat-card"
+  style={{
+    marginTop: "20px",
+  }}
+>
+  <h2>
+    Budget List
+  </h2>
+
+{budgets.map(
+  (budget) => {
+    const spent =
+      getSpentAmount(
+        budget.category
+      );
+
+    const percentage =
+      Math.min(
+        (
+          spent /
+          budget.amount
+        ) *
+          100,
+        100
+      );
+
+      const getSpentAmount =
+(category) => {
+  return expenses
+    .filter(
+      (expense) =>
+        expense.category ===
+        category
+    )
+    .reduce(
+      (
+        total,
+        expense
+      ) =>
+        total +
+        expense.amount,
+      0
+    );
+};
+
+    return (
+      <div
+        key={
+          budget._id
+        }
+        style={{
+          marginBottom:
+            "20px",
+        }}
+      >
+        <h4>
+          {
+            budget.category
+          }
+        </h4>
+
+        <p>
+          ₹{spent} /
+          ₹
+          {
+            budget.amount
+          }
+        </p>
+
+        <div
+          style={{
+            height:
+              "12px",
+            background:
+              "#ddd",
+            borderRadius:
+              "20px",
+          }}
+        >
+          <div
+            style={{
+              width:
+                `${percentage}%`,
+              height:
+                "100%",
+              background:
+                percentage >
+                80
+                  ? "red"
+                  : "green",
+              borderRadius:
+                "20px",
+            }}
+          />
+        </div>
+
+        <small>
+          Remaining ₹
+          {
+            budget.amount -
+            spent
+          }
+        </small>
+      </div>
+    );
+  }
+)}
 </div>
 
 <div
