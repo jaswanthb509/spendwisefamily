@@ -388,26 +388,16 @@ const logout = () => {
       })
     );
 
-function getSpentAmount(
-  category
-) {
+function getSpentAmount(category) {
   return expenses
     .filter(
       (expense) =>
-        expense.category
-          ?.toLowerCase() ===
-        category
-          ?.toLowerCase()
+        expense.category?.toLowerCase() ===
+        category?.toLowerCase()
     )
     .reduce(
-      (
-        total,
-        expense
-      ) =>
-        total +
-        Number(
-          expense.amount
-        ),
+      (total, expense) =>
+        total + Number(expense.amount),
       0
     );
 }
@@ -747,24 +737,7 @@ const memberChartData =
         100
       );
 
-      const getSpentAmount =
-(category) => {
-  return expenses
-    .filter(
-      (expense) =>
-        expense.category ===
-        category
-    )
-    .reduce(
-      (
-        total,
-        expense
-      ) =>
-        total +
-        expense.amount,
-      0
-    );
-};
+     
 
     return (
       <div
