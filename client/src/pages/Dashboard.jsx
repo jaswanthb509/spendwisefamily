@@ -65,6 +65,7 @@ useState("");
   fetchExpenses();
   fetchFamily();
   fetchBudgets();
+  fetchGoals();
 }, []);
 
  const fetchExpenses = async () => {
@@ -127,6 +128,31 @@ const fetchBudgets = async () => {
 
     if (res.ok) {
       setBudgets(data);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const fetchGoals =
+async () => {
+  try {
+    const res =
+      await fetch(
+        "http://localhost:5000/api/goals",
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
+      );
+
+    const data =
+      await res.json();
+
+    if (res.ok) {
+      setGoals(data);
     }
   } catch (error) {
     console.log(error);
@@ -272,6 +298,56 @@ async () => {
     console.log(error);
   }
 };
+
+const createGoal =
+async () => {
+  try {
+    const res =
+      await fetch(
+        "http://localhost:5000/api/goals",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+
+            Authorization:
+              `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            title:
+              goalTitle,
+
+            targetAmount:
+              Number(
+                goalTarget
+              ),
+
+            deadline:
+              goalDeadline,
+          }),
+        }
+      );
+
+    const data =
+      await res.json();
+
+    if (res.ok) {
+      setGoalTitle("");
+      setGoalTarget("");
+      setGoalDeadline("");
+
+      fetchGoals();
+
+      alert(
+        "Goal Created"
+      );
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 
 const logout = () => {
   localStorage.removeItem("token");
@@ -801,6 +877,55 @@ const memberChartData =
     );
   }
 )}
+</div>
+
+<div className="stat-card">
+
+  <h2>
+    Savings Goals
+  </h2>
+
+  <input
+    type="text"
+    placeholder="Goal Name"
+    value={goalTitle}
+    onChange={(e) =>
+      setGoalTitle(
+        e.target.value
+      )
+    }
+  />
+
+  <input
+    type="number"
+    placeholder="Target Amount"
+    value={goalTarget}
+    onChange={(e) =>
+      setGoalTarget(
+        e.target.value
+      )
+    }
+  />
+
+  <input
+    type="date"
+    value={goalDeadline}
+    onChange={(e) =>
+      setGoalDeadline(
+        e.target.value
+      )
+    }
+  />
+
+  <button
+    className="main-btn"
+    onClick={
+      createGoal
+    }
+  >
+    Create Goal
+  </button>
+
 </div>
 
 <div
