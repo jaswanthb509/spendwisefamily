@@ -11,6 +11,8 @@ const memberRoutes = require("./routes/memberRoutes");
 const familyRoutes =require("./routes/familyRoutes");
 const budgetRoutes =require("./routes/budgetRoutes");
 const goalRoutes =require("./routes/goalRoutes");
+//const aiRoutes =require("./routes/aiRoutes");
+
 
 dotenv.config();
 console.log("JWT_SECRET =", process.env.JWT_SECRET); // Load environment variables
@@ -32,6 +34,7 @@ app.use("/api/members",memberRoutes);
 app.use("/api/family",familyRoutes);
 app.use("/api/budgets",budgetRoutes);
 app.use("/api/goals",goalRoutes);
+//app.use("/api/ai",aiRoutes);
 
 // MongoDB Connection
 mongoose

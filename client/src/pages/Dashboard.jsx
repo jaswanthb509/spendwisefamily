@@ -61,6 +61,8 @@ useState("");
   const token =
     localStorage.getItem("token");
 
+  const [aiAdvice,setAiAdvice] = useState("");
+
  useEffect(() => {
   fetchExpenses();
   fetchFamily();
@@ -464,6 +466,21 @@ const logout = () => {
       })
     );
 
+    const totalSpent =
+  expenses.reduce(
+    (sum, expense) =>
+      sum + expense.amount,
+    0
+  );
+
+const topCategory =
+  chartData.length > 0
+    ? [...chartData].sort(
+        (a, b) =>
+          b.value - a.value
+      )[0]
+    : null;
+
 function getSpentAmount(category) {
   return expenses
     .filter(
@@ -570,6 +587,40 @@ const memberChartData =
       "expense-report.pdf"
     );
   };
+
+  const getAIAdvice =
+async () => {
+  try {
+    const res =
+      await fetch(
+        "http://localhost:5000/api/ai/recommend",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+
+            Authorization:
+              `Bearer ${token}`,
+          },
+
+          body: JSON.stringify({
+            expenses,
+          }),
+        }
+      );
+
+    const data =
+      await res.json();
+
+    setAiAdvice(
+      data.recommendation
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   return (
     <div className="dash-page">
@@ -929,6 +980,77 @@ const memberChartData =
 </div>
 
 <div
+  style={{
+    marginTop: "20px",
+  }}
+>
+  <h3>
+    Goal Progress
+  </h3>
+
+  {goals.map((goal) => {
+    const percentage =
+      Math.min(
+        (
+          goal.savedAmount /
+          goal.targetAmount
+        ) * 100,
+        100
+      );
+
+    return (
+      <div
+        key={goal._id}
+        style={{
+          marginBottom:
+            "20px",
+        }}
+      >
+        <h4>
+          {goal.title}
+        </h4>
+
+        <p>
+          ₹{goal.savedAmount}
+          /
+          ₹{goal.targetAmount}
+        </p>
+
+        <div
+          style={{
+            height: "12px",
+            background:
+              "#ddd",
+            borderRadius:
+              "20px",
+          }}
+        >
+          <div
+            style={{
+              width:
+                `${percentage}%`,
+              height:
+                "100%",
+              background:
+                "#2563eb",
+              borderRadius:
+                "20px",
+            }}
+          />
+        </div>
+
+        <small>
+          {percentage.toFixed(
+            0
+          )}
+          % Complete
+        </small>
+      </div>
+    );
+  })}
+</div>
+
+<div
   className="stat-card"
   style={{
     marginTop: "20px",
@@ -1050,6 +1172,19 @@ const memberChartData =
         </button>
       </div>
 
+      <button
+  className="main-btn"
+  onClick={
+    getAIAdvice
+  }
+>
+  Ask Gemini
+</button>
+
+<p>
+  {aiAdvice}
+</p>
+
       {/* Chart */}
       <div
         style={{
@@ -1134,6 +1269,37 @@ const memberChartData =
       fill="#2563eb"
     />
   </BarChart>
+</div>
+
+<div
+  className="stat-card"
+  style={{
+    marginTop: "20px",
+  }}
+>
+  <h2>
+    AI Insights
+  </h2>
+
+  <p>
+    Total Family Spending:
+    ₹{totalSpent}
+  </p>
+
+  {topCategory && (
+    <p>
+      Highest Spending:
+      {topCategory.name}
+      (₹{topCategory.value})
+    </p>
+  )}
+
+  <p>
+    Recommendation:
+    Reduce spending in
+    your highest category
+    by 10%.
+  </p>
 </div>
 
       {/* Expense List */}
