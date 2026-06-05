@@ -7,6 +7,8 @@ const router =
 const Goal =
   require("../models/Goal");
 
+  console.log("Goal =", Goal);
+
 const User =
   require("../models/User");
 
@@ -32,9 +34,13 @@ router.get(
 
       res.json(goals);
     } catch (error) {
-      res.status(500).json({
-        message:
-          "Failed to load goals",
+      console.log(error);
+
+  res.status(500).json({
+    message:
+      "Failed to create goal",
+    error:
+      error.message,
       });
     }
   }
