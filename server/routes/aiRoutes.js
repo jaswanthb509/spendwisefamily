@@ -1,40 +1,44 @@
-const express = require("express");
+require("dotenv").config();
 
+const express = require("express");
 const router = express.Router();
 
-const { GoogleGenerativeAI } =
-require("@google/generative-ai");
+const {
+  GoogleGenerativeAI,
+} = require("@google/generative-ai");
 
 const protect =
-require("../middleware/authMiddleware");
-
-const genAI =
-  new GoogleGenerativeAI(
-    process.env.GEMINI_API_KEY
-  );
+  require("../middleware/authMiddleware");
 
 router.post(
   "/recommend",
   protect,
   async (req, res) => {
     try {
-      const { expenses } =
-        req.body;
+      console.log(
+        "Route Key:",
+        process.env.GEMINI_API_KEY
+      );
+
+      const genAI =
+        new GoogleGenerativeAI(
+          process.env.GEMINI_API_KEY
+        );
 
       const model =
         genAI.getGenerativeModel({
-          model:
-            "gemini-1.5-flash",
+          model: "gemini-2.0-flash",
         });
+
+      const { expenses } =
+        req.body;
 
       const prompt = `
 Analyze these family expenses:
 
-${JSON.stringify(
-  expenses
-)}
+${JSON.stringify(expenses)}
 
-Give:
+Provide:
 1. Spending insights
 2. Saving recommendations
 3. Budget suggestions
@@ -46,7 +50,7 @@ Give:
         );
 
       const response =
-        result.response.text();
+        await result.response.text();
 
       res.json({
         recommendation:
@@ -56,8 +60,9 @@ Give:
       console.log(error);
 
       res.status(500).json({
-        message:
-          "AI failed",
+        message: "AI failed",
+        error:
+          error.message,
       });
     }
   }

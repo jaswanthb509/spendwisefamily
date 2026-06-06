@@ -37,6 +37,7 @@ const [budgetAmount,setBudgetAmount] = useState("");
 
   const [title, setTitle] = useState("");
 const [amount, setAmount] = useState("");
+const [savingAmount, setSavingAmount] =useState("");
 const [category, setCategory] = useState("");
 const [goals,
 setGoals] =
@@ -349,6 +350,38 @@ async () => {
     console.log(error);
   }
 };
+
+const addSavings =
+  async (
+    goalId,
+    amount
+  ) => {
+    try {
+      const res =
+        await fetch(
+          `http://localhost:5000/api/goals/${goalId}/save`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type":
+                "application/json",
+              Authorization:
+                `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              amount,
+            }),
+          }
+        );
+
+      if (res.ok) {
+        setSavingAmount("");
+        fetchGoals();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
 
 const logout = () => {
@@ -998,6 +1031,22 @@ async () => {
         100
       );
 
+      const daysLeft =
+  goal.deadline
+    ? Math.ceil(
+        (
+          new Date(
+            goal.deadline
+          ) -
+          new Date()
+        ) /
+          (1000 *
+            60 *
+            60 *
+            24)
+      )
+    : null;
+
     return (
       <div
         key={goal._id}
@@ -1009,7 +1058,13 @@ async () => {
         <h4>
           {goal.title}
         </h4>
-
+        
+        {daysLeft !== null && (
+  <p>
+    ⏳ {daysLeft} days
+    left
+  </p>
+)}
         <p>
           ₹{goal.savedAmount}
           /
@@ -1045,6 +1100,45 @@ async () => {
           )}
           % Complete
         </small>
+        {goal.savedAmount >=
+  goal.targetAmount && (
+  <div
+    style={{
+      color: "green",
+      fontWeight: "bold",
+      marginTop: "10px",
+    }}
+  >
+    🏆 Goal Achieved
+  </div>
+)}
+
+        <br />
+
+        <div
+  style={{
+    marginTop: "10px",
+    display: "flex",
+    gap: "10px",
+  }}
+>
+  <input
+    type="number"
+    
+  />
+
+  <button
+    onClick={() =>
+      addSavings(
+        goal._id,
+        savingAmount
+      )
+    }
+  >
+    Add Savings
+  </button>
+</div>
+
       </div>
     );
   })}

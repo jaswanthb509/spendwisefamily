@@ -7,15 +7,21 @@ const router =
 const Goal =
   require("../models/Goal");
 
-  console.log("Goal =", Goal);
-
 const User =
   require("../models/User");
 
 const protect =
   require("../middleware/authMiddleware");
 
-/* GET GOALS */
+console.log(
+  "Goal =",
+  Goal
+);
+
+/* =====================
+   GET GOALS
+===================== */
+
 router.get(
   "/",
   protect,
@@ -36,17 +42,20 @@ router.get(
     } catch (error) {
       console.log(error);
 
-  res.status(500).json({
-    message:
-      "Failed to create goal",
-    error:
-      error.message,
+      res.status(500).json({
+        message:
+          "Failed to load goals",
+        error:
+          error.message,
       });
     }
   }
 );
 
-/* CREATE GOAL */
+/* =====================
+   CREATE GOAL
+===================== */
+
 router.post(
   "/",
   protect,
@@ -76,9 +85,58 @@ router.post(
         goal
       );
     } catch (error) {
+      console.log(error);
+
       res.status(500).json({
         message:
           "Failed to create goal",
+        error:
+          error.message,
+      });
+    }
+  }
+);
+
+/* =====================
+   ADD SAVINGS
+===================== */
+
+router.put(
+  "/:id/save",
+  protect,
+  async (req, res) => {
+    try {
+      const goal =
+        await Goal.findById(
+          req.params.id
+        );
+
+      if (!goal) {
+        return res
+          .status(404)
+          .json({
+            message:
+              "Goal not found",
+          });
+      }
+
+  const { amount } =
+  req.body;
+
+   goal.savedAmount +=
+   Number(amount);
+
+      await goal.save();
+
+      res.json(goal);
+    } catch (error) {
+      console.log(error);
+
+      res.status(500).json({
+        message:
+          "Failed to update goal",
+        error:
+          error.message,
       });
     }
   }

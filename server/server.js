@@ -15,6 +15,7 @@ const aiRoutes =require("./routes/aiRoutes");
 
 
 dotenv.config();
+console.log("GEMINI_API_KEY =",process.env.GEMINI_API_KEY);
 console.log("JWT_SECRET =", process.env.JWT_SECRET); // Load environment variables
 
 const app = express();
