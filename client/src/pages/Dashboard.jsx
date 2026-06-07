@@ -14,6 +14,7 @@ import {
 
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { formatDistanceToNow } from "date-fns";
 
 import "../App.css";
 
@@ -64,6 +65,21 @@ useState("");
 
   const [aiAdvice,setAiAdvice] = useState("");
   const [activities, setActivities] = useState([]);
+  const [editingExpense,
+  setEditingExpense] =
+  useState(null);
+
+const [editTitle,
+  setEditTitle] =
+  useState("");
+
+const [editAmount,
+  setEditAmount] =
+  useState("");
+
+const [editCategory,
+  setEditCategory] =
+  useState("");
 
  useEffect(() => {
   fetchExpenses();
@@ -94,6 +110,44 @@ useState("");
     console.log(error);
   }
 };
+
+const updateExpense =
+  async () => {
+    try {
+      const res =
+        await fetch(
+          `http://localhost:5000/api/expenses/${editingExpense}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type":
+                "application/json",
+              Authorization:
+                `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              title:
+                editTitle,
+              amount:
+                editAmount,
+              category:
+                editCategory,
+            }),
+          }
+        );
+
+      if (res.ok) {
+        setEditingExpense(
+          null
+        );
+
+        fetchExpenses();
+        fetchActivities();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
 const fetchFamily = async () => {
   try {
@@ -288,6 +342,30 @@ const addExpense = async () => {
     console.log(error);
   }
 };
+
+const deleteExpense =
+  async (expenseId) => {
+    try {
+      const res =
+        await fetch(
+          `http://localhost:5000/api/expenses/${expenseId}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+      if (res.ok) {
+        fetchExpenses();
+        fetchActivities();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
 const createBudget =
 async () => {
@@ -1344,10 +1422,11 @@ async () => {
         </p>
 
         <small>
-          {new Date(
-            activity.createdAt
-          ).toLocaleString()}
-        </small>
+       {formatDistanceToNow(
+       new Date(activity.createdAt),
+       { addSuffix: true }
+       )}
+       </small>
 
         <hr />
       </div>
@@ -1607,47 +1686,185 @@ async () => {
   </p>
 </div>
 
+{editingExpense && (
+  <div
+    className="stat-card"
+    style={{
+      marginTop:
+        "20px",
+    }}
+  >
+    <h2>
+      Edit Expense
+    </h2>
+
+    <input
+      type="text"
+      value={editTitle}
+      onChange={(e) =>
+        setEditTitle(
+          e.target.value
+        )
+      }
+    />
+
+    <input
+      type="number"
+      value={editAmount}
+      onChange={(e) =>
+        setEditAmount(
+          e.target.value
+        )
+      }
+    />
+
+    <select
+      value={
+        editCategory
+      }
+      onChange={(e) =>
+        setEditCategory(
+          e.target.value
+        )
+      }
+    >
+      <option>
+        Food
+      </option>
+
+      <option>
+        Bills
+      </option>
+
+      <option>
+        Travel
+      </option>
+
+      <option>
+        Shopping
+      </option>
+    </select>
+
+    <button
+      onClick={
+        updateExpense
+      }
+      className="main-btn"
+    >
+      Save Changes
+    </button>
+  </div>
+)}
+
+      
       {/* Expense List */}
+<div
+  style={{
+    marginTop: "30px",
+  }}
+>
+  {filteredExpenses.map(
+    (item) => (
       <div
-        style={{
-          marginTop: "30px",
-        }}
+        key={item._id}
+        className="expense-card"
       >
-        {filteredExpenses.map(
-          (item) => (
-            <div
-              key={item._id}
-              className="expense-card"
-            >
-             <div>
-  <h4>
-    {item.title}
-  </h4>
+        <div>
+          <h4>
+            {item.title}
+          </h4>
 
-  <p>
-    {item.category}
-  </p>
+          <p>
+            {item.category}
+          </p>
 
-  <small>
-    Added by:
-    {" "}
-    {
-      item.user?.email ||
-      "Unknown"
-    }
-  </small>
+          <small>
+            Added by:{" "}
+            {item.user?.email ||
+              "Unknown"}
+          </small>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems:
+              "center",
+            gap: "10px",
+          }}
+        >
+          <div>
+            ₹{item.amount}
+          </div>
+
+          <button
+            onClick={() => {
+              if (
+                window.confirm(
+                  "Delete this expense?"
+                )
+              ) {
+                deleteExpense(
+                  item._id
+                );
+              }
+            }}
+            style={{
+              background:
+                "#ef4444",
+              color: "white",
+              border: "none",
+              padding:
+                "6px 12px",
+              borderRadius:
+                "6px",
+              cursor:
+                "pointer",
+            }}
+          >
+            🗑 Delete
+          </button>
+
+          <button
+  onClick={() => {
+    setEditingExpense(
+      item._id
+    );
+
+    setEditTitle(
+      item.title
+    );
+
+    setEditAmount(
+      item.amount
+    );
+
+    setEditCategory(
+      item.category
+    );
+  }}
+  style={{
+    background:
+      "#2563eb",
+    color: "white",
+    border: "none",
+    padding:
+      "6px 12px",
+    borderRadius:
+      "6px",
+    cursor:
+      "pointer",
+  }}
+>
+  ✏️ Edit
+</button>
+        </div>
+      </div>
+    )
+  )}
 </div>
 
-              <div>
-                ₹
-                {item.amount}
-              </div>
-            </div>
-          )
-        )}
-      </div>
-
-    </div>
+</div>
   );
 }
 

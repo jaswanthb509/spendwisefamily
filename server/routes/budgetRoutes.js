@@ -61,6 +61,12 @@ router.post(
           amount,
         });
 
+        await Activity.create({
+  family: user.family,
+  user: req.user._id,
+  action: `created budget "${category}"`,
+});
+
       res.status(201).json(
         budget
       );
