@@ -62,6 +62,7 @@ useState("");
 
   const token =
     localStorage.getItem("token");
+    console.log("TOKEN =", token);
 
   const [aiAdvice,setAiAdvice] = useState("");
   const [activities, setActivities] = useState([]);
@@ -231,16 +232,21 @@ const fetchActivities =
             },
           }
         );
+const data =
+  await res.json();
 
-      const data =
-        await res.json();
+console.log(
+  "Activities:",
+  data
+);
 
-      console.log(
-        "Activities:",
-        data
-      );
-
-      setActivities(data);
+if (
+  Array.isArray(data)
+) {
+  setActivities(data);
+} else {
+  setActivities([]);
+}
     } catch (error) {
       console.log(error);
     }
@@ -1399,40 +1405,57 @@ async () => {
     📜 Recent Activity
   </h2>
 
-  {activities.map(
-    (activity) => (
-      <div
-        key={activity._id}
-        style={{
-          marginBottom:
-            "10px",
-        }}
-      >
-        <strong>
-          {
-            activity.user
-              ?.email
+  {Array.isArray(
+    activities
+  ) &&
+  activities.length > 0 ? (
+    activities.map(
+      (activity) => (
+        <div
+          key={
+            activity._id
           }
-        </strong>
+          style={{
+            marginBottom:
+              "10px",
+          }}
+        >
+          <strong>
+            {
+              activity.user
+                ?.email
+            }
+          </strong>
 
-        <p>
-          {
-            activity.action
-          }
-        </p>
+          <p>
+            {
+              activity.action
+            }
+          </p>
 
-        <small>
-       {formatDistanceToNow(
-       new Date(activity.createdAt),
-       { addSuffix: true }
-       )}
-       </small>
+          <small>
+            {formatDistanceToNow(
+              new Date(
+                activity.createdAt
+              ),
+              {
+                addSuffix:
+                  true,
+              }
+            )}
+          </small>
 
-        <hr />
-      </div>
+          <hr />
+        </div>
+      )
     )
+  ) : (
+    <p>
+      No activities
+      found
+    </p>
   )}
-</div> 
+</div>
 
 <div
   className="stat-card"
