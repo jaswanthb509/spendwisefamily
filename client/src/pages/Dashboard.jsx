@@ -63,12 +63,14 @@ useState("");
     localStorage.getItem("token");
 
   const [aiAdvice,setAiAdvice] = useState("");
+  const [activities, setActivities] = useState([]);
 
  useEffect(() => {
   fetchExpenses();
   fetchFamily();
   fetchBudgets();
   fetchGoals();
+  fetchActivities();
 }, []);
 
  const fetchExpenses = async () => {
@@ -161,6 +163,34 @@ async () => {
     console.log(error);
   }
 };
+
+const fetchActivities =
+  async () => {
+    try {
+      const res =
+        await fetch(
+          "http://localhost:5000/api/activity",
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+      const data =
+        await res.json();
+
+      console.log(
+        "Activities:",
+        data
+      );
+
+      setActivities(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
 const createFamily = async () => {
   try {
@@ -1280,6 +1310,50 @@ async () => {
     );
   })}
 </div>
+
+<div
+  className="stat-card"
+  style={{
+    marginTop: "20px",
+  }}
+>
+  <h2>
+    📜 Recent Activity
+  </h2>
+
+  {activities.map(
+    (activity) => (
+      <div
+        key={activity._id}
+        style={{
+          marginBottom:
+            "10px",
+        }}
+      >
+        <strong>
+          {
+            activity.user
+              ?.email
+          }
+        </strong>
+
+        <p>
+          {
+            activity.action
+          }
+        </p>
+
+        <small>
+          {new Date(
+            activity.createdAt
+          ).toLocaleString()}
+        </small>
+
+        <hr />
+      </div>
+    )
+  )}
+</div> 
 
 <div
   className="stat-card"
