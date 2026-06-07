@@ -17,6 +17,7 @@ import autoTable from "jspdf-autotable";
 import { formatDistanceToNow } from "date-fns";
 
 import "../App.css";
+import toast from "react-hot-toast";
 
 function Dashboard({ goHome }) {
   const [expenses, setExpenses] = useState([]);
@@ -109,6 +110,9 @@ const [editCategory,
     }
   } catch (error) {
     console.log(error);
+     toast.error(
+    "Something went wrong"
+  );
   }
 };
 
@@ -138,6 +142,11 @@ const updateExpense =
         );
 
       if (res.ok) {
+
+      toast.success(
+      "🗑 Expense updated"
+      );
+
         setEditingExpense(
           null
         );
@@ -147,6 +156,9 @@ const updateExpense =
       }
     } catch (error) {
       console.log(error);
+       toast.error(
+    "Something went wrong"
+  );
     }
   };
 
@@ -168,6 +180,9 @@ const fetchFamily = async () => {
     }
   } catch (error) {
     console.log(error);
+     toast.error(
+    "Something went wrong"
+  );
   }
 };
 
@@ -191,6 +206,9 @@ const fetchBudgets = async () => {
     }
   } catch (error) {
     console.log(error);
+     toast.error(
+    "Something went wrong"
+  );
   }
 };
 
@@ -216,6 +234,9 @@ async () => {
     }
   } catch (error) {
     console.log(error);
+     toast.error(
+    "Something went wrong"
+  );
   }
 };
 
@@ -249,6 +270,9 @@ if (
 }
     } catch (error) {
       console.log(error);
+       toast.error(
+    "Something went wrong"
+  );
     }
   };
 
@@ -278,6 +302,9 @@ const createFamily = async () => {
     }
   } catch (error) {
     console.log(error);
+     toast.error(
+    "Something went wrong"
+  );
   }
 };
 
@@ -307,6 +334,9 @@ const joinFamily = async () => {
     }
   } catch (error) {
     console.log(error);
+     toast.error(
+    "Something went wrong"
+  );
   }
 };
 
@@ -331,21 +361,27 @@ const addExpense = async () => {
 
     const data = await res.json();
 
-    if (res.ok) {
-      setTitle("");
-      setAmount("");
-      setCategory("");
+if (res.ok) {
+  setTitle("");
+  setAmount("");
+  setCategory("");
 
-      fetchExpenses();
+  fetchExpenses();
+  fetchActivities();
 
-      alert(
-        "Expense Added"
-      );
-    } else {
-      alert(data.message);
-    }
+  toast.success(
+    "Expense added successfully"
+  );
+} else {
+  toast.error(
+    data.message
+  );
+}
   } catch (error) {
     console.log(error);
+
+    toast.error(
+    "Something went wrong");
   }
 };
 
@@ -365,11 +401,18 @@ const deleteExpense =
         );
 
       if (res.ok) {
+        toast.success(
+        "🗑 Expense deleted"
+      );
+
         fetchExpenses();
         fetchActivities();
       }
     } catch (error) {
       console.log(error);
+       toast.error(
+    "Something went wrong"
+  );
     }
   };
 
@@ -413,6 +456,9 @@ async () => {
     }
   } catch (error) {
     console.log(error);
+     toast.error(
+    "Something went wrong"
+  );
   }
 };
 
@@ -450,6 +496,11 @@ async () => {
       await res.json();
 
     if (res.ok) {
+
+     toast.success(
+    "🎯 Goal created"
+     );
+
       setGoalTitle("");
       setGoalTarget("");
       setGoalDeadline("");
@@ -462,6 +513,9 @@ async () => {
     }
   } catch (error) {
     console.log(error);
+    toast.error(
+    "Something went wrong"
+  );
   }
 };
 
@@ -471,33 +525,39 @@ const addSavings =
     amount
   ) => {
     try {
-      const res =
-        await fetch(
-          `http://localhost:5000/api/goals/${goalId}/save`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type":
-                "application/json",
-              Authorization:
-                `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              amount,
-            }),
-          }
-        );
+      const data =
+  await res.json();
 
-      if (res.ok) {
-  setSavingAmounts((prev) => ({
-    ...prev,
-    [goalId]: "",
-  }));
+if (res.ok) {
+
+  if (
+    data.savedAmount >=
+    data.targetAmount
+  ) {
+    toast.success(
+      "🏆 Goal Achieved!"
+    );
+  } else {
+    toast.success(
+      "💰 Savings added"
+    );
+  }
+
+  setSavingAmounts(
+    (prev) => ({
+      ...prev,
+      [goalId]: "",
+    })
+  );
 
   fetchGoals();
+  fetchActivities();
 }
     } catch (error) {
       console.log(error);
+      toast.error(
+    "Something went wrong"
+  );
     }
   };
 
@@ -517,10 +577,16 @@ const addSavings =
         );
 
       if (res.ok) {
+        toast.success(
+    "Goal deleted"
+     ); 
         fetchGoals();
       }
     } catch (error) {
       console.log(error);
+      toast.error(
+    "Something went wrong"
+  );
     }
   };
 
@@ -793,6 +859,9 @@ async () => {
     );
   } catch (error) {
     console.log(error);
+    toast.error(
+    "Something went wrong"
+  );
   }
 };
 
