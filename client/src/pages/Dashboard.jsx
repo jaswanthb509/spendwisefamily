@@ -37,7 +37,7 @@ const [budgetAmount,setBudgetAmount] = useState("");
 
   const [title, setTitle] = useState("");
 const [amount, setAmount] = useState("");
-const [savingAmount, setSavingAmount] =useState("");
+const [savingAmounts, setSavingAmounts] =useState({});
 const [category, setCategory] = useState("");
 const [goals,
 setGoals] =
@@ -375,7 +375,34 @@ const addSavings =
         );
 
       if (res.ok) {
-        setSavingAmount("");
+  setSavingAmounts((prev) => ({
+    ...prev,
+    [goalId]: "",
+  }));
+
+  fetchGoals();
+}
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteGoal =
+  async (goalId) => {
+    try {
+      const res =
+        await fetch(
+          `http://localhost:5000/api/goals/${goalId}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+      if (res.ok) {
         fetchGoals();
       }
     } catch (error) {
@@ -1017,60 +1044,117 @@ async () => {
     marginTop: "20px",
   }}
 >
-  <h3>
-    Goal Progress
-  </h3>
+  <h3>Goal Progress</h3>
 
   {goals.map((goal) => {
-    const percentage =
-      Math.min(
-        (
-          goal.savedAmount /
-          goal.targetAmount
-        ) * 100,
-        100
-      );
+    const percentage = Math.min(
+      (goal.savedAmount /
+        goal.targetAmount) *
+        100,
+      100
+    );
 
-      const daysLeft =
-  goal.deadline
-    ? Math.ceil(
-        (
-          new Date(
-            goal.deadline
-          ) -
-          new Date()
-        ) /
-          (1000 *
-            60 *
-            60 *
-            24)
-      )
-    : null;
+    const daysLeft =
+      goal.deadline
+        ? Math.ceil(
+            (new Date(
+              goal.deadline
+            ) -
+              new Date()) /
+              (1000 *
+                60 *
+                60 *
+                24)
+          )
+        : null;
 
     return (
       <div
         key={goal._id}
         style={{
           marginBottom:
-            "20px",
+            "25px",
+          padding: "15px",
+          background:
+            "#fff",
+          borderRadius:
+            "12px",
         }}
       >
-        <h4>
-          {goal.title}
-        </h4>
-        
-        {daysLeft !== null && (
-  <p>
-    ⏳ {daysLeft} days
-    left
+        {/* Header */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent:
+              "space-between",
+            alignItems:
+              "center",
+          }}
+        >
+          <h4>
+            {goal.title}
+          </h4>
+
+          <button
+            onClick={() => {
+              if (
+                window.confirm(
+                  "Are you sure you want to delete this goal?"
+                )
+              ) {
+                deleteGoal(
+                  goal._id
+                );
+              }
+            }}
+            style={{
+              background:
+                "#ef4444",
+              color: "white",
+              border: "none",
+              padding:
+                "6px 12px",
+              borderRadius:
+                "6px",
+              cursor:
+                "pointer",
+            }}
+          >
+            🗑 Delete
+          </button>
+        </div>
+
+        {/* Deadline */}
+        {daysLeft === 0 && (
+  <p style={{ color: "orange" }}>
+    ⚠️ Deadline Today
   </p>
 )}
+
+{daysLeft > 0 && (
+  <p>
+    ⏳ {daysLeft} days left
+  </p>
+)}
+
+{daysLeft < 0 && (
+  <p style={{ color: "red" }}>
+    🚨 Goal Overdue
+  </p>
+)}
+        {/* Amount */}
         <p>
-          ₹{goal.savedAmount}
-          /
-          ₹{goal.targetAmount}
+          ₹
+          {
+            goal.savedAmount
+          }
+          / ₹
+          {
+            goal.targetAmount
+          }
         </p>
 
+        {/* Progress Bar */}
         <div
           style={{
             height: "12px",
@@ -1087,7 +1171,16 @@ async () => {
               height:
                 "100%",
               background:
-                "#2563eb",
+                percentage >=
+                100
+                  ? "green"
+                  : percentage >=
+                    80
+                  ? "#2563eb"
+                  : percentage >=
+                    50
+                  ? "orange"
+                  : "red",
               borderRadius:
                 "20px",
             }}
@@ -1100,45 +1193,89 @@ async () => {
           )}
           % Complete
         </small>
+
+        {/* Goal Achieved */}
         {goal.savedAmount >=
-  goal.targetAmount && (
-  <div
-    style={{
-      color: "green",
-      fontWeight: "bold",
-      marginTop: "10px",
-    }}
-  >
-    🏆 Goal Achieved
-  </div>
-)}
+          goal.targetAmount && (
+          <div
+            style={{
+              color:
+                "green",
+              fontWeight:
+                "bold",
+              marginTop:
+                "10px",
+            }}
+          >
+            🏆 Goal
+            Achieved
+          </div>
+        )}
 
         <br />
 
-        <div
-  style={{
-    marginTop: "10px",
-    display: "flex",
-    gap: "10px",
-  }}
->
-  <input
-    type="number"
-    
-  />
+        {/* Savings Input */}
+        {goal.savedAmount <
+        goal.targetAmount ? (
+          <div
+            style={{
+              marginTop:
+                "10px",
+              display:
+                "flex",
+              gap: "10px",
+            }}
+          >
+            <input
+              type="number"
+              placeholder="Add savings"
+              value={
+                savingAmounts[
+                  goal._id
+                ] || ""
+              }
+              onChange={(
+                e
+              ) =>
+                setSavingAmounts(
+                  {
+                    ...savingAmounts,
+                    [goal._id]:
+                      e.target
+                        .value,
+                  }
+                )
+              }
+            />
 
-  <button
-    onClick={() =>
-      addSavings(
-        goal._id,
-        savingAmount
-      )
-    }
-  >
-    Add Savings
-  </button>
-</div>
-
+            <button
+              onClick={() =>
+                addSavings(
+                  goal._id,
+                  savingAmounts[
+                    goal._id
+                  ]
+                )
+              }
+            >
+              Add Savings
+            </button>
+          </div>
+        ) : (
+          <div
+            style={{
+              marginTop:
+                "10px",
+              color:
+                "green",
+              fontWeight:
+                "bold",
+            }}
+          >
+            🎉 Savings
+            Complete
+          </div>
+        )}
       </div>
     );
   })}

@@ -12,6 +12,7 @@ const familyRoutes =require("./routes/familyRoutes");
 const budgetRoutes =require("./routes/budgetRoutes");
 const goalRoutes =require("./routes/goalRoutes");
 const aiRoutes =require("./routes/aiRoutes");
+const activityRoutes = require("./routes/activityRoutes");
 
 
 dotenv.config();
@@ -38,6 +39,7 @@ app.use("/api/goals",goalRoutes);
 console.log(aiRoutes);
 console.log(typeof aiRoutes);
 app.use("/api/ai",aiRoutes);
+app.use("/api/activity",activityRoutes);
 
 // MongoDB Connection
 mongoose
