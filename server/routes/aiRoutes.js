@@ -1,14 +1,21 @@
 require("dotenv").config();
 
-const express = require("express");
-const router = express.Router();
+const express =
+  require("express");
+
+const router =
+  express.Router();
 
 const {
   GoogleGenerativeAI,
-} = require("@google/generative-ai");
+} = require(
+  "@google/generative-ai"
+);
 
 const protect =
-  require("../middleware/authMiddleware");
+  require(
+    "../middleware/authMiddleware"
+  );
 
 router.post(
   "/recommend",
@@ -16,8 +23,7 @@ router.post(
   async (req, res) => {
     try {
       console.log(
-        "Route Key:",
-        process.env.GEMINI_API_KEY
+        "Gemini request started"
       );
 
       const genAI =
@@ -27,30 +33,21 @@ router.post(
 
       const model =
         genAI.getGenerativeModel({
-          model: "gemini-2.0-flash",
+          model:
+            "gemini-2.5-flash",
         });
-
-      const { expenses } =
-        req.body;
-
-      const prompt = `
-Analyze these family expenses:
-
-${JSON.stringify(expenses)}
-
-Provide:
-1. Spending insights
-2. Saving recommendations
-3. Budget suggestions
-`;
 
       const result =
         await model.generateContent(
-          prompt
+          "Give me 3 money saving tips."
         );
 
       const response =
-        await result.response.text();
+        result.response.text();
+
+      console.log(
+        "Gemini response received"
+      );
 
       res.json({
         recommendation:
@@ -60,12 +57,12 @@ Provide:
       console.log(error);
 
       res.status(500).json({
-        message: "AI failed",
-        error:
+        message:
           error.message,
       });
     }
   }
 );
 
-module.exports = router;
+module.exports =
+  router;

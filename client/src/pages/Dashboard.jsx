@@ -9,7 +9,8 @@ import {
   Bar,
   XAxis,
   YAxis,
-  CartesianGrid
+  CartesianGrid,
+  ResponsiveContainer,
 } from "recharts";
 
 import jsPDF from "jspdf";
@@ -828,42 +829,87 @@ const memberChartData =
     );
   };
 
-  const getAIAdvice =
-async () => {
-  try {
-    const res =
-      await fetch(
-        "http://localhost:5000/api/ai/recommend",
+ const getAIAdvice =
+  async () => {
+    try {
+      toast.loading(
+        "Generating AI insights...",
         {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-
-            Authorization:
-              `Bearer ${token}`,
-          },
-
-          body: JSON.stringify({
-            expenses,
-          }),
+          id: "ai",
         }
       );
 
-    const data =
-      await res.json();
+      const res =
+        await fetch(
+          "http://localhost:5000/api/ai/recommend",
+          {
+            method: "POST",
 
-    setAiAdvice(
-      data.recommendation
-    );
-  } catch (error) {
-    console.log(error);
-    toast.error(
-    "Something went wrong"
-  );
-  }
-};
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              Authorization:
+                `Bearer ${token}`,
+            },
+
+            body: JSON.stringify({
+              expenses,
+              goals,
+              budgets,
+            }),
+          }
+        );
+
+      const data =
+        await res.json();
+
+      if (res.ok) {
+        setAiAdvice(
+          data.recommendation
+        );
+
+        toast.success(
+          "AI insights generated",
+          {
+            id: "ai",
+          }
+        );
+      } else {
+        setAiAdvice(
+          "AI insights are currently unavailable. Please try again later."
+        );
+
+        toast.error(
+          data.message ||
+            "AI service unavailable",
+          {
+            id: "ai",
+          }
+        );
+      }
+    } catch (error) {
+      console.log(error);
+
+      setAiAdvice(
+        `📊 Financial Summary
+
+• Track spending regularly.
+• Focus on your highest spending category.
+• Continue contributing towards active savings goals.
+• Maintain a monthly budget for better financial discipline.
+
+⚠️ AI service is temporarily unavailable.`
+      );
+
+      toast.error(
+        "AI service unavailable",
+        {
+          id: "ai",
+        }
+      );
+    }
+  };
 
   return (
     <div className="dash-page">
@@ -883,14 +929,15 @@ async () => {
       </nav>
 
       {/* Header */}
-      <div className="dash-header">
-        <h1>Dashboard 👋</h1>
-
-        <p>
-          Smart family finance
-          insights
-        </p>
-      </div>
+      <div className="dashboard-header">
+  <div>
+    <h1>SpendWise Family</h1>
+    <p>
+      Manage family expenses
+      smarter.
+    </p>
+  </div>
+</div>
 
       {/* Stats */}
       <div className="stats-grid">
@@ -1171,6 +1218,30 @@ async () => {
     );
   }
 )}
+</div>
+
+<div className="stats-grid">
+
+  <div className="stat-card">
+    <h3>Total Expenses</h3>
+    <h1>₹{totalSpent}</h1>
+  </div>
+
+  <div className="stat-card">
+    <h3>Budgets</h3>
+    <h1>{budgets.length}</h1>
+  </div>
+
+  <div className="stat-card">
+    <h3>Goals</h3>
+    <h1>{goals.length}</h1>
+  </div>
+
+  <div className="stat-card">
+    <h3>Members</h3>
+    <h1>{familyMembers.length}</h1>
+  </div>
+
 </div>
 
 <div className="stat-card">
@@ -1657,16 +1728,29 @@ async () => {
   Ask Gemini
 </button>
 
-<p>
+<div
+  style={{
+    background:
+      "#eff6ff",
+    padding: "20px",
+    borderRadius:
+      "12px",
+    border:
+      "1px solid #bfdbfe",
+    marginTop: "10px",
+    whiteSpace:
+      "pre-wrap",
+  }}
+>
   {aiAdvice}
-</p>
+</div>
 
       {/* Chart */}
       <div
         style={{
           background:
             "white",
-          padding: "30px",
+          padding: "20px",
           borderRadius:
             "16px",
           marginTop: "30px",
@@ -1676,56 +1760,62 @@ async () => {
           Expense Analytics
         </h2>
 
-        <PieChart
-          width={450}
-          height={320}
-        >
-          <Pie
-            data={chartData}
-            cx="50%"
-            cy="50%"
-            outerRadius={110}
-            dataKey="value"
-            label
-          >
-            {chartData.map(
-              (
-                entry,
-                index
-              ) => (
-                <Cell
-                  key={index}
-                  fill={
-                    COLORS[
-                      index %
-                        COLORS.length
-                    ]
-                  }
-                />
-              )
-            )}
-          </Pie>
+       <ResponsiveContainer
+  width="100%"
+  height={320}
+>
+  <PieChart>
+    <Pie
+      data={chartData}
+      cx="50%"
+      cy="50%"
+      outerRadius={110}
+      dataKey="value"
+      label
+    >
+      {chartData.map(
+        (
+          entry,
+          index
+        ) => (
+          <Cell
+            key={index}
+            fill={
+              COLORS[
+                index %
+                  COLORS.length
+              ]
+            }
+          />
+        )
+      )}
+    </Pie>
 
-          <Tooltip />
-          <Legend />
-        </PieChart>
+    <Tooltip />
+    <Legend />
+  </PieChart>
+</ResponsiveContainer>
       </div>
 
       <div
   style={{
     background: "white",
-    padding: "30px",
+    padding: "20px",
     borderRadius: "16px",
     marginTop: "30px",
+    width: "100%",
+    overflowX: "auto",
   }}
 >
   <h2>
     Member Spending
   </h2>
 
+  <ResponsiveContainer
+  width="100%"
+  height={300}
+>
   <BarChart
-    width={700}
-    height={300}
     data={memberChartData}
   >
     <CartesianGrid
@@ -1745,6 +1835,7 @@ async () => {
       fill="#2563eb"
     />
   </BarChart>
+</ResponsiveContainer>
 </div>
 
 <div
