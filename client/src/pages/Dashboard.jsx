@@ -84,12 +84,15 @@ const [editCategory,
   setEditCategory] =
   useState("");
 
+const [familyMembers, setFamilyMembers] = useState([]);
+
  useEffect(() => {
   fetchExpenses();
   fetchFamily();
   fetchBudgets();
   fetchGoals();
   fetchActivities();
+  fetchFamilyMembers();
 }, []);
 
  const fetchExpenses = async () => {
@@ -184,6 +187,27 @@ const fetchFamily = async () => {
      toast.error(
     "Something went wrong"
   );
+  }
+};
+
+const fetchFamilyMembers = async () => {
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/family/me",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = await res.json();
+
+    setFamilyMembers(
+      data.members || []
+    );
+  } catch (error) {
+    console.log(error);
   }
 };
 
@@ -929,35 +953,41 @@ const memberChartData =
       </nav>
 
       {/* Header */}
-      <div className="dashboard-header">
+      <div className="dash-header">
   <div>
-    <h1>SpendWise Family</h1>
+    <h1>Welcome Back</h1>
     <p>
-      Manage family expenses
-      smarter.
+      Track expenses, budgets & savings at one place.
     </p>
   </div>
 </div>
 
-      {/* Stats */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <h3>Total Expenses</h3>
-          <p>₹{total}</p>
-        </div>
+    <div className="stats-grid">
 
-        <div className="stat-card">
-          <h3>Total Entries</h3>
-          <p>
-            {
-              filteredExpenses.length
-            }
-          </p>
-        </div>
-      </div>
+  <div className="stat-card">
+    <h3>Total Expenses</h3>
+    <p>₹{totalSpent}</p>
+  </div>
+
+  <div className="stat-card">
+    <h3>Budgets</h3>
+    <h1>{budgets.length}</h1>
+  </div>
+
+  <div className="stat-card">
+    <h3>Goals</h3>
+    <h1>{goals.length}</h1>
+  </div>
+
+  <div className="stat-card">
+    <h3>📋 Activities</h3>
+<h1>{activities.length}</h1>
+  </div>
+
+</div>
 
       <div
-  className="stat-card"
+  className="family-card"
   style={{
     marginTop: "20px",
   }}
@@ -1220,29 +1250,6 @@ const memberChartData =
 )}
 </div>
 
-<div className="stats-grid">
-
-  <div className="stat-card">
-    <h3>Total Expenses</h3>
-    <h1>₹{totalSpent}</h1>
-  </div>
-
-  <div className="stat-card">
-    <h3>Budgets</h3>
-    <h1>{budgets.length}</h1>
-  </div>
-
-  <div className="stat-card">
-    <h3>Goals</h3>
-    <h1>{goals.length}</h1>
-  </div>
-
-  <div className="stat-card">
-    <h3>Members</h3>
-    <h1>{familyMembers.length}</h1>
-  </div>
-
-</div>
 
 <div className="stat-card">
 
@@ -1324,6 +1331,7 @@ const memberChartData =
 
     return (
       <div
+        className="goal-card"
         key={goal._id}
         style={{
           marginBottom:
@@ -1451,7 +1459,7 @@ const memberChartData =
         {/* Goal Achieved */}
         {goal.savedAmount >=
           goal.targetAmount && (
-          <div
+          <div className="goal-achieved"
             style={{
               color:
                 "green",
@@ -1555,6 +1563,7 @@ const memberChartData =
           key={
             activity._id
           }
+          className="activity-item"
           style={{
             marginBottom:
               "10px",
@@ -1746,16 +1755,7 @@ const memberChartData =
 </div>
 
       {/* Chart */}
-      <div
-        style={{
-          background:
-            "white",
-          padding: "20px",
-          borderRadius:
-            "16px",
-          marginTop: "30px",
-        }}
-      >
+      <div className="chart-card">
         <h2>
           Expense Analytics
         </h2>
@@ -1797,16 +1797,7 @@ const memberChartData =
 </ResponsiveContainer>
       </div>
 
-      <div
-  style={{
-    background: "white",
-    padding: "20px",
-    borderRadius: "16px",
-    marginTop: "30px",
-    width: "100%",
-    overflowX: "auto",
-  }}
->
+      <div className="chart-card">
   <h2>
     Member Spending
   </h2>
@@ -1839,7 +1830,7 @@ const memberChartData =
 </div>
 
 <div
-  className="stat-card"
+  className="ai-card"
   style={{
     marginTop: "20px",
   }}

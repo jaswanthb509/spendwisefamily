@@ -32,7 +32,7 @@ function App() {
 
           <nav className="navbar">
             <h2 className="logo">
-              SpendWiseFamily
+              SpendWiseFamily.
             </h2>
 
             <div className="nav-actions">
