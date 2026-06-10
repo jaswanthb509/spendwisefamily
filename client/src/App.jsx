@@ -6,43 +6,39 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 
 function App() {
-  const [page, setPage] =
-    useState(
-      localStorage.getItem(
-        "token"
-      )
-        ? "dashboard"
-        : "home"
-    );
+  const [page, setPage] = useState(
+    localStorage.getItem("token")
+      ? "dashboard"
+      : "home"
+  );
 
   const handleLogout = () => {
-    localStorage.removeItem(
-      "token"
-    );
-
+    localStorage.removeItem("token");
     setPage("home");
   };
 
   return (
     <div className="app">
 
-      {/* HOME */}
+      {/* HOME PAGE */}
       {page === "home" && (
         <div className="home-page">
 
+          {/* NAVBAR */}
           <nav className="navbar">
+
             <h2 className="logo">
-              SpendWiseFamily.
+              SpendWiseFamily
             </h2>
 
             <div className="nav-actions">
+
               <button
                 className="nav-btn"
-                onClick={() =>
-                  setPage(
-                    "login"
-                  )
-                }
+                onClick={() =>{
+                  console.log("LOGIN CLICKED")
+                  setPage("login")
+                }}
               >
                 Login
               </button>
@@ -50,17 +46,23 @@ function App() {
               <button
                 className="primary-btn"
                 onClick={() =>
-                  setPage(
-                    "register"
-                  )
+                  setPage("register")
                 }
               >
-                Get Started
+                Sign Up
               </button>
+
             </div>
+
           </nav>
 
+          {/* HERO */}
           <section className="hero">
+
+            <div className="hero-badge">
+              🚀 AI Powered Family Finance Tracker
+            </div>
+
             <h1>
               Manage Family
               Expenses Smarter
@@ -74,69 +76,120 @@ function App() {
             </p>
 
             <div className="hero-buttons">
+
               <button
                 className="primary-btn"
                 onClick={() =>
-                  setPage(
-                    "register"
-                  )
+                  setPage("register")
                 }
               >
-                Start Free
+                🚀 Start Free
               </button>
 
-              <button
-                className="secondary-btn"
-                onClick={() =>
-                  setPage(
-                    "login"
-                  )
-                }
-              >
-                Login
-              </button>
             </div>
+
           </section>
 
+          {/* FEATURES */}
           <section className="features">
 
             <div className="card">
               <h3>
-                Expense Tracking
+                💸 Expense Tracking
               </h3>
+
               <p>
                 Add and manage
-                expenses easily.
+                family expenses
+                effortlessly.
               </p>
             </div>
 
             <div className="card">
               <h3>
-                Smart Charts
+                📊 Smart Analytics
               </h3>
+
               <p>
-                Visual analytics
-                of spending.
+                Visual charts
+                and spending
+                insights.
               </p>
             </div>
 
             <div className="card">
               <h3>
-                PDF Reports
+                🎯 Savings Goals
               </h3>
+
               <p>
-                Export reports
-                anytime.
+                Create and
+                track savings
+                goals together.
+              </p>
+            </div>
+
+            <div className="card">
+              <h3>
+                🤖 AI Insights
+              </h3>
+
+              <p>
+                Get intelligent
+                recommendations
+                for better savings.
               </p>
             </div>
 
           </section>
 
+
+          {/* CTA */}
+          <section
+            style={{
+              textAlign: "center",
+              marginTop: "80px",
+            }}
+          >
+
+            <h2>
+              Ready To Take
+              Control Of Your
+              Family Finances?
+            </h2>
+
+            <br />
+
+            <button
+              className="primary-btn"
+              onClick={() =>
+                setPage("register")
+              }
+            >
+              Get Started
+            </button>
+
+          </section>
+
+          {/* FOOTER */}
           <footer className="footer">
+
+            <h2>
+              SpendWiseFamily
+            </h2>
+
+            <p>
+              Expense Tracking •
+              Savings Goals •
+              Budget Management •
+              AI Insights
+            </p>
+
             <p>
               © 2026
               SpendWiseFamily
             </p>
+
           </footer>
 
         </div>
@@ -146,14 +199,10 @@ function App() {
       {page === "login" && (
         <Login
           goToRegister={() =>
-            setPage(
-              "register"
-            )
+            setPage("register")
           }
           goToDashboard={() =>
-            setPage(
-              "dashboard"
-            )
+            setPage("dashboard")
           }
         />
       )}
@@ -162,20 +211,15 @@ function App() {
       {page === "register" && (
         <Register
           goToLogin={() =>
-            setPage(
-              "login"
-            )
+            setPage("login")
           }
         />
       )}
 
       {/* DASHBOARD */}
-      {page ===
-        "dashboard" && (
+      {page === "dashboard" && (
         <Dashboard
-          goHome={
-            handleLogout
-          }
+          goHome={handleLogout}
         />
       )}
 

@@ -943,7 +943,6 @@ const memberChartData =
         <h2 className="dash-logo">
           SpendWiseFamily
         </h2>
-
         <button
           className="logout-btn"
           onClick={logout}
@@ -980,115 +979,136 @@ const memberChartData =
   </div>
 
   <div className="stat-card">
-    <h3>📋 Activities</h3>
+    <h3>Activities</h3>
 <h1>{activities.length}</h1>
   </div>
 
 </div>
 
-      <div
+<div
   className="family-card"
   style={{
     marginTop: "20px",
   }}
 >
-  <h2>
-    Family Group
-  </h2>
-
   {!family ? (
     <>
+      <h2>
+        👨‍👩‍👧‍👦 Family Group
+      </h2>
 
-      <input
-        type="text"
-        placeholder="Family Name"
-        value={
-          familyName
-        }
-        onChange={(e) =>
-          setFamilyName(
-            e.target.value
-          )
-        }
-      />
-
-      <button
-        className="main-btn"
-        onClick={
-          createFamily
-        }
+      <p
+        style={{
+          marginTop: "10px",
+          marginBottom: "20px",
+          opacity: ".9",
+        }}
       >
-        Create Family
-      </button>
+        Create a family or join
+        an existing one.
+      </p>
 
-      <br />
-      <br />
+      <div className="family-actions">
 
-      <input
-        type="text"
-        placeholder="Invite Code"
-        value={
-          inviteCode
-        }
-        onChange={(e) =>
-          setInviteCode(
-            e.target.value
-          )
-        }
-      />
+        <input
+          type="text"
+          placeholder="Family Name"
+          value={familyName}
+          onChange={(e) =>
+            setFamilyName(
+              e.target.value
+            )
+          }
+        />
 
-      <button
-        className="main-btn"
-        onClick={
-          joinFamily
-        }
-      >
-        Join Family
-      </button>
+        <button
+          className="main-btn"
+          onClick={createFamily}
+        >
+          Create Family
+        </button>
 
+      </div>
+
+      <div className="family-actions">
+
+        <input
+          type="text"
+          placeholder="Invite Code"
+          value={inviteCode}
+          onChange={(e) =>
+            setInviteCode(
+              e.target.value
+            )
+          }
+        />
+
+        <button
+          className="main-btn"
+          onClick={joinFamily}
+        >
+          Join Family
+        </button>
+
+      </div>
     </>
   ) : (
     <>
-      <p>
-        <strong>
-          Family:
-        </strong>{" "}
-        {family.name}
-      </p>
+      <div className="family-top">
 
-      <p>
-        <strong>
-          Invite Code:
-        </strong>{" "}
-        {
-          family.inviteCode
-        }
-      </p>
+        <div>
+          <h2>
+            👨‍👩‍👧‍👦 Family Group
+          </h2>
 
-      <h4>
-        Members
-      </h4>
+          <div className="family-info-row">
+         
+         <div className="family-info-row">
 
-      {family.members.map(
-        (member) => (
-          <p
-            key={
-              member._id
-            }
-          >
-            {
-              member.user
-                ?.email
-            }
-            {" "}
-            (
-            {
-              member.role
-            }
-            )
-          </p>
-        )
-      )}
+  <div className="info-box">
+    <span>Family Name</span>
+    <h3>{family.name}</h3>
+  </div>
+
+  <div className="info-box">
+    <span>Invite Code</span>
+    <h3>{family.inviteCode}</h3>
+  </div>
+
+  <div className="info-box">
+    <span>Members</span>
+    <h3>{familyMembers.length}</h3>
+  </div>
+
+</div>
+  
+</div>
+
+<div className="members-section">
+
+  <h3>
+    Members ({familyMembers.length})
+  </h3>
+
+  <div className="member-list">
+
+    {familyMembers.map((member) => (
+
+      <div
+        key={member._id}
+        className="member-pill"
+      >
+        👤 {member.email}
+      </div>
+
+    ))}
+
+  </div>
+
+</div>
+</div>
+
+      </div>
     </>
   )}
 </div>
@@ -1550,7 +1570,7 @@ const memberChartData =
   }}
 >
   <h2>
-    📜 Recent Activity
+    Recent Activity
   </h2>
 
   {Array.isArray(
@@ -1559,43 +1579,29 @@ const memberChartData =
   activities.length > 0 ? (
     activities.map(
       (activity) => (
-        <div
-          key={
-            activity._id
-          }
-          className="activity-item"
-          style={{
-            marginBottom:
-              "10px",
-          }}
-        >
-          <strong>
-            {
-              activity.user
-                ?.email
-            }
-          </strong>
+       <div className="activity-item">
 
-          <p>
-            {
-              activity.action
-            }
-          </p>
+  <div className="activity-icon">
+    📌
+  </div>
 
-          <small>
-            {formatDistanceToNow(
-              new Date(
-                activity.createdAt
-              ),
-              {
-                addSuffix:
-                  true,
-              }
-            )}
-          </small>
+  <div>
 
-          <hr />
-        </div>
+    <h4>
+      {activity.userEmail}
+    </h4>
+
+    <p>
+      {activity.action}
+    </p>
+
+    <span>
+      {activity.timeAgo}
+    </span>
+
+  </div>
+
+</div>
       )
     )
   ) : (
@@ -1937,105 +1943,63 @@ const memberChartData =
     marginTop: "30px",
   }}
 >
-  {filteredExpenses.map(
-    (item) => (
-      <div
-        key={item._id}
-        className="expense-card"
-      >
-        <div>
-          <h4>
-            {item.title}
-          </h4>
+  {expenses.map((expense) => (
 
-          <p>
-            {item.category}
-          </p>
+  <div
+    key={expense._id}
+    className="expense-card"
+  >
 
-          <small>
-            Added by:{" "}
-            {item.user?.email ||
-              "Unknown"}
-          </small>
-        </div>
+    <div>
 
-        <div
-          style={{
-            display: "flex",
-            alignItems:
-              "center",
-            gap: "10px",
-          }}
+      <h3>
+        {expense.title}
+      </h3>
+
+      <p>
+        {expense.category}
+      </p>
+
+      <small>
+        Added by:
+        {" "}
+        {expense.userEmail}
+      </small>
+
+    </div>
+
+    <div
+      className="expense-actions"
+    >
+
+      <h2>
+        ₹{expense.amount}
+      </h2>
+
+      <div>
+
+        <button
+          className="edit-btn"
         >
-          <div>
-            ₹{item.amount}
-          </div>
+          ✏ Edit
+        </button>
 
-          <button
-            onClick={() => {
-              if (
-                window.confirm(
-                  "Delete this expense?"
-                )
-              ) {
-                deleteExpense(
-                  item._id
-                );
-              }
-            }}
-            style={{
-              background:
-                "#ef4444",
-              color: "white",
-              border: "none",
-              padding:
-                "6px 12px",
-              borderRadius:
-                "6px",
-              cursor:
-                "pointer",
-            }}
-          >
-            🗑 Delete
-          </button>
+        <button
+          className="delete-btn"
+        >
+          🗑 Delete
+        </button>
 
-          <button
-  onClick={() => {
-    setEditingExpense(
-      item._id
-    );
-
-    setEditTitle(
-      item.title
-    );
-
-    setEditAmount(
-      item.amount
-    );
-
-    setEditCategory(
-      item.category
-    );
-  }}
-  style={{
-    background:
-      "#2563eb",
-    color: "white",
-    border: "none",
-    padding:
-      "6px 12px",
-    borderRadius:
-      "6px",
-    cursor:
-      "pointer",
-  }}
->
-  ✏️ Edit
-</button>
-        </div>
       </div>
-    )
-  )}
+
+    </div>
+
+  </div>
+
+))}
+  
+    
+  
 </div>
 
 </div>
