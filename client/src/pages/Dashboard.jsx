@@ -20,7 +20,7 @@ import { formatDistanceToNow } from "date-fns";
 import "../App.css";
 import toast from "react-hot-toast";
 
-function Dashboard({ goHome }) {
+function Dashboard({ goHome, darkMode, setDarkMode }) {
   const [expenses, setExpenses] = useState([]);
   const [budgets,setBudgets] = useState([]);
 
@@ -63,14 +63,23 @@ useState("");
   useState("");
 
   const token =
-    localStorage.getItem("token");
-    console.log("TOKEN =", token);
+  localStorage.getItem("token");
 
-  const [aiAdvice,setAiAdvice] = useState("");
-  const [activities, setActivities] = useState([]);
-  const [editingExpense,
-  setEditingExpense] =
-  useState(null);
+console.log(
+  "TOKEN =",
+  token
+);
+
+const [aiAdvice, setAiAdvice] =
+  useState("");
+
+const [activities, setActivities] =
+  useState([]);
+
+const [
+  editingExpense,
+  setEditingExpense
+] = useState(null);
 
 const [editTitle,
   setEditTitle] =
@@ -84,17 +93,53 @@ const [editCategory,
   setEditCategory] =
   useState("");
 
-const [familyMembers, setFamilyMembers] = useState([]);
+const [
+  familyMembers,
+  setFamilyMembers
+] = useState([]);
 
- useEffect(() => {
+
+// Theme Effect
+useEffect(() => {
+
+  if (darkMode) {
+
+    document.body.classList.add(
+      "dark-mode"
+    );
+
+    localStorage.setItem(
+      "theme",
+      "dark"
+    );
+
+  } else {
+
+    document.body.classList.remove(
+      "dark-mode"
+    );
+
+    localStorage.setItem(
+      "theme",
+      "light"
+    );
+
+  }
+
+}, [darkMode]);
+
+
+// Initial Data Loading
+useEffect(() => {
+
   fetchExpenses();
   fetchFamily();
   fetchBudgets();
   fetchGoals();
   fetchActivities();
   fetchFamilyMembers();
-}, []);
 
+}, []);
  const fetchExpenses = async () => {
   try {
     const res = await fetch(
@@ -112,6 +157,7 @@ const [familyMembers, setFamilyMembers] = useState([]);
     if (res.ok) {
       setExpenses(data);
     }
+    console.log("Expenses,data");
   } catch (error) {
     console.log(error);
      toast.error(
@@ -120,51 +166,52 @@ const [familyMembers, setFamilyMembers] = useState([]);
   }
 };
 
-const updateExpense =
-  async () => {
-    try {
-      const res =
-        await fetch(
-          `http://localhost:5000/api/expenses/${editingExpense}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type":
-                "application/json",
-              Authorization:
-                `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              title:
-                editTitle,
-              amount:
-                editAmount,
-              category:
-                editCategory,
-            }),
-          }
-        );
+const updateExpense = async () => {
+  try {
 
-      if (res.ok) {
+    const res = await fetch(
+      `http://localhost:5000/api/expenses/${editingExpense._id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+       body: JSON.stringify({
+       title: editTitle,
+       amount: editAmount,
+       category: editCategory,
+      })
+      }
+    );
+
+    if (res.ok) {
 
       toast.success(
-      "🗑 Expense updated"
+        "Expense Updated"
       );
 
-        setEditingExpense(
-          null
-        );
+      // clear edit mode
+      setEditingExpense(null);
 
-        fetchExpenses();
-        fetchActivities();
-      }
-    } catch (error) {
-      console.log(error);
-       toast.error(
-    "Something went wrong"
-  );
+      // clear form
+      setTitle("");
+      setAmount("");
+      setCategory("");
+
+      fetchExpenses();
+      fetchActivities();
     }
-  };
+
+  } catch (error) {
+
+    console.log(error);
+
+    toast.error(
+      "Something went wrong"
+    );
+  }
+};
 
 const fetchFamily = async () => {
   try {
@@ -182,6 +229,7 @@ const fetchFamily = async () => {
     if (res.ok) {
       setFamily(data);
     }
+    console.log("Family Members:", data);
   } catch (error) {
     console.log(error);
      toast.error(
@@ -410,6 +458,7 @@ if (res.ok) {
   }
 };
 
+
 const deleteExpense =
   async (expenseId) => {
     try {
@@ -544,47 +593,67 @@ async () => {
   }
 };
 
-const addSavings =
-  async (
-    goalId,
-    amount
-  ) => {
-    try {
-      const data =
-  await res.json();
+const addSavings = async (
+  goalId
+) => {
+  try {
 
-if (res.ok) {
-
-  if (
-    data.savedAmount >=
-    data.targetAmount
-  ) {
-    toast.success(
-      "🏆 Goal Achieved!"
+    const res = await fetch(
+      `http://localhost:5000/api/goals/${goalId}/save`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type":
+            "application/json",
+          Authorization:
+            `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          amount: Number(
+            savingAmounts[goalId]
+          ),
+        }),
+      }
     );
-  } else {
-    toast.success(
-      "💰 Savings added"
+
+    const data =
+      await res.json();
+
+    if (res.ok) {
+
+      if (
+        data.savedAmount >=
+        data.targetAmount
+      ) {
+        toast.success(
+          "🏆 Goal Achieved!"
+        );
+      } else {
+        toast.success(
+          "💰 Savings Added"
+        );
+      }
+
+      setSavingAmounts(
+        (prev) => ({
+          ...prev,
+          [goalId]: "",
+        })
+      );
+
+      fetchGoals();
+      fetchActivities();
+    }
+
+  } catch (error) {
+
+    console.log(error);
+
+    toast.error(
+      "Something went wrong"
     );
   }
-
-  setSavingAmounts(
-    (prev) => ({
-      ...prev,
-      [goalId]: "",
-    })
-  );
-
-  fetchGoals();
-  fetchActivities();
-}
-    } catch (error) {
-      console.log(error);
-      toast.error(
-    "Something went wrong"
-  );
-    }
-  };
+};
 
   const deleteGoal =
   async (goalId) => {
@@ -691,6 +760,49 @@ const logout = () => {
         return true;
       }
     );
+
+    const editExpense = async (
+  expense
+) => {
+
+  const newTitle = prompt(
+    "Edit title",
+    expense.title
+  );
+
+  if (!newTitle) return;
+
+  try {
+
+    const res =
+      await fetch(
+        `http://localhost:5000/api/expenses/${expense._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type":
+              "application/json",
+            Authorization:
+              `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            ...expense,
+            title: newTitle,
+          }),
+        }
+      );
+
+    const data =
+      await res.json();
+
+    console.log(data);
+
+    getExpenses();
+
+  } catch (err) {
+    console.log(err);
+  }
+};
 
   /* Total */
   const total =
@@ -944,6 +1056,18 @@ const memberChartData =
           SpendWiseFamily
         </h2>
         <button
+  className="theme-btn"
+  onClick={() =>
+    setDarkMode(
+      !darkMode
+    )
+  }
+>
+  {darkMode
+    ? "☀️ Light"
+    : "🌙 Dark"}
+</button>
+        <button
           className="logout-btn"
           onClick={logout}
         >
@@ -965,7 +1089,7 @@ const memberChartData =
 
   <div className="stat-card">
     <h3>Total Expenses</h3>
-    <p>₹{totalSpent}</p>
+    <h1>₹{totalSpent}</h1>
   </div>
 
   <div className="stat-card">
@@ -1066,45 +1190,37 @@ const memberChartData =
          <div className="family-info-row">
 
   <div className="info-box">
-    <span>Family Name</span>
-    <h3>{family.name}</h3>
-  </div>
+  <span>Family Name</span>
+  <h3>{family.name}</h3>
+</div>
 
-  <div className="info-box">
-    <span>Invite Code</span>
-    <h3>{family.inviteCode}</h3>
-  </div>
+<div className="info-box">
+  <span>Invite Code</span>
+  <h3>{family.inviteCode}</h3>
+</div>
 
-  <div className="info-box">
-    <span>Members</span>
-    <h3>{familyMembers.length}</h3>
-  </div>
+<div className="info-box">
+  <span>Members</span>
+  <h3>{familyMembers.length}</h3>
+</div>
 
 </div>
   
 </div>
 
 <div className="members-section">
-
-  <h3>
-    Members ({familyMembers.length})
-  </h3>
+  <h3>Member Emails</h3>
 
   <div className="member-list">
-
-    {familyMembers.map((member) => (
-
+    {familyMembers.map((member, index) => (
       <div
-        key={member._id}
+        key={member.user?._id || index}
         className="member-pill"
       >
-        👤 {member.email}
+        👤 {member.user?.email}
       </div>
-
     ))}
-
   </div>
-
 </div>
 </div>
 
@@ -1320,14 +1436,14 @@ const memberChartData =
 
 </div>
 
-<div
-  style={{
-    marginTop: "20px",
-  }}
->
-  <h3>Goal Progress</h3>
+<div className="goals-section">
+
+  <h2 className="section-title">
+    🎯 Goal Progress
+  </h2>
 
   {goals.map((goal) => {
+
     const percentage = Math.min(
       (goal.savedAmount /
         goal.targetAmount) *
@@ -1338,176 +1454,105 @@ const memberChartData =
     const daysLeft =
       goal.deadline
         ? Math.ceil(
-            (new Date(
-              goal.deadline
-            ) -
+            (new Date(goal.deadline) -
               new Date()) /
-              (1000 *
-                60 *
-                60 *
-                24)
+              (1000 * 60 * 60 * 24)
           )
         : null;
 
     return (
+
       <div
         className="goal-card"
         key={goal._id}
-        style={{
-          marginBottom:
-            "25px",
-          padding: "15px",
-          background:
-            "#fff",
-          borderRadius:
-            "12px",
-        }}
       >
-        {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent:
-              "space-between",
-            alignItems:
-              "center",
-          }}
-        >
-          <h4>
-            {goal.title}
-          </h4>
+
+        <div className="goal-header">
+
+          <div>
+
+            <h3>{goal.title}</h3>
+
+            <p className="goal-amount">
+              ₹{goal.savedAmount.toLocaleString()}
+              {" / "}
+              ₹{goal.targetAmount.toLocaleString()}
+            </p>
+
+          </div>
 
           <button
+            className="delete-btn"
             onClick={() => {
+
               if (
                 window.confirm(
-                  "Are you sure you want to delete this goal?"
+                  "Delete this goal?"
                 )
               ) {
-                deleteGoal(
-                  goal._id
-                );
+                deleteGoal(goal._id);
               }
-            }}
-            style={{
-              background:
-                "#ef4444",
-              color: "white",
-              border: "none",
-              padding:
-                "6px 12px",
-              borderRadius:
-                "6px",
-              cursor:
-                "pointer",
+
             }}
           >
             🗑 Delete
           </button>
+
         </div>
 
-        {/* Deadline */}
         {daysLeft === 0 && (
-  <p style={{ color: "orange" }}>
-    ⚠️ Deadline Today
-  </p>
-)}
-
-{daysLeft > 0 && (
-  <p>
-    ⏳ {daysLeft} days left
-  </p>
-)}
-
-{daysLeft < 0 && (
-  <p style={{ color: "red" }}>
-    🚨 Goal Overdue
-  </p>
-)}
-        {/* Amount */}
-        <p>
-          ₹
-          {
-            goal.savedAmount
-          }
-          / ₹
-          {
-            goal.targetAmount
-          }
-        </p>
-
-        {/* Progress Bar */}
-        <div
-          style={{
-            height: "12px",
-            background:
-              "#ddd",
-            borderRadius:
-              "20px",
-          }}
-        >
-          <div
-            style={{
-              width:
-                `${percentage}%`,
-              height:
-                "100%",
-              background:
-                percentage >=
-                100
-                  ? "green"
-                  : percentage >=
-                    80
-                  ? "#2563eb"
-                  : percentage >=
-                    50
-                  ? "orange"
-                  : "red",
-              borderRadius:
-                "20px",
-            }}
-          />
-        </div>
-
-        <small>
-          {percentage.toFixed(
-            0
-          )}
-          % Complete
-        </small>
-
-        {/* Goal Achieved */}
-        {goal.savedAmount >=
-          goal.targetAmount && (
-          <div className="goal-achieved"
-            style={{
-              color:
-                "green",
-              fontWeight:
-                "bold",
-              marginTop:
-                "10px",
-            }}
-          >
-            🏆 Goal
-            Achieved
-          </div>
+          <p className="deadline-warning">
+            ⚠️ Deadline Today
+          </p>
         )}
 
-        <br />
+        {daysLeft > 0 && (
+          <p className="deadline-normal">
+            ⏳ {daysLeft} days left
+          </p>
+        )}
 
-        {/* Savings Input */}
-        {goal.savedAmount <
-        goal.targetAmount ? (
+        {daysLeft < 0 && (
+          <p className="deadline-overdue">
+            🚨 Goal Overdue
+          </p>
+        )}
+
+        <div className="progress-bar">
+
           <div
+            className={`progress-fill ${
+              percentage >= 100
+                ? "success"
+                : percentage >= 80
+                ? "good"
+                : percentage >= 50
+                ? "medium"
+                : "low"
+            }`}
             style={{
-              marginTop:
-                "10px",
-              display:
-                "flex",
-              gap: "10px",
+              width: `${percentage}%`,
             }}
-          >
+          />
+
+        </div>
+
+        <div className="progress-label">
+          {percentage.toFixed(0)}%
+          Complete
+        </div>
+
+        {goal.savedAmount >=
+        goal.targetAmount ? (
+
+          <div className="goal-achieved">
+            🏆 Goal Achieved
+          </div>
+
+        ) : (
+
+          <div className="savings-row">
+
             <input
               type="number"
               placeholder="Add savings"
@@ -1516,21 +1561,17 @@ const memberChartData =
                   goal._id
                 ] || ""
               }
-              onChange={(
-                e
-              ) =>
-                setSavingAmounts(
-                  {
-                    ...savingAmounts,
-                    [goal._id]:
-                      e.target
-                        .value,
-                  }
-                )
+              onChange={(e) =>
+                setSavingAmounts({
+                  ...savingAmounts,
+                  [goal._id]:
+                    e.target.value,
+                })
               }
             />
 
             <button
+              className="main-btn"
               onClick={() =>
                 addSavings(
                   goal._id,
@@ -1542,73 +1583,98 @@ const memberChartData =
             >
               Add Savings
             </button>
+
           </div>
-        ) : (
-          <div
-            style={{
-              marginTop:
-                "10px",
-              color:
-                "green",
-              fontWeight:
-                "bold",
-            }}
-          >
-            🎉 Savings
-            Complete
-          </div>
+
         )}
+
       </div>
+
     );
+
   })}
+
 </div>
 
 <div
   className="stat-card"
   style={{
-    marginTop: "20px",
+    marginTop: "30px",
   }}
 >
   <h2>
-    Recent Activity
+    📋 Recent Activity
   </h2>
 
-  {Array.isArray(
-    activities
-  ) &&
+  {Array.isArray(activities) &&
   activities.length > 0 ? (
+
     activities.map(
       (activity) => (
-       <div className="activity-item">
 
-  <div className="activity-icon">
-    📌
-  </div>
+        <div
+          key={activity._id}
+          className="activity-card"
+        >
 
-  <div>
+          <div className="activity-icon">
 
-    <h4>
-      {activity.userEmail}
-    </h4>
+            {activity.action?.includes(
+              "added"
+            )
+              ? "➕"
+              : activity.action?.includes(
+                  "updated"
+                )
+              ? "✏️"
+              : activity.action?.includes(
+                  "deleted"
+                )
+              ? "🗑️"
+              : activity.action?.includes(
+                  "goal"
+                )
+              ? "🎯"
+              : "📌"}
 
-    <p>
-      {activity.action}
-    </p>
+          </div>
 
-    <span>
-      {activity.timeAgo}
-    </span>
+          <div className="activity-content">
 
-  </div>
+            <h4>
+              {activity.userEmail ||
+                "Family Member"}
+            </h4>
 
-</div>
+            <p>
+              {activity.action}
+            </p>
+
+            <span>
+              {activity.timeAgo ||
+                new Date(
+                  activity.createdAt
+                ).toLocaleString()}
+            </span>
+
+          </div>
+
+        </div>
+
       )
     )
+
   ) : (
-    <p>
-      No activities
-      found
+
+    <p
+      style={{
+        color: "#64748b",
+        marginTop: "15px",
+      }}
+    >
+      No recent activities found
     </p>
+
   )}
 </div>
 
@@ -1667,12 +1733,12 @@ const memberChartData =
     </option>
   </select>
 
-  <button
-    className="main-btn"
-    onClick={addExpense}
-  >
-    Add Expense
-  </button>
+ <button
+  className="main-btn"
+  onClick={addExpense}
+>
+  Add Expense
+</button>
 </div>
 
       {/* Filters + PDF */}
@@ -1870,72 +1936,72 @@ const memberChartData =
   <div
     className="stat-card"
     style={{
-      marginTop:
-        "20px",
+      marginTop: "20px",
     }}
   >
-    <h2>
-      Edit Expense
-    </h2>
+    <h2>Edit Expense</h2>
 
     <input
       type="text"
+      placeholder="Title"
       value={editTitle}
       onChange={(e) =>
-        setEditTitle(
-          e.target.value
-        )
+        setEditTitle(e.target.value)
       }
     />
 
     <input
       type="number"
+      placeholder="Amount"
       value={editAmount}
       onChange={(e) =>
-        setEditAmount(
-          e.target.value
-        )
+        setEditAmount(e.target.value)
       }
     />
 
     <select
-      value={
-        editCategory
-      }
+      value={editCategory}
       onChange={(e) =>
-        setEditCategory(
-          e.target.value
-        )
+        setEditCategory(e.target.value)
       }
     >
-      <option>
+      <option value="Food">
         Food
       </option>
 
-      <option>
+      <option value="Bills">
         Bills
       </option>
 
-      <option>
-        Travel
+      <option value="Shopping">
+        Shopping
       </option>
 
-      <option>
-        Shopping
+      <option value="Travel">
+        Travel
       </option>
     </select>
 
     <button
-      onClick={
-        updateExpense
-      }
+      onClick={updateExpense}
       className="main-btn"
     >
       Save Changes
     </button>
+
+    <button
+      className="delete-btn"
+      onClick={() => {
+        setEditingExpense(null);
+        setEditTitle("");
+        setEditAmount("");
+        setEditCategory("");
+      }}
+    >
+      Cancel
+    </button>
   </div>
 )}
-
       
       {/* Expense List */}
 <div
@@ -1963,36 +2029,43 @@ const memberChartData =
       <small>
         Added by:
         {" "}
-        {expense.userEmail}
+        {expense.user?.email}
       </small>
 
     </div>
 
-    <div
-      className="expense-actions"
-    >
+    <div className="expense-actions">
 
-      <h2>
-        ₹{expense.amount}
-      </h2>
+  <h2 className="expense-amount">
+    ₹{expense.amount}
+  </h2>
 
-      <div>
+  <button
+  className="edit-btn"
+  onClick={() => {
 
-        <button
-          className="edit-btn"
-        >
-          ✏ Edit
-        </button>
+    setEditTitle(expense.title);
 
-        <button
-          className="delete-btn"
-        >
-          🗑 Delete
-        </button>
+    setEditAmount(expense.amount);
 
-      </div>
+    setEditCategory(expense.category);
 
-    </div>
+    setEditingExpense(expense);
+
+    
+  }}
+>
+  Edit
+</button>
+
+  <button
+    className="delete-btn"
+    onClick={() => deleteExpense(expense._id)}
+  >
+    Delete
+  </button>
+
+</div>
 
   </div>
 

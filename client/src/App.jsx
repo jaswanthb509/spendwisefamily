@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 
+
 function App() {
   const [page, setPage] = useState(
     localStorage.getItem("token")
@@ -16,6 +17,12 @@ function App() {
     localStorage.removeItem("token");
     setPage("home");
   };
+
+const [darkMode, setDarkMode] =
+  useState(
+    localStorage.getItem("theme")
+      === "dark"
+  );
 
   return (
     <div className="app">
@@ -51,6 +58,14 @@ function App() {
               >
                 Sign Up
               </button>
+
+              <div
+className={
+darkMode
+? "dark-theme"
+: ""
+}
+></div>
 
             </div>
 
@@ -143,7 +158,7 @@ function App() {
 
           </section>
 
-
+ 
           {/* CTA */}
           <section
             style={{
@@ -219,8 +234,10 @@ function App() {
       {/* DASHBOARD */}
       {page === "dashboard" && (
         <Dashboard
-          goHome={handleLogout}
-        />
+  goHome={handleLogout}
+  darkMode={darkMode}
+  setDarkMode={setDarkMode}
+/>
       )}
 
     </div>
