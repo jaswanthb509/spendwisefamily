@@ -45,6 +45,11 @@ try {
       data.token
     );
 
+    localStorage.setItem(
+  "email",
+  email
+);
+
     goToDashboard();
 
   } else {

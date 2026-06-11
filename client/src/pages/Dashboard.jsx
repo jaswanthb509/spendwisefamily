@@ -28,6 +28,14 @@ const [budgetCategory,setBudgetCategory] = useState("");
 
 const [budgetAmount,setBudgetAmount] = useState("");
   const [filter, setFilter] = useState("All");
+  const [searchTerm,
+  setSearchTerm] =
+  useState("");
+
+const [sortBy,
+  setSortBy] =
+  useState("latest");
+
   const [dateFilter, setDateFilter] =
     useState("All Time");
 
@@ -97,6 +105,10 @@ const [
   familyMembers,
   setFamilyMembers
 ] = useState([]);
+
+const [showNotifications,
+  setShowNotifications] =
+  useState(false);
 
 
 // Theme Effect
@@ -693,19 +705,50 @@ const logout = () => {
      FILTER LOGIC
   ====================== */
 
-  let filteredExpenses = [...expenses];
+ let filteredExpenses =
+  expenses
+    .filter((expense) =>
+      expense.title
+        ?.toLowerCase()
+        .includes(
+          searchTerm.toLowerCase()
+        )
+    )
+    .sort((a, b) => {
 
-  /* Category Filter */
-  if (filter !== "All") {
-    filteredExpenses =
-      filteredExpenses.filter(
-        (item) =>
-          item.category
-            .toLowerCase()
-            ===
-          filter.toLowerCase()
+      if (
+        sortBy === "highest"
+      ) {
+        return (
+          Number(b.amount) -
+          Number(a.amount)
+        );
+      }
+
+      if (
+        sortBy === "lowest"
+      ) {
+        return (
+          Number(a.amount) -
+          Number(b.amount)
+        );
+      }
+
+      if (
+        sortBy === "oldest"
+      ) {
+        return (
+          new Date(a.date) -
+          new Date(b.date)
+        );
+      }
+
+      return (
+        new Date(b.date) -
+        new Date(a.date)
       );
-  }
+
+    });
 
   /* Date Filter */
   const now = new Date();
@@ -965,6 +1008,27 @@ const memberChartData =
     );
   };
 
+  const getCategorySpent = (
+  category
+) => {
+
+  return expenses
+    .filter(
+      (expense) =>
+        expense.category ===
+        category
+    )
+    .reduce(
+      (total, expense) =>
+        total +
+        Number(
+          expense.amount
+        ),
+      0
+    );
+
+};
+
  const getAIAdvice =
   async () => {
     try {
@@ -1048,67 +1112,206 @@ const memberChartData =
   };
 
   return (
-    <div className="dash-page">
+  <div className="dash-page">
 
-      {/* Navbar */}
-      <nav className="dash-nav">
-        <h2 className="dash-logo">
-          SpendWiseFamily
-        </h2>
+  {/* Navbar */}
+  <nav className="dash-nav">
+
+    <h2 className="dash-logo">
+      💰 SpendWiseFamily
+    </h2>
+
+    <div className="nav-right">
+
+      {/* Profile */}
+
+      <div className="profile-card">
+
+        <div className="profile-avatar">
+
+          {
+            localStorage
+              .getItem("email")
+              ?.charAt(0)
+              .toUpperCase()
+          }
+
+        </div>
+
+        <div>
+
+          <h4>
+            {
+              localStorage.getItem(
+                "email"
+              )
+            }
+          </h4>
+
+          <span>
+            Family Admin
+          </span>
+
+        </div>
+
+      </div>
+
+      {/* Notifications */}
+
+      <div className="notification-wrapper">
+
         <button
-  className="theme-btn"
-  onClick={() =>
-    setDarkMode(
-      !darkMode
-    )
-  }
->
-  {darkMode
-    ? "☀️ Light"
-    : "🌙 Dark"}
-</button>
-        <button
-          className="logout-btn"
-          onClick={logout}
+          className="notification-btn"
+          onClick={() =>
+            setShowNotifications(
+              !showNotifications
+            )
+          }
         >
-          Logout
+          🔔
+
+          {activities.length > 0 && (
+
+            <span
+              className="notification-count"
+            >
+              {activities.length}
+            </span>
+
+          )}
+
         </button>
-      </nav>
 
-      {/* Header */}
-      <div className="dash-header">
-  <div>
-    <h1>Welcome Back</h1>
-    <p>
-      Track expenses, budgets & savings at one place.
-    </p>
+        {showNotifications && (
+
+          <div
+            className="notification-dropdown"
+          >
+
+            <h4>
+              Notifications
+            </h4>
+
+            {activities.length ===
+            0 ? (
+
+              <p>
+                No notifications
+              </p>
+
+            ) : (
+
+              activities
+                .slice(0, 5)
+                .map(
+                  (
+                    activity
+                  ) => (
+
+                    <div
+                      key={
+                        activity._id
+                      }
+                      className="notification-item"
+                    >
+
+                      <p>
+                        {
+                          activity.action
+                        }
+                      </p>
+
+                    </div>
+
+                  )
+                )
+
+            )}
+
+          </div>
+
+        )}
+
+      </div>
+
+      {/* Dark Mode */}
+
+      <button
+        className="theme-btn"
+        onClick={() =>
+          setDarkMode(
+            !darkMode
+          )
+        }
+      >
+        {darkMode
+          ? "☀️"
+          : "🌙"}
+      </button>
+
+      {/* Logout */}
+
+      <button
+        className="logout-btn"
+        onClick={logout}
+      >
+        Logout
+      </button>
+
+    </div>
+
+  </nav>
+
+  {/* Header */}
+
+  <div className="dash-header">
+
+    <div className="welcome-card">
+
+      <h1>
+        Welcome Back
+      </h1>
+
+      <p>
+        Manage expenses, budgets,
+        savings goals and family
+        finances in one place.
+      </p>
+
+      <div className="welcome-stats">
+
+        <div>
+          <h3>
+            ₹{total}
+          </h3>
+          <span>
+            Total Expenses
+          </span>
+        </div>
+
+        <div>
+          <h3>
+            {familyMembers.length}
+          </h3>
+          <span>
+            Family Members
+          </span>
+        </div>
+
+        <div>
+          <h3>
+            {goals.length}
+          </h3>
+          <span>
+            Active Goals
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+
   </div>
-</div>
-
-    <div className="stats-grid">
-
-  <div className="stat-card">
-    <h3>Total Expenses</h3>
-    <h1>₹{totalSpent}</h1>
-  </div>
-
-  <div className="stat-card">
-    <h3>Budgets</h3>
-    <h1>{budgets.length}</h1>
-  </div>
-
-  <div className="stat-card">
-    <h3>Goals</h3>
-    <h1>{goals.length}</h1>
-  </div>
-
-  <div className="stat-card">
-    <h3>Activities</h3>
-<h1>{activities.length}</h1>
-  </div>
-
-</div>
-
 <div
   className="family-card"
   style={{
@@ -1300,92 +1503,122 @@ const memberChartData =
   }}
 >
   <h2>
-    Budget List
+    💰 Budget Tracking
   </h2>
 
-{budgets.map(
-  (budget) => {
-    const spent =
-      getSpentAmount(
-        budget.category
-      );
+  {budgets.length === 0 ? (
 
-    const percentage =
-      Math.min(
-        (
-          spent /
-          budget.amount
-        ) *
-          100,
-        100
-      );
+    <p>
+      No budgets added yet
+    </p>
 
-     
+  ) : (
 
-    return (
-      <div
-        key={
-          budget._id
-        }
-        style={{
-          marginBottom:
-            "20px",
-        }}
-      >
-        <h4>
-          {
-            budget.category
-          }
-        </h4>
+    budgets.map((budget) => {
 
-        <p>
-          ₹{spent} /
-          ₹
-          {
+      const spent =
+        getSpentAmount(
+          budget.category
+        );
+
+      const percentage =
+        Math.min(
+          (
+            spent /
             budget.amount
-          }
-        </p>
+          ) * 100,
+          100
+        );
+
+      const remaining =
+        budget.amount -
+        spent;
+
+      return (
 
         <div
-          style={{
-            height:
-              "12px",
-            background:
-              "#ddd",
-            borderRadius:
-              "20px",
-          }}
+          key={budget._id}
+          className="budget-card"
         >
-          <div
-            style={{
-              width:
-                `${percentage}%`,
-              height:
-                "100%",
-              background:
-                percentage >
-                80
-                  ? "red"
-                  : "green",
-              borderRadius:
-                "20px",
-            }}
-          />
+
+          <div className="budget-header">
+
+            <h3>
+              {budget.category}
+            </h3>
+
+            <span>
+              ₹{budget.amount}
+            </span>
+
+          </div>
+
+          <p className="budget-text">
+
+            ₹{spent}
+            {" / "}
+            ₹{budget.amount}
+
+          </p>
+
+          <div className="budget-progress">
+
+            <div
+              className={`budget-fill ${
+                percentage >= 100
+                  ? "danger"
+                  : percentage >= 80
+                  ? "warning"
+                  : "safe"
+              }`}
+              style={{
+                width:
+                  `${percentage}%`,
+              }}
+            />
+
+          </div>
+
+          <div className="budget-footer">
+
+            <span>
+              Remaining:
+              ₹{remaining}
+            </span>
+
+            {percentage >=
+            100 ? (
+
+              <span className="budget-danger">
+                🚨 Exceeded
+              </span>
+
+            ) : percentage >=
+              80 ? (
+
+              <span className="budget-warning">
+                ⚠️ Near Limit
+              </span>
+
+            ) : (
+
+              <span className="budget-safe">
+                ✅ On Track
+              </span>
+
+            )}
+
+          </div>
+
         </div>
 
-        <small>
-          Remaining ₹
-          {
-            budget.amount -
-            spent
-          }
-        </small>
-      </div>
-    );
-  }
-)}
-</div>
+      );
 
+    })
+
+  )}
+
+</div>
 
 <div className="stat-card">
 
@@ -2002,6 +2235,40 @@ const memberChartData =
     </button>
   </div>
 )}
+
+<input
+  type="text"
+  placeholder="🔍 Search Expenses"
+  value={searchTerm}
+  onChange={(e) =>
+    setSearchTerm(e.target.value)
+  }
+/>
+
+<select
+  value={sortBy}
+  onChange={(e) =>
+    setSortBy(e.target.value)
+  }
+>
+  <option value="latest">
+    Latest First
+  </option>
+
+  <option value="oldest">
+    Oldest First
+  </option>
+
+  <option value="highest">
+    Highest Amount
+  </option>
+
+  <option value="lowest">
+    Lowest Amount
+  </option>
+</select>
+
+
       
       {/* Expense List */}
 <div
