@@ -507,13 +507,15 @@ const deleteExpense =
     }
   };
 
-const createBudget =
-async () => {
+const createBudget = async () => {
+
   try {
+
     const res = await fetch(
       "http://localhost:5000/api/budgets",
       {
         method: "POST",
+
         headers: {
           "Content-Type":
             "application/json",
@@ -521,9 +523,11 @@ async () => {
           Authorization:
             `Bearer ${token}`,
         },
+
         body: JSON.stringify({
           category:
             budgetCategory,
+
           amount:
             Number(
               budgetAmount
@@ -535,22 +539,44 @@ async () => {
     const data =
       await res.json();
 
+    console.log(
+      "Budget Response:",
+      data
+    );
+
     if (res.ok) {
+
       setBudgetCategory("");
       setBudgetAmount("");
 
       fetchBudgets();
 
-      alert(
-        "Budget Created"
+      toast.success(
+        "💰 Budget Created Successfully"
       );
+
+    } else {
+
+      toast.error(
+        data.message ||
+        "Failed to create budget"
+      );
+
     }
+
   } catch (error) {
-    console.log(error);
-     toast.error(
-    "Something went wrong"
-  );
+
+    console.log(
+      "Create Budget Error:",
+      error
+    );
+
+    toast.error(
+      "Something went wrong"
+    );
+
   }
+
 };
 
 const createGoal =
@@ -1290,7 +1316,7 @@ const monthlyData = expenses.reduce(
   <nav className="dash-nav">
 
     <h2 className="dash-logo">
-      💰 SpendWiseFamily
+      SpendWiseFamily.
     </h2>
 
     <div className="nav-right">
@@ -1457,7 +1483,7 @@ const monthlyData = expenses.reduce(
       <div>
 
         <h1>
-          Welcome Back 👋
+          Welcome Back...
         </h1>
 
         <p>
@@ -1469,7 +1495,7 @@ const monthlyData = expenses.reduce(
       </div>
 
       <div className="welcome-badge">
-        💰 Smart Finance Tracker
+        A Smart Finance Tracker
       </div>
 
     </div>
@@ -2265,30 +2291,48 @@ const monthlyData = expenses.reduce(
         </button>
       </div>
 
-      <button
-  className="main-btn"
-  onClick={
-    getAIAdvice
-  }
->
-  Ask Gemini
-</button>
-
-<div
+      <div
   style={{
-    background:
-      "#eff6ff",
-    padding: "20px",
-    borderRadius:
-      "12px",
-    border:
-      "1px solid #bfdbfe",
-    marginTop: "10px",
-    whiteSpace:
-      "pre-wrap",
+    marginTop: "20px",
   }}
 >
-  {aiAdvice}
+
+  <button
+    className="main-btn"
+    onClick={getAIAdvice}
+  >
+    🤖 Generate AI Insights
+  </button>
+
+  {aiAdvice && (
+
+    <div
+      className="ai-card"
+    >
+
+      <div className="ai-header">
+
+        <h2>
+          🤖 AI Financial Insights
+        </h2>
+
+        <span className="ai-badge">
+          Powered by Gemini
+        </span>
+
+      </div>
+
+      <div
+        className="ai-content"
+        dangerouslySetInnerHTML={{
+          __html: aiAdvice,
+        }}
+      />
+
+    </div>
+
+  )}
+
 </div>
 
       {/* Chart */}

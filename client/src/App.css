@@ -156,6 +156,18 @@ select:focus{
   margin-top:30px;
 }
 
+.hero-ai{
+background:linear-gradient(
+    
+    #2563eb,
+    #7c3aed
+  );
+}
+
+.hero-para{
+  color: #1d4ed8;
+}
+
 .features{
   margin-top:80px;
 
@@ -696,19 +708,91 @@ select:focus{
 ================================= */
 
 .ai-card{
-  margin-top:25px;
 
-  background:linear-gradient(
-    135deg,
-    #2563eb,
-    #7c3aed
-  );
-
-  color:white;
+  margin-top:20px;
 
   padding:25px;
 
   border-radius:20px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #7c3aed
+    );
+
+  color:white;
+
+  box-shadow:
+    0 15px 40px
+    rgba(37,99,235,.25);
+}
+
+.ai-header{
+
+  display:flex;
+
+  justify-content:
+    space-between;
+
+  align-items:center;
+
+  margin-bottom:20px;
+}
+
+.ai-header h2{
+  margin:0;
+}
+
+.ai-badge{
+
+  background:
+    rgba(255,255,255,.15);
+
+  padding:8px 14px;
+
+  border-radius:999px;
+
+  font-size:12px;
+
+  font-weight:600;
+}
+
+.ai-content h3{
+
+  margin-top:18px;
+
+  margin-bottom:10px;
+
+  color:white;
+}
+
+.ai-content ul{
+
+  padding-left:20px;
+}
+
+.ai-content li{
+
+  margin-bottom:8px;
+
+  line-height:1.7;
+}
+
+.ai-content p{
+
+  line-height:1.8;
+}
+
+.dark-mode .ai-card{
+
+  background:
+    linear-gradient(
+      135deg,
+      #1e40af,
+      #5b21b6
+    );
 }
 
 /* =================================
@@ -733,6 +817,10 @@ select:focus{
   text-align:center;
   margin-top:80px;
   color:#64748b;
+}
+
+.footer p{
+  padding-bottom: 0%;
 }
 
 /* =========================

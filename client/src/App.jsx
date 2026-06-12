@@ -35,7 +35,7 @@ const [darkMode, setDarkMode] =
           <nav className="navbar">
 
             <h2 className="logo">
-              SpendWiseFamily
+              SpendWiseFamily.
             </h2>
 
             <div className="nav-actions">
@@ -60,12 +60,12 @@ const [darkMode, setDarkMode] =
               </button>
 
               <div
-className={
-darkMode
-? "dark-theme"
-: ""
-}
-></div>
+             className={
+               darkMode
+               ? "dark-theme"
+               : ""
+               }
+              ></div>
 
             </div>
 
@@ -74,7 +74,7 @@ darkMode
           {/* HERO */}
           <section className="hero">
 
-            <div className="hero-badge">
+            <div className="hero-ai">
               🚀 AI Powered Family Finance Tracker
             </div>
 
@@ -110,7 +110,7 @@ darkMode
 
             <div className="card">
               <h3>
-                💸 Expense Tracking
+                 1. Expense Tracking
               </h3>
 
               <p>
@@ -122,7 +122,7 @@ darkMode
 
             <div className="card">
               <h3>
-                📊 Smart Analytics
+                2. Smart Analytics
               </h3>
 
               <p>
@@ -134,7 +134,7 @@ darkMode
 
             <div className="card">
               <h3>
-                🎯 Savings Goals
+                3. Savings Goals
               </h3>
 
               <p>
@@ -146,11 +146,11 @@ darkMode
 
             <div className="card">
               <h3>
-                🤖 AI Insights
+                4. AI Insights
               </h3>
 
               <p>
-                Get intelligent
+                Get great
                 recommendations
                 for better savings.
               </p>

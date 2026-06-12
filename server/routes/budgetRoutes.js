@@ -42,16 +42,41 @@ router.post(
   "/",
   protect,
   async (req, res) => {
+
     try {
+
       const {
         category,
         amount,
       } = req.body;
 
+      console.log(
+        "Budget Request:",
+        req.body
+      );
+
       const user =
         await User.findById(
           req.user._id
         );
+
+      if (!user) {
+        return res
+          .status(404)
+          .json({
+            message:
+              "User not found",
+          });
+      }
+
+      if (!user.family) {
+        return res
+          .status(400)
+          .json({
+            message:
+              "You must join a family before creating budgets",
+          });
+      }
 
       const budget =
         await Budget.create({
@@ -61,21 +86,24 @@ router.post(
           amount,
         });
 
-        await Activity.create({
-  family: user.family,
-  user: req.user._id,
-  action: `created budget "${category}"`,
-});
-
       res.status(201).json(
         budget
       );
+
     } catch (error) {
+
+      console.log(
+        "CREATE BUDGET ERROR:",
+        error
+      );
+
       res.status(500).json({
         message:
-          "Failed to create budget",
+          error.message,
       });
+
     }
+
   }
 );
 
