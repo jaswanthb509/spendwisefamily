@@ -38,6 +38,14 @@ router.get(
           })
           .limit(10);
 
+          console.log(
+  JSON.stringify(
+    activities,
+    null,
+    2
+  )
+);
+
       res.json(
         activities
       );

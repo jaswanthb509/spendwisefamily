@@ -11,6 +11,8 @@ import {
   YAxis,
   CartesianGrid,
   ResponsiveContainer,
+  LineChart,
+  Line,
 } from "recharts";
 
 import jsPDF from "jspdf";
@@ -342,8 +344,11 @@ const data =
   await res.json();
 
 console.log(
-  "Activities:",
-  data
+  JSON.stringify(
+    data,
+    null,
+    2
+  )
 );
 
 if (
@@ -605,6 +610,118 @@ async () => {
   }
 };
 
+const exportReport = () => {
+
+  const doc = new jsPDF();
+
+  doc.setFontSize(20);
+
+  doc.text(
+    "SpendWiseFamily Report",
+    14,
+    20
+  );
+
+  doc.setFontSize(12);
+
+  doc.text(
+    `Generated: ${
+      new Date()
+        .toLocaleDateString()
+    }`,
+    14,
+    30
+  );
+
+  /* Expenses */
+
+  autoTable(doc, {
+
+    startY: 40,
+
+    head: [[
+      "Title",
+      "Category",
+      "Amount"
+    ]],
+
+    body: expenses.map(
+      (expense) => [
+
+        expense.title,
+
+        expense.category,
+
+        `₹${expense.amount}`
+
+      ]
+    ),
+
+  });
+
+  /* Goals */
+
+  autoTable(doc, {
+
+    startY:
+      doc.lastAutoTable
+        .finalY + 15,
+
+    head: [[
+      "Goal",
+      "Saved",
+      "Target"
+    ]],
+
+    body: goals.map(
+      (goal) => [
+
+        goal.title,
+
+        `₹${goal.savedAmount}`,
+
+        `₹${goal.targetAmount}`
+
+      ]
+    ),
+
+  });
+
+  /* Budgets */
+
+  autoTable(doc, {
+
+    startY:
+      doc.lastAutoTable
+        .finalY + 15,
+
+    head: [[
+      "Category",
+      "Budget"
+    ]],
+
+    body: budgets.map(
+      (budget) => [
+
+        budget.category,
+
+        `₹${budget.amount}`
+
+      ]
+    ),
+
+  });
+
+  doc.save(
+    "SpendWise_Report.pdf"
+  );
+
+  toast.success(
+    "📄 Report Downloaded"
+  );
+
+};
+
 const addSavings = async (
   goalId
 ) => {
@@ -855,6 +972,18 @@ const logout = () => {
       0
     );
 
+  const currentUserEmail =
+  localStorage.getItem(
+    "email"
+  );
+
+const currentMember =
+  family?.members?.find(
+    (member) =>
+      member.user?.email ===
+      currentUserEmail
+  );
+
   /* ======================
      CHART DATA
   ====================== */
@@ -1029,6 +1158,49 @@ const memberChartData =
 
 };
 
+const monthlyData = expenses.reduce(
+  (acc, expense) => {
+
+    const month =
+      new Date(
+        expense.date
+      ).toLocaleString(
+        "default",
+        {
+          month: "short",
+        }
+      );
+
+    const existing =
+      acc.find(
+        (item) =>
+          item.month === month
+      );
+
+    if (existing) {
+
+      existing.amount +=
+        Number(
+          expense.amount
+        );
+
+    } else {
+
+      acc.push({
+        month,
+        amount: Number(
+          expense.amount
+        ),
+      });
+
+    }
+
+    return acc;
+
+  },
+  []
+);
+
  const getAIAdvice =
   async () => {
     try {
@@ -1149,8 +1321,13 @@ const memberChartData =
           </h4>
 
           <span>
-            Family Admin
-          </span>
+
+  {currentMember?.role ===
+  "admin"
+    ? "👑 Admin"
+    : "👤 Member"}
+
+</span>
 
         </div>
 
@@ -1258,6 +1435,13 @@ const memberChartData =
         Logout
       </button>
 
+      <button
+  className="export-btn"
+  onClick={exportReport}
+>
+  📄 Export
+</button>
+
     </div>
 
   </nav>
@@ -1266,45 +1450,88 @@ const memberChartData =
 
   <div className="dash-header">
 
-    <div className="welcome-card">
+  <div className="welcome-card">
 
-      <h1>
-        Welcome Back
-      </h1>
+    <div className="welcome-top">
 
-      <p>
-        Manage expenses, budgets,
-        savings goals and family
-        finances in one place.
-      </p>
+      <div>
 
-      <div className="welcome-stats">
+        <h1>
+          Welcome Back 👋
+        </h1>
+
+        <p>
+          Manage expenses, budgets,
+          savings goals and family
+          finances in one place.
+        </p>
+
+      </div>
+
+      <div className="welcome-badge">
+        💰 Smart Finance Tracker
+      </div>
+
+    </div>
+
+    <div className="welcome-stats">
+
+      <div className="welcome-stat-card">
+
+        <div className="stat-icon">
+          💸
+        </div>
 
         <div>
+
           <h3>
             ₹{total}
           </h3>
+
           <span>
             Total Expenses
           </span>
+
+        </div>
+
+      </div>
+
+      <div className="welcome-stat-card">
+
+        <div className="stat-icon">
+          👨‍👩‍👧‍👦
         </div>
 
         <div>
+
           <h3>
             {familyMembers.length}
           </h3>
+
           <span>
             Family Members
           </span>
+
+        </div>
+
+      </div>
+
+      <div className="welcome-stat-card">
+
+        <div className="stat-icon">
+          🎯
         </div>
 
         <div>
+
           <h3>
             {goals.length}
           </h3>
+
           <span>
             Active Goals
           </span>
+
         </div>
 
       </div>
@@ -1312,124 +1539,66 @@ const memberChartData =
     </div>
 
   </div>
-<div
-  className="family-card"
-  style={{
-    marginTop: "20px",
-  }}
->
-  {!family ? (
-    <>
-      <h2>
-        👨‍👩‍👧‍👦 Family Group
-      </h2>
-
-      <p
-        style={{
-          marginTop: "10px",
-          marginBottom: "20px",
-          opacity: ".9",
-        }}
-      >
-        Create a family or join
-        an existing one.
-      </p>
-
-      <div className="family-actions">
-
-        <input
-          type="text"
-          placeholder="Family Name"
-          value={familyName}
-          onChange={(e) =>
-            setFamilyName(
-              e.target.value
-            )
-          }
-        />
-
-        <button
-          className="main-btn"
-          onClick={createFamily}
-        >
-          Create Family
-        </button>
-
-      </div>
-
-      <div className="family-actions">
-
-        <input
-          type="text"
-          placeholder="Invite Code"
-          value={inviteCode}
-          onChange={(e) =>
-            setInviteCode(
-              e.target.value
-            )
-          }
-        />
-
-        <button
-          className="main-btn"
-          onClick={joinFamily}
-        >
-          Join Family
-        </button>
-
-      </div>
-    </>
-  ) : (
-    <>
-      <div className="family-top">
-
-        <div>
-          <h2>
-            👨‍👩‍👧‍👦 Family Group
-          </h2>
-
-          <div className="family-info-row">
-         
-         <div className="family-info-row">
-
-  <div className="info-box">
-  <span>Family Name</span>
-  <h3>{family.name}</h3>
-</div>
-
-<div className="info-box">
-  <span>Invite Code</span>
-  <h3>{family.inviteCode}</h3>
-</div>
-
-<div className="info-box">
-  <span>Members</span>
-  <h3>{familyMembers.length}</h3>
-</div>
 
 </div>
-  
-</div>
 
-<div className="members-section">
-  <h3>Member Emails</h3>
+<div className="quick-actions">
 
-  <div className="member-list">
-    {familyMembers.map((member, index) => (
-      <div
-        key={member.user?._id || index}
-        className="member-pill"
-      >
-        👤 {member.user?.email}
-      </div>
-    ))}
-  </div>
-</div>
-</div>
+  <button
+    className="quick-btn"
+    onClick={() =>
+      document
+        .getElementById(
+          "expense-section"
+        )
+        ?.scrollIntoView({
+          behavior:
+            "smooth",
+        })
+    }
+  >
+    ➕ Expense
+  </button>
 
-      </div>
-    </>
-  )}
+  <button
+    className="quick-btn"
+    onClick={() =>
+      document
+        .getElementById(
+          "goal-section"
+        )
+        ?.scrollIntoView({
+          behavior:
+            "smooth",
+        })
+    }
+  >
+    🎯 Goals
+  </button>
+
+  <button
+    className="quick-btn"
+    onClick={() =>
+      document
+        .getElementById(
+          "family-section"
+        )
+        ?.scrollIntoView({
+          behavior:
+            "smooth",
+        })
+    }
+  >
+    👨‍👩‍👧 Family
+  </button>
+
+  <button
+    className="quick-btn"
+    onClick={exportReport}
+  >
+    📄 Export
+  </button>
+
 </div>
 
 <div
@@ -1617,6 +1786,48 @@ const memberChartData =
     })
 
   )}
+
+</div>
+
+<div className="chart-card">
+
+  <h2>
+    📈 Monthly Expense Trend
+  </h2>
+
+  <ResponsiveContainer
+    width="100%"
+    height={350}
+  >
+
+    <LineChart
+      data={monthlyData}
+    >
+
+      <CartesianGrid
+        strokeDasharray="3 3"
+      />
+
+      <XAxis
+        dataKey="month"
+      />
+
+      <YAxis />
+
+      <Tooltip />
+
+      <Legend />
+
+      <Line
+        type="monotone"
+        dataKey="amount"
+        stroke="#2563eb"
+        strokeWidth={3}
+      />
+
+    </LineChart>
+
+  </ResponsiveContainer>
 
 </div>
 
@@ -1839,8 +2050,7 @@ const memberChartData =
     📋 Recent Activity
   </h2>
 
-  {Array.isArray(activities) &&
-  activities.length > 0 ? (
+  {activities.length > 0 ? (
 
     activities.map(
       (activity) => (
@@ -1850,7 +2060,9 @@ const memberChartData =
           className="activity-card"
         >
 
-          <div className="activity-icon">
+          <div
+            className="activity-icon"
+          >
 
             {activity.action?.includes(
               "added"
@@ -1872,11 +2084,20 @@ const memberChartData =
 
           </div>
 
-          <div className="activity-content">
+          <div
+            className="activity-content"
+          >
 
             <h4>
-              {activity.userEmail ||
+
+              {activity.user?.email ===
+              family?.admin?.email
+                ? "👑 "
+                : "👤 "}
+
+              {activity.user?.email ||
                 "Family Member"}
+
             </h4>
 
             <p>
@@ -1884,10 +2105,13 @@ const memberChartData =
             </p>
 
             <span>
-              {activity.timeAgo ||
-                new Date(
-                  activity.createdAt
-                ).toLocaleString()}
+
+              🕒{" "}
+
+              {new Date(
+                activity.createdAt
+              ).toLocaleString()}
+
             </span>
 
           </div>
@@ -1899,14 +2123,22 @@ const memberChartData =
 
   ) : (
 
-    <p
-      style={{
-        color: "#64748b",
-        marginTop: "15px",
-      }}
+    <div
+      className="empty-state"
     >
-      No recent activities found
-    </p>
+
+      <h3>
+        📭 No Activities Yet
+      </h3>
+
+      <p>
+        Start adding
+        expenses, goals
+        and savings to
+        see activity here.
+      </p>
+
+    </div>
 
   )}
 </div>

@@ -12,7 +12,13 @@ const familySchema = new mongoose.Schema(
       unique: true,
       required: true,
     },
-
+    
+    createdBy:{
+      type:
+      mongoose.Schema.Types.ObjectId,
+      ref:"User"
+    },
+    
     admin: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
