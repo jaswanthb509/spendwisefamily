@@ -78,17 +78,36 @@ router.post(
           });
       }
 
-      const budget =
-        await Budget.create({
-          family:
-            user.family,
-          category,
-          amount,
-        });
+      const existingBudget =
+  await Budget.findOne({
+    family:
+      user.family,
 
-      res.status(201).json(
-        budget
-      );
+    category:
+      category.trim(),
+  });
+
+if (existingBudget) {
+
+  return res
+    .status(400)
+    .json({
+      message:
+        `${category} budget already exists`,
+    });
+
+}
+
+      const budget =
+  await Budget.create({
+    family:
+      user.family,
+
+    category:
+      category.trim(),
+
+    amount,
+  });
 
     } catch (error) {
 

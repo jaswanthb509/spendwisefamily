@@ -552,7 +552,7 @@ const createBudget = async () => {
       fetchBudgets();
 
       toast.success(
-        "💰 Budget Created Successfully"
+        "Budget Created Successfully"
       );
 
     } else {
@@ -678,7 +678,9 @@ const exportReport = () => {
 
         expense.category,
 
-        `₹${expense.amount}`
+        `{formatCurrency(
+  expense.amount
+)}`
 
       ]
     ),
@@ -704,9 +706,13 @@ const exportReport = () => {
 
         goal.title,
 
-        `₹${goal.savedAmount}`,
+        `{formatCurrency(
+  goal.savedAmount
+)}`,
 
-        `₹${goal.targetAmount}`
+        `{formatCurrency(
+  goal.targetAmount
+)}`
 
       ]
     ),
@@ -1014,23 +1020,27 @@ const currentMember =
      CHART DATA
   ====================== */
 
-  const chartMap = {};
+const chartMap = {};
 
-  filteredExpenses.forEach(
-    (item) => {
-      if (
-        chartMap[item.category]
-      ) {
+filteredExpenses.forEach(
+  (item) => {
+
+    chartMap[
+      item.category
+    ] =
+
+      (
         chartMap[
           item.category
-        ] += item.amount;
-      } else {
-        chartMap[
-          item.category
-        ] = item.amount;
-      }
-    }
-  );
+        ] || 0
+      ) +
+
+      Number(
+        item.amount
+      );
+
+  }
+);
 
   const chartData =
     Object.keys(chartMap).map(
@@ -1041,11 +1051,22 @@ const currentMember =
       })
     );
 
-    const totalSpent =
-  expenses.reduce(
-    (sum, expense) =>
-      sum + expense.amount,
+const totalSpent =
+
+  filteredExpenses.reduce(
+
+    (
+      sum,
+      expense
+    ) =>
+
+      sum +
+      Number(
+        expense.amount
+      ),
+
     0
+
   );
 
 const topCategory =
@@ -1056,18 +1077,37 @@ const topCategory =
       )[0]
     : null;
 
-function getSpentAmount(category) {
-  return expenses
+function getSpentAmount(
+  category
+) {
+
+  return filteredExpenses
+
     .filter(
       (expense) =>
-        expense.category?.toLowerCase() ===
-        category?.toLowerCase()
+
+        expense.category
+          ?.toLowerCase() ===
+
+        category
+          ?.toLowerCase()
+
     )
+
     .reduce(
-      (total, expense) =>
-        total + Number(expense.amount),
+      (
+        total,
+        expense
+      ) =>
+
+        total +
+        Number(
+          expense.amount
+        ),
+
       0
     );
+
 }
 
     const memberMap = {};
@@ -1105,6 +1145,22 @@ const memberChartData =
     "#8b5cf6",
   ];
 
+  const formatCurrency = (
+  amount
+) => {
+
+  return new Intl.NumberFormat(
+    "en-IN",
+    {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }
+  ).format(
+    Number(amount) || 0
+  );
+
+};
   /* ======================
      PDF REPORT
   ====================== */
@@ -1122,7 +1178,7 @@ const memberChartData =
     doc.setFontSize(12);
 
     doc.text(
-      `Total Expenses: ₹${total}`,
+      `Total Expenses: {formatCurrency(total)}`,
       14,
       30
     );
@@ -1511,7 +1567,7 @@ const monthlyData = expenses.reduce(
         <div>
 
           <h3>
-            ₹{total}
+            {formatCurrency(total)}
           </h3>
 
           <span>
@@ -1750,9 +1806,13 @@ const monthlyData = expenses.reduce(
 
           <p className="budget-text">
 
-            ₹{spent}
+            {formatCurrency(
+  spent
+)}
             {" / "}
-            ₹{budget.amount}
+           {formatCurrency(
+  budget.amount
+)}
 
           </p>
 
@@ -1778,7 +1838,10 @@ const monthlyData = expenses.reduce(
 
             <span>
               Remaining:
-              ₹{remaining}
+              {formatCurrency(
+  budget.amount -
+  spent
+)}
             </span>
 
             {percentage >=
@@ -2422,7 +2485,7 @@ const monthlyData = expenses.reduce(
 
   <p>
     Total Family Spending:
-    ₹{totalSpent}
+    {formatCurrency(total)}
   </p>
 
   {topCategory && (
