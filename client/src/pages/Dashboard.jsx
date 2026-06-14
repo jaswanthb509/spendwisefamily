@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import {
   PieChart,
   Pie,
@@ -15,6 +16,27 @@ import {
   Line,
 } from "recharts";
 
+import {
+  Wallet,
+  WalletCards,
+  Users,
+  Target,
+  Sparkles,
+  Bell,
+  Moon,
+  Sun,
+  LogOut,
+  PlusCircle,
+  FileDown,
+  Crown,
+  User,
+  LayoutDashboard,
+  Receipt,
+  PiggyBank,
+  BarChart3,
+  History,
+} from "lucide-react";
+
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { formatDistanceToNow } from "date-fns";
@@ -25,6 +47,12 @@ import toast from "react-hot-toast";
 function Dashboard({ goHome, darkMode, setDarkMode }) {
   const [expenses, setExpenses] = useState([]);
   const [budgets,setBudgets] = useState([]);
+  const [
+  activeSection,
+  setActiveSection
+] = useState(
+  "dashboard"
+);
 
 const [budgetCategory,setBudgetCategory] = useState("");
 
@@ -1365,172 +1393,394 @@ const monthlyData = expenses.reduce(
     }
   };
 
+  const budgetScore =
+  budgets.length > 0
+    ? 10
+    : 5;
+
+const goalScore =
+  goals.length > 0
+    ? 10
+    : 5;
+
+const expenseScore =
+  total > 0
+    ? 8
+    : 5;
+
+const healthScore = (
+  (
+    budgetScore +
+    goalScore +
+    expenseScore
+  ) / 3
+).toFixed(1);
+
   return (
   <div className="dash-page">
 
-  {/* Navbar */}
-  <nav className="dash-nav">
+{/* Navbar */}
 
-    <h2 className="dash-logo">
-      SpendWiseFamily.
-    </h2>
+<nav className="dash-nav">
 
-    <div className="nav-right">
+{/* Logo */}
 
-      {/* Profile */}
+  <div className="logo-section">
 
-      <div className="profile-card">
 
-        <div className="profile-avatar">
+<Wallet
+  size={28}
+/>
 
-          {
-            localStorage
-              .getItem("email")
-              ?.charAt(0)
-              .toUpperCase()
-          }
+<h2 className="dash-logo">
+  SpendWiseFamily
+</h2>
 
-        </div>
 
-        <div>
+  </div>
 
-          <h4>
-            {
-              localStorage.getItem(
-                "email"
-              )
-            }
-          </h4>
+{/* Right Side */}
 
-          <span>
+  <div className="nav-right">
 
-  {currentMember?.role ===
-  "admin"
-    ? "👑 Admin"
-    : "👤 Member"}
 
-</span>
+{/* Profile */}
 
-        </div>
+<div className="profile-card">
 
-      </div>
+  <div className="profile-avatar">
 
-      {/* Notifications */}
+    {localStorage
+      .getItem("email")
+      ?.charAt(0)
+      .toUpperCase()}
 
-      <div className="notification-wrapper">
+  </div>
 
-        <button
-          className="notification-btn"
-          onClick={() =>
-            setShowNotifications(
-              !showNotifications
-            )
-          }
-        >
-          🔔
+  <div className="profile-info">
 
-          {activities.length > 0 && (
+    <h4>
 
-            <span
-              className="notification-count"
-            >
-              {activities.length}
-            </span>
+      {localStorage.getItem(
+        "email"
+      )}
 
-          )}
+    </h4>
 
-        </button>
+    <span>
 
-        {showNotifications && (
+      {currentMember?.role ===
+      "admin"
+        ? "Admin"
+        : "Member"}
 
-          <div
-            className="notification-dropdown"
-          >
+    </span>
 
-            <h4>
-              Notifications
-            </h4>
+  </div>
 
-            {activities.length ===
-            0 ? (
+</div>
 
-              <p>
-                No notifications
-              </p>
+{/* Notifications */}
 
-            ) : (
+<div className="notification-wrapper">
 
-              activities
-                .slice(0, 5)
-                .map(
-                  (
-                    activity
-                  ) => (
+  <button
+    className="notification-btn"
+    onClick={() =>
+      setShowNotifications(
+        !showNotifications
+      )
+    }
+  >
 
-                    <div
-                      key={
-                        activity._id
-                      }
-                      className="notification-item"
-                    >
+    <Bell
+      size={18}
+    />
 
-                      <p>
-                        {
-                          activity.action
-                        }
-                      </p>
+    {activities.length >
+      0 && (
 
-                    </div>
-
-                  )
-                )
-
-            )}
-
-          </div>
-
-        )}
-
-      </div>
-
-      {/* Dark Mode */}
-
-      <button
-        className="theme-btn"
-        onClick={() =>
-          setDarkMode(
-            !darkMode
-          )
+      <span
+        className="notification-count"
+      >
+        {
+          activities.length
         }
-      >
-        {darkMode
-          ? "☀️"
-          : "🌙"}
-      </button>
+      </span>
 
-      {/* Logout */}
+    )}
 
-      <button
-        className="logout-btn"
-        onClick={logout}
-      >
-        Logout
-      </button>
+  </button>
 
-      <button
-  className="export-btn"
-  onClick={exportReport}
->
-  📄 Export
-</button>
+  {showNotifications && (
+
+    <div
+      className="notification-dropdown"
+    >
+
+      <h4>
+        Recent Notifications
+      </h4>
+
+      {activities.length ===
+      0 ? (
+
+        <p>
+          No notifications
+        </p>
+
+      ) : (
+
+        activities
+          .slice(0, 5)
+          .map(
+            (
+              activity
+            ) => (
+
+              <div
+                key={
+                  activity._id
+                }
+                className="notification-item"
+              >
+
+                <p>
+                  {
+                    activity.action
+                  }
+                </p>
+
+              </div>
+
+            )
+          )
+
+      )}
 
     </div>
 
-  </nav>
+  )}
+
+</div>
+
+{/* Theme Toggle */}
+
+<button
+  className="theme-btn"
+  onClick={() =>
+    setDarkMode(
+      !darkMode
+    )
+  }
+>
+
+  {darkMode ? (
+    <Sun
+      size={18}
+    />
+  ) : (
+    <Moon
+      size={18}
+    />
+  )}
+
+</button>
+
+{/* Export */}
+
+<button
+  className="export-btn"
+  onClick={
+    exportReport
+  }
+>
+
+  <FileDown
+    size={18}
+  />
+
+  Export
+
+</button>
+
+{/* Logout */}
+
+<button
+  className="logout-btn"
+  onClick={logout}
+>
+
+  <LogOut
+    size={18}
+  />
+
+  Logout
+
+</button>
+
+
+  </div>
+
+</nav>
+
+<div className="dashboard-layout">
+
+  {/* Sidebar */}
+
+  <aside className="sidebar">
+
+    <button
+  className={
+    activeSection ===
+    "dashboard"
+      ? "active"
+      : ""
+  }
+  onClick={() =>
+    setActiveSection(
+      "dashboard"
+    )
+  }
+>
+  <LayoutDashboard
+    size={18}
+  />
+  Dashboard
+</button>
+
+    <button
+      className={
+        activeSection ===
+        "expenses"
+          ? "active"
+          : ""
+      }
+      onClick={() =>
+        setActiveSection(
+          "expenses"
+        )
+      }
+    >
+      <Receipt size={18} />
+      Expenses
+    </button>
+
+    <button
+      className={
+        activeSection ===
+        "budgets"
+          ? "active"
+          : ""
+      }
+      onClick={() =>
+        setActiveSection(
+          "budgets"
+        )
+      }
+    >
+      <PiggyBank size={18} />
+      Budgets
+    </button>
+
+    <button
+      className={
+        activeSection ===
+        "goals"
+          ? "active"
+          : ""
+      }
+      onClick={() =>
+        setActiveSection(
+          "goals"
+        )
+      }
+    >
+      Goals
+    </button>
+
+    <button
+      className={
+        activeSection ===
+        "family"
+          ? "active"
+          : ""
+      }
+      onClick={() =>
+        setActiveSection(
+          "family"
+        )
+      }
+    >
+      <Users size={18} />
+      Family
+    </button>
+
+    <button
+      className={
+        activeSection ===
+        "analytics"
+          ? "active"
+          : ""
+      }
+      onClick={() =>
+        setActiveSection(
+          "analytics"
+        )
+      }
+    >
+      <BarChart3 size={18} />
+      Analytics
+    </button>
+
+    <button
+      className={
+        activeSection ===
+        "ai"
+          ? "active"
+          : ""
+      }
+      onClick={() =>
+        setActiveSection(
+          "ai"
+        )
+      }
+    >
+      <Sparkles size={18} />
+      AI Insights
+    </button>
+
+    <button
+      className={
+        activeSection ===
+        "activity"
+          ? "active"
+          : ""
+      }
+      onClick={() =>
+        setActiveSection(
+          "activity"
+        )
+      }
+    >
+      <History size={18} />
+      Activity
+    </button>
+
+  </aside>
+
+  {/* Content Area */}
+
+  <main className="content-area">
+
+  
 
   {/* Header */}
 
-  <div className="dash-header">
+  {activeSection ===
+  "dashboard" && (
+
+<div className="dash-header">
 
   <div className="welcome-card">
 
@@ -1560,9 +1810,7 @@ const monthlyData = expenses.reduce(
 
       <div className="welcome-stat-card">
 
-        <div className="stat-icon">
-          💸
-        </div>
+      
 
         <div>
 
@@ -1580,9 +1828,7 @@ const monthlyData = expenses.reduce(
 
       <div className="welcome-stat-card">
 
-        <div className="stat-icon">
-          👨‍👩‍👧‍👦
-        </div>
+       
 
         <div>
 
@@ -1600,9 +1846,7 @@ const monthlyData = expenses.reduce(
 
       <div className="welcome-stat-card">
 
-        <div className="stat-icon">
-          🎯
-        </div>
+        
 
         <div>
 
@@ -1614,72 +1858,108 @@ const monthlyData = expenses.reduce(
             Active Goals
           </span>
 
+          
         </div>
 
+      
       </div>
+     
+     <div className="health-card">
 
+  <h3
+  style={{
+    color:
+      healthScore >= 8
+        ? "#22c55e"
+        : healthScore >= 6
+        ? "#f59e0b"
+        : "#ef4444"
+  }}
+>
+  {healthScore}/10
+</h3>
+
+  <span>
+    Financial Health
+  </span>
+
+</div>
     </div>
 
   </div>
 
 </div>
+)}
 
 <div className="quick-actions">
 
-  <button
-    className="quick-btn"
+  <div
+    className="action-card"
     onClick={() =>
       document
         .getElementById(
           "expense-section"
         )
         ?.scrollIntoView({
-          behavior:
-            "smooth",
+          behavior: "smooth",
         })
     }
   >
-    ➕ Expense
-  </button>
+    <PlusCircle size={34} />
+    <h4>Add Expense</h4>
+    <p>
+      Record a new family expense
+    </p>
+  </div>
 
-  <button
-    className="quick-btn"
+  <div
+    className="action-card"
     onClick={() =>
       document
         .getElementById(
           "goal-section"
         )
         ?.scrollIntoView({
-          behavior:
-            "smooth",
+          behavior: "smooth",
         })
     }
   >
-    🎯 Goals
-  </button>
+    <Target size={34} />
+    <h4>Create Goal</h4>
+    <p>
+      Track savings targets
+    </p>
+  </div>
 
-  <button
-    className="quick-btn"
+  <div
+    className="action-card"
     onClick={() =>
       document
         .getElementById(
           "family-section"
         )
         ?.scrollIntoView({
-          behavior:
-            "smooth",
+          behavior: "smooth",
         })
     }
   >
-    👨‍👩‍👧 Family
-  </button>
+    <Users size={34} />
+    <h4>Family Group</h4>
+    <p>
+      Manage members
+    </p>
+  </div>
 
-  <button
-    className="quick-btn"
+  <div
+    className="action-card"
     onClick={exportReport}
   >
-    📄 Export
-  </button>
+    <FileDown size={34} />
+    <h4>Export PDF</h4>
+    <p>
+      Download finance report
+    </p>
+  </div>
 
 </div>
 
@@ -1754,7 +2034,7 @@ const monthlyData = expenses.reduce(
   }}
 >
   <h2>
-    💰 Budget Tracking
+    Budget Tracking:
   </h2>
 
   {budgets.length === 0 ? (
@@ -1881,7 +2161,7 @@ const monthlyData = expenses.reduce(
 <div className="chart-card">
 
   <h2>
-    📈 Monthly Expense Trend
+    Monthly Expense Trend:
   </h2>
 
   <ResponsiveContainer
@@ -1972,7 +2252,7 @@ const monthlyData = expenses.reduce(
 <div className="goals-section">
 
   <h2 className="section-title">
-    🎯 Goal Progress
+     Goal Progress
   </h2>
 
   {goals.map((goal) => {
@@ -2136,7 +2416,7 @@ const monthlyData = expenses.reduce(
   }}
 >
   <h2>
-    📋 Recent Activity
+     Recent Activity:
   </h2>
 
   {activities.length > 0 ? (
@@ -2679,6 +2959,9 @@ const monthlyData = expenses.reduce(
   
     
   
+</div>
+
+</main>
 </div>
 
 </div>
