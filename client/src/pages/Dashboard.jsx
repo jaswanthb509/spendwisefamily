@@ -16,30 +16,28 @@ import {
   Line,
 } from "recharts";
 
-import {
-  Wallet,
-  WalletCards,
-  Users,
-  Target,
-  Sparkles,
-  Bell,
-  Moon,
-  Sun,
-  LogOut,
-  PlusCircle,
-  FileDown,
-  Crown,
-  User,
-  LayoutDashboard,
-  Receipt,
-  PiggyBank,
-  BarChart3,
-  History,
-} from "lucide-react";
 
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { formatDistanceToNow } from "date-fns";
+import Sidebar from "../components/Sidebar";
+import Navbar from "../components/Navbar";
+import Summary from "../components/Summary";
+import BudgetSection from "../components/BudgetSection";
+
+import AISection from "../components/AISection";
+
+import ActivitySection from "../components/ActivitySection";
+import ExpenseForm from "../components/ExpenseForm";
+
+import ExpenseList from "../components/ExpenseList";
+
+import FamilyCard from "../components/FamilyCard";
+
+import GoalsSection from "../components/GoalsSection";
+
+import AnalyticsSection from "../components/AnalyticsSection";
+
 
 import "../App.css";
 import toast from "react-hot-toast";
@@ -110,26 +108,10 @@ console.log(
 
 const [aiAdvice, setAiAdvice] =
   useState("");
+const [loadingAI,setLoadingAI]=useState(false);
 
 const [activities, setActivities] =
   useState([]);
-
-const [
-  editingExpense,
-  setEditingExpense
-] = useState(null);
-
-const [editTitle,
-  setEditTitle] =
-  useState("");
-
-const [editAmount,
-  setEditAmount] =
-  useState("");
-
-const [editCategory,
-  setEditCategory] =
-  useState("");
 
 const [
   familyMembers,
@@ -182,77 +164,128 @@ useEffect(() => {
   fetchFamilyMembers();
 
 }, []);
- const fetchExpenses = async () => {
+
+
+const fetchExpenses = async () => {
+
   try {
+
     const res = await fetch(
+
       "http://localhost:5000/api/expenses",
+
       {
+
         headers: {
-          Authorization: `Bearer ${token}`,
+
+          Authorization:
+
+            `Bearer ${token}`,
+
         },
+
       }
+
     );
 
-    const data = await res.json();
-    console.log(data);
+    const data =
 
-    if (res.ok) {
-      setExpenses(data);
-    }
-    console.log("Expenses,data");
-  } catch (error) {
-    console.log(error);
-     toast.error(
-    "Something went wrong"
-  );
+      await res.json();
+
+    setExpenses(data);
+
   }
+
+  catch(error){
+
+    console.log(error);
+
+  }
+
 };
 
-const updateExpense = async () => {
+const updateExpense = async (
+
+  id,
+
+  updatedData
+
+) => {
+
   try {
 
     const res = await fetch(
-      `http://localhost:5000/api/expenses/${editingExpense._id}`,
+
+      `http://localhost:5000/api/expenses/${id}`,
+
       {
+
         method: "PUT",
+
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+
+          "Content-Type":
+
+            "application/json",
+
+          Authorization:
+
+            `Bearer ${token}`,
+
         },
-       body: JSON.stringify({
-       title: editTitle,
-       amount: editAmount,
-       category: editCategory,
-      })
+
+        body: JSON.stringify(
+
+          updatedData
+
+        ),
+
       }
+
     );
 
     if (res.ok) {
 
       toast.success(
+
         "Expense Updated"
+
       );
 
-      // clear edit mode
-      setEditingExpense(null);
-
-      // clear form
-      setTitle("");
-      setAmount("");
-      setCategory("");
-
       fetchExpenses();
+
       fetchActivities();
+
     }
 
-  } catch (error) {
+    else {
 
-    console.log(error);
+      toast.error(
+
+        "Update Failed"
+
+      );
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.log(
+
+      error
+
+    );
 
     toast.error(
+
       "Something went wrong"
+
     );
+
   }
+
 };
 
 const fetchFamily = async () => {
@@ -415,6 +448,7 @@ const createFamily = async () => {
     if (res.ok) {
       alert("Family Created");
       fetchFamily();
+      await fetchActivities();
     } else {
       alert(data.message);
     }
@@ -447,6 +481,7 @@ const joinFamily = async () => {
     if (res.ok) {
       alert("Joined Family");
       fetchFamily();
+      await fetchActivities();
     } else {
       alert(data.message);
     }
@@ -650,11 +685,12 @@ async () => {
       setGoalTarget("");
       setGoalDeadline("");
 
-      fetchGoals();
+      await fetchGoals();
+      await fetchActivities();
 
-      alert(
-        "Goal Created"
-      );
+      toast.success(
+"Goal Created"
+);
     }
   } catch (error) {
     console.log(error);
@@ -864,6 +900,7 @@ const addSavings = async (
     "Goal deleted"
      ); 
         fetchGoals();
+        await fetchActivities();
       }
     } catch (error) {
       console.log(error);
@@ -1017,7 +1054,7 @@ const logout = () => {
 
     console.log(data);
 
-    getExpenses();
+    fetchExpenses();
 
   } catch (err) {
     console.log(err);
@@ -1311,87 +1348,143 @@ const monthlyData = expenses.reduce(
   []
 );
 
- const getAIAdvice =
-  async () => {
-    try {
-      toast.loading(
-        "Generating AI insights...",
-        {
-          id: "ai",
-        }
-      );
+const getAIAdvice = async () => {
 
-      const res =
-        await fetch(
-          "http://localhost:5000/api/ai/recommend",
-          {
-            method: "POST",
+  try {
 
-            headers: {
-              "Content-Type":
-                "application/json",
+    setLoadingAI(true);
 
-              Authorization:
-                `Bearer ${token}`,
-            },
+    toast.loading(
 
-            body: JSON.stringify({
-              expenses,
-              goals,
-              budgets,
-            }),
-          }
-        );
+      "Generating AI insights...",
 
-      const data =
-        await res.json();
+      {
 
-      if (res.ok) {
-        setAiAdvice(
-          data.recommendation
-        );
+        id: "ai",
 
-        toast.success(
-          "AI insights generated",
-          {
-            id: "ai",
-          }
-        );
-      } else {
-        setAiAdvice(
-          "AI insights are currently unavailable. Please try again later."
-        );
-
-        toast.error(
-          data.message ||
-            "AI service unavailable",
-          {
-            id: "ai",
-          }
-        );
       }
-    } catch (error) {
-      console.log(error);
+
+    );
+
+    const res = await fetch(
+
+      "http://localhost:5000/api/ai/recommend",
+
+      {
+
+        method: "POST",
+
+        headers: {
+
+          "Content-Type":
+
+            "application/json",
+
+          Authorization:
+
+            `Bearer ${token}`,
+
+        },
+
+        body: JSON.stringify({
+
+          expenses,
+
+          goals,
+
+          budgets,
+
+        }),
+
+      }
+
+    );
+
+    const data = await res.json();
+
+    if (res.ok) {
 
       setAiAdvice(
-        `📊 Financial Summary
 
-• Track spending regularly.
-• Focus on your highest spending category.
-• Continue contributing towards active savings goals.
-• Maintain a monthly budget for better financial discipline.
+        data.recommendation
 
-⚠️ AI service is temporarily unavailable.`
+      );
+
+      toast.success(
+
+        "AI insights generated",
+
+        {
+
+          id: "ai",
+
+        }
+
+      );
+
+    } else {
+
+      setAiAdvice(
+
+        "AI insights are currently unavailable. Please try again later."
+
       );
 
       toast.error(
-        "AI service unavailable",
+
+        data.message ||
+
+          "AI service unavailable",
+
         {
+
           id: "ai",
+
         }
+
       );
+
     }
-  };
+
+  } catch (error) {
+
+    console.log(error);
+
+    setAiAdvice(
+
+`📊 Financial Summary
+
+• Track spending regularly.
+
+• Focus on your highest spending category.
+
+• Continue contributing towards active savings goals.
+
+• Maintain a monthly budget for better financial discipline.
+
+⚠️ AI service is temporarily unavailable.`
+
+    );
+
+    toast.error(
+
+      "AI service unavailable",
+
+      {
+
+        id: "ai",
+
+      }
+
+    );
+
+  } finally {
+
+    setLoadingAI(false);
+
+  }
+
+};
 
   const budgetScore =
   budgets.length > 0
@@ -1421,1545 +1514,322 @@ const healthScore = (
 
 {/* Navbar */}
 
-<nav className="dash-nav">
+<Navbar
 
-{/* Logo */}
+activities={activities}
 
-  <div className="logo-section">
+showNotifications={
+  showNotifications
+}
 
+setShowNotifications={
+  setShowNotifications
+}
 
-<Wallet
-  size={28}
+darkMode={darkMode}
+
+setDarkMode={
+  setDarkMode
+}
+
+logout={logout}
+
+exportReport={
+  exportReport
+}
+
+currentMember={
+  currentMember
+}
+
 />
-
-<h2 className="dash-logo">
-  SpendWiseFamily
-</h2>
-
-
-  </div>
-
-{/* Right Side */}
-
-  <div className="nav-right">
-
-
-{/* Profile */}
-
-<div className="profile-card">
-
-  <div className="profile-avatar">
-
-    {localStorage
-      .getItem("email")
-      ?.charAt(0)
-      .toUpperCase()}
-
-  </div>
-
-  <div className="profile-info">
-
-    <h4>
-
-      {localStorage.getItem(
-        "email"
-      )}
-
-    </h4>
-
-    <span>
-
-      {currentMember?.role ===
-      "admin"
-        ? "Admin"
-        : "Member"}
-
-    </span>
-
-  </div>
-
-</div>
-
-{/* Notifications */}
-
-<div className="notification-wrapper">
-
-  <button
-    className="notification-btn"
-    onClick={() =>
-      setShowNotifications(
-        !showNotifications
-      )
-    }
-  >
-
-    <Bell
-      size={18}
-    />
-
-    {activities.length >
-      0 && (
-
-      <span
-        className="notification-count"
-      >
-        {
-          activities.length
-        }
-      </span>
-
-    )}
-
-  </button>
-
-  {showNotifications && (
-
-    <div
-      className="notification-dropdown"
-    >
-
-      <h4>
-        Recent Notifications
-      </h4>
-
-      {activities.length ===
-      0 ? (
-
-        <p>
-          No notifications
-        </p>
-
-      ) : (
-
-        activities
-          .slice(0, 5)
-          .map(
-            (
-              activity
-            ) => (
-
-              <div
-                key={
-                  activity._id
-                }
-                className="notification-item"
-              >
-
-                <p>
-                  {
-                    activity.action
-                  }
-                </p>
-
-              </div>
-
-            )
-          )
-
-      )}
-
-    </div>
-
-  )}
-
-</div>
-
-{/* Theme Toggle */}
-
-<button
-  className="theme-btn"
-  onClick={() =>
-    setDarkMode(
-      !darkMode
-    )
-  }
->
-
-  {darkMode ? (
-    <Sun
-      size={18}
-    />
-  ) : (
-    <Moon
-      size={18}
-    />
-  )}
-
-</button>
-
-{/* Export */}
-
-<button
-  className="export-btn"
-  onClick={
-    exportReport
-  }
->
-
-  <FileDown
-    size={18}
-  />
-
-  Export
-
-</button>
-
-{/* Logout */}
-
-<button
-  className="logout-btn"
-  onClick={logout}
->
-
-  <LogOut
-    size={18}
-  />
-
-  Logout
-
-</button>
-
-
-  </div>
-
-</nav>
 
 <div className="dashboard-layout">
 
   {/* Sidebar */}
 
-  <aside className="sidebar">
+  <Sidebar
 
-    <button
-  className={
-    activeSection ===
-    "dashboard"
-      ? "active"
-      : ""
-  }
-  onClick={() =>
-    setActiveSection(
-      "dashboard"
-    )
-  }
->
-  <LayoutDashboard
-    size={18}
-  />
-  Dashboard
-</button>
+activeSection={activeSection}
 
-    <button
-      className={
-        activeSection ===
-        "expenses"
-          ? "active"
-          : ""
-      }
-      onClick={() =>
-        setActiveSection(
-          "expenses"
-        )
-      }
-    >
-      <Receipt size={18} />
-      Expenses
-    </button>
+setActiveSection={setActiveSection}
 
-    <button
-      className={
-        activeSection ===
-        "budgets"
-          ? "active"
-          : ""
-      }
-      onClick={() =>
-        setActiveSection(
-          "budgets"
-        )
-      }
-    >
-      <PiggyBank size={18} />
-      Budgets
-    </button>
-
-    <button
-      className={
-        activeSection ===
-        "goals"
-          ? "active"
-          : ""
-      }
-      onClick={() =>
-        setActiveSection(
-          "goals"
-        )
-      }
-    >
-      Goals
-    </button>
-
-    <button
-      className={
-        activeSection ===
-        "family"
-          ? "active"
-          : ""
-      }
-      onClick={() =>
-        setActiveSection(
-          "family"
-        )
-      }
-    >
-      <Users size={18} />
-      Family
-    </button>
-
-    <button
-      className={
-        activeSection ===
-        "analytics"
-          ? "active"
-          : ""
-      }
-      onClick={() =>
-        setActiveSection(
-          "analytics"
-        )
-      }
-    >
-      <BarChart3 size={18} />
-      Analytics
-    </button>
-
-    <button
-      className={
-        activeSection ===
-        "ai"
-          ? "active"
-          : ""
-      }
-      onClick={() =>
-        setActiveSection(
-          "ai"
-        )
-      }
-    >
-      <Sparkles size={18} />
-      AI Insights
-    </button>
-
-    <button
-      className={
-        activeSection ===
-        "activity"
-          ? "active"
-          : ""
-      }
-      onClick={() =>
-        setActiveSection(
-          "activity"
-        )
-      }
-    >
-      <History size={18} />
-      Activity
-    </button>
-
-  </aside>
+/>
 
   {/* Content Area */}
 
-  <main className="content-area">
+<main className="content-area">
 
-  
+{/* Dashboard */}
 
-  {/* Header */}
+{activeSection ===
+"dashboard" && (
 
-  {activeSection ===
-  "dashboard" && (
+<Summary
 
-<div className="dash-header">
+total={total}
 
-  <div className="welcome-card">
+familyMembers={familyMembers}
 
-    <div className="welcome-top">
+goals={goals}
 
-      <div>
+healthScore={healthScore}
 
-        <h1>
-          Welcome Back...
-        </h1>
+formatCurrency={formatCurrency}
 
-        <p>
-          Manage expenses, budgets,
-          savings goals and family
-          finances in one place.
-        </p>
+exportReport={exportReport}
 
-      </div>
+setActiveSection={setActiveSection}
 
-      <div className="welcome-badge">
-        A Smart Finance Tracker
-      </div>
+topCategory={topCategory}
 
-    </div>
-
-    <div className="welcome-stats">
-
-      <div className="welcome-stat-card">
-
-      
-
-        <div>
-
-          <h3>
-            {formatCurrency(total)}
-          </h3>
-
-          <span>
-            Total Expenses
-          </span>
-
-        </div>
-
-      </div>
-
-      <div className="welcome-stat-card">
-
-       
-
-        <div>
-
-          <h3>
-            {familyMembers.length}
-          </h3>
-
-          <span>
-            Family Members
-          </span>
-
-        </div>
-
-      </div>
-
-      <div className="welcome-stat-card">
-
-        
-
-        <div>
-
-          <h3>
-            {goals.length}
-          </h3>
-
-          <span>
-            Active Goals
-          </span>
-
-          
-        </div>
-
-      
-      </div>
-     
-     <div className="health-card">
-
-  <h3
-  style={{
-    color:
-      healthScore >= 8
-        ? "#22c55e"
-        : healthScore >= 6
-        ? "#f59e0b"
-        : "#ef4444"
-  }}
->
-  {healthScore}/10
-</h3>
-
-  <span>
-    Financial Health
-  </span>
-
-</div>
-    </div>
-
-  </div>
-
-</div>
-)}
-
-<div className="quick-actions">
-
-  <div
-    className="action-card"
-    onClick={() =>
-      document
-        .getElementById(
-          "expense-section"
-        )
-        ?.scrollIntoView({
-          behavior: "smooth",
-        })
-    }
-  >
-    <PlusCircle size={34} />
-    <h4>Add Expense</h4>
-    <p>
-      Record a new family expense
-    </p>
-  </div>
-
-  <div
-    className="action-card"
-    onClick={() =>
-      document
-        .getElementById(
-          "goal-section"
-        )
-        ?.scrollIntoView({
-          behavior: "smooth",
-        })
-    }
-  >
-    <Target size={34} />
-    <h4>Create Goal</h4>
-    <p>
-      Track savings targets
-    </p>
-  </div>
-
-  <div
-    className="action-card"
-    onClick={() =>
-      document
-        .getElementById(
-          "family-section"
-        )
-        ?.scrollIntoView({
-          behavior: "smooth",
-        })
-    }
-  >
-    <Users size={34} />
-    <h4>Family Group</h4>
-    <p>
-      Manage members
-    </p>
-  </div>
-
-  <div
-    className="action-card"
-    onClick={exportReport}
-  >
-    <FileDown size={34} />
-    <h4>Export PDF</h4>
-    <p>
-      Download finance report
-    </p>
-  </div>
-
-</div>
-
-<div
-  className="stat-card"
-  style={{
-    marginTop: "20px",
-  }}
->
-  <h2>
-    Budget Tracking
-  </h2>
-
-  <select
-    value={
-      budgetCategory
-    }
-    onChange={(e) =>
-      setBudgetCategory(
-        e.target.value
-      )
-    }
-  >
-    <option value="">
-      Category
-    </option>
-
-    <option value="Food">
-      Food
-    </option>
-
-    <option value="Bills">
-      Bills
-    </option>
-
-    <option value="Travel">
-      Travel
-    </option>
-
-    <option value="Shopping">
-      Shopping
-    </option>
-  </select>
-
-  <input
-    type="number"
-    placeholder="Budget Amount"
-    value={
-      budgetAmount
-    }
-    onChange={(e) =>
-      setBudgetAmount(
-        e.target.value
-      )
-    }
-  />
-
-  <button
-    className="main-btn"
-    onClick={
-      createBudget
-    }
-  >
-    Set Budget
-  </button>
-</div>
-
-<div
-  className="stat-card"
-  style={{
-    marginTop: "20px",
-  }}
->
-  <h2>
-    Budget Tracking:
-  </h2>
-
-  {budgets.length === 0 ? (
-
-    <p>
-      No budgets added yet
-    </p>
-
-  ) : (
-
-    budgets.map((budget) => {
-
-      const spent =
-        getSpentAmount(
-          budget.category
-        );
-
-      const percentage =
-        Math.min(
-          (
-            spent /
-            budget.amount
-          ) * 100,
-          100
-        );
-
-      const remaining =
-        budget.amount -
-        spent;
-
-      return (
-
-        <div
-          key={budget._id}
-          className="budget-card"
-        >
-
-          <div className="budget-header">
-
-            <h3>
-              {budget.category}
-            </h3>
-
-            <span>
-              ₹{budget.amount}
-            </span>
-
-          </div>
-
-          <p className="budget-text">
-
-            {formatCurrency(
-  spent
-)}
-            {" / "}
-           {formatCurrency(
-  budget.amount
-)}
-
-          </p>
-
-          <div className="budget-progress">
-
-            <div
-              className={`budget-fill ${
-                percentage >= 100
-                  ? "danger"
-                  : percentage >= 80
-                  ? "warning"
-                  : "safe"
-              }`}
-              style={{
-                width:
-                  `${percentage}%`,
-              }}
-            />
-
-          </div>
-
-          <div className="budget-footer">
-
-            <span>
-              Remaining:
-              {formatCurrency(
-  budget.amount -
-  spent
-)}
-            </span>
-
-            {percentage >=
-            100 ? (
-
-              <span className="budget-danger">
-                🚨 Exceeded
-              </span>
-
-            ) : percentage >=
-              80 ? (
-
-              <span className="budget-warning">
-                ⚠️ Near Limit
-              </span>
-
-            ) : (
-
-              <span className="budget-safe">
-                ✅ On Track
-              </span>
-
-            )}
-
-          </div>
-
-        </div>
-
-      );
-
-    })
-
-  )}
-
-</div>
-
-<div className="chart-card">
-
-  <h2>
-    Monthly Expense Trend:
-  </h2>
-
-  <ResponsiveContainer
-    width="100%"
-    height={350}
-  >
-
-    <LineChart
-      data={monthlyData}
-    >
-
-      <CartesianGrid
-        strokeDasharray="3 3"
-      />
-
-      <XAxis
-        dataKey="month"
-      />
-
-      <YAxis />
-
-      <Tooltip />
-
-      <Legend />
-
-      <Line
-        type="monotone"
-        dataKey="amount"
-        stroke="#2563eb"
-        strokeWidth={3}
-      />
-
-    </LineChart>
-
-  </ResponsiveContainer>
-
-</div>
-
-<div className="stat-card">
-
-  <h2>
-    Savings Goals
-  </h2>
-
-  <input
-    type="text"
-    placeholder="Goal Name"
-    value={goalTitle}
-    onChange={(e) =>
-      setGoalTitle(
-        e.target.value
-      )
-    }
-  />
-
-  <input
-    type="number"
-    placeholder="Target Amount"
-    value={goalTarget}
-    onChange={(e) =>
-      setGoalTarget(
-        e.target.value
-      )
-    }
-  />
-
-  <input
-    type="date"
-    value={goalDeadline}
-    onChange={(e) =>
-      setGoalDeadline(
-        e.target.value
-      )
-    }
-  />
-
-  <button
-    className="main-btn"
-    onClick={
-      createGoal
-    }
-  >
-    Create Goal
-  </button>
-
-</div>
-
-<div className="goals-section">
-
-  <h2 className="section-title">
-     Goal Progress
-  </h2>
-
-  {goals.map((goal) => {
-
-    const percentage = Math.min(
-      (goal.savedAmount /
-        goal.targetAmount) *
-        100,
-      100
-    );
-
-    const daysLeft =
-      goal.deadline
-        ? Math.ceil(
-            (new Date(goal.deadline) -
-              new Date()) /
-              (1000 * 60 * 60 * 24)
-          )
-        : null;
-
-    return (
-
-      <div
-        className="goal-card"
-        key={goal._id}
-      >
-
-        <div className="goal-header">
-
-          <div>
-
-            <h3>{goal.title}</h3>
-
-            <p className="goal-amount">
-              ₹{goal.savedAmount.toLocaleString()}
-              {" / "}
-              ₹{goal.targetAmount.toLocaleString()}
-            </p>
-
-          </div>
-
-          <button
-            className="delete-btn"
-            onClick={() => {
-
-              if (
-                window.confirm(
-                  "Delete this goal?"
-                )
-              ) {
-                deleteGoal(goal._id);
-              }
-
-            }}
-          >
-            🗑 Delete
-          </button>
-
-        </div>
-
-        {daysLeft === 0 && (
-          <p className="deadline-warning">
-            ⚠️ Deadline Today
-          </p>
-        )}
-
-        {daysLeft > 0 && (
-          <p className="deadline-normal">
-            ⏳ {daysLeft} days left
-          </p>
-        )}
-
-        {daysLeft < 0 && (
-          <p className="deadline-overdue">
-            🚨 Goal Overdue
-          </p>
-        )}
-
-        <div className="progress-bar">
-
-          <div
-            className={`progress-fill ${
-              percentage >= 100
-                ? "success"
-                : percentage >= 80
-                ? "good"
-                : percentage >= 50
-                ? "medium"
-                : "low"
-            }`}
-            style={{
-              width: `${percentage}%`,
-            }}
-          />
-
-        </div>
-
-        <div className="progress-label">
-          {percentage.toFixed(0)}%
-          Complete
-        </div>
-
-        {goal.savedAmount >=
-        goal.targetAmount ? (
-
-          <div className="goal-achieved">
-            🏆 Goal Achieved
-          </div>
-
-        ) : (
-
-          <div className="savings-row">
-
-            <input
-              type="number"
-              placeholder="Add savings"
-              value={
-                savingAmounts[
-                  goal._id
-                ] || ""
-              }
-              onChange={(e) =>
-                setSavingAmounts({
-                  ...savingAmounts,
-                  [goal._id]:
-                    e.target.value,
-                })
-              }
-            />
-
-            <button
-              className="main-btn"
-              onClick={() =>
-                addSavings(
-                  goal._id,
-                  savingAmounts[
-                    goal._id
-                  ]
-                )
-              }
-            >
-              Add Savings
-            </button>
-
-          </div>
-
-        )}
-
-      </div>
-
-    );
-
-  })}
-
-</div>
-
-<div
-  className="stat-card"
-  style={{
-    marginTop: "30px",
-  }}
->
-  <h2>
-     Recent Activity:
-  </h2>
-
-  {activities.length > 0 ? (
-
-    activities.map(
-      (activity) => (
-
-        <div
-          key={activity._id}
-          className="activity-card"
-        >
-
-          <div
-            className="activity-icon"
-          >
-
-            {activity.action?.includes(
-              "added"
-            )
-              ? "➕"
-              : activity.action?.includes(
-                  "updated"
-                )
-              ? "✏️"
-              : activity.action?.includes(
-                  "deleted"
-                )
-              ? "🗑️"
-              : activity.action?.includes(
-                  "goal"
-                )
-              ? "🎯"
-              : "📌"}
-
-          </div>
-
-          <div
-            className="activity-content"
-          >
-
-            <h4>
-
-              {activity.user?.email ===
-              family?.admin?.email
-                ? "👑 "
-                : "👤 "}
-
-              {activity.user?.email ||
-                "Family Member"}
-
-            </h4>
-
-            <p>
-              {activity.action}
-            </p>
-
-            <span>
-
-              🕒{" "}
-
-              {new Date(
-                activity.createdAt
-              ).toLocaleString()}
-
-            </span>
-
-          </div>
-
-        </div>
-
-      )
-    )
-
-  ) : (
-
-    <div
-      className="empty-state"
-    >
-
-      <h3>
-        📭 No Activities Yet
-      </h3>
-
-      <p>
-        Start adding
-        expenses, goals
-        and savings to
-        see activity here.
-      </p>
-
-    </div>
-
-  )}
-</div>
-
-<div
-  className="stat-card"
-  style={{
-    marginTop: "20px",
-  }}
->
-  <h2>Add Expense</h2>
-
-  <input
-    type="text"
-    placeholder="Title"
-    value={title}
-    onChange={(e) =>
-      setTitle(e.target.value)
-    }
-  />
-
-  <input
-    type="number"
-    placeholder="Amount"
-    value={amount}
-    onChange={(e) =>
-      setAmount(e.target.value)
-    }
-  />
-
-  <select
-    value={category}
-    onChange={(e) =>
-      setCategory(
-        e.target.value
-      )
-    }
-  >
-    <option value="">
-      Select Category
-    </option>
-
-    <option value="Food">
-      Food
-    </option>
-
-    <option value="Bills">
-      Bills
-    </option>
-
-    <option value="Travel">
-      Travel
-    </option>
-
-    <option value="Shopping">
-      Shopping
-    </option>
-  </select>
-
- <button
-  className="main-btn"
-  onClick={addExpense}
->
-  Add Expense
-</button>
-</div>
-
-      {/* Filters + PDF */}
-      <div
-        style={{
-          display: "flex",
-          gap: "15px",
-          marginTop: "20px",
-          flexWrap:
-            "wrap",
-        }}
-      >
-        <select
-          value={filter}
-          onChange={(e) =>
-            setFilter(
-              e.target.value
-            )
-          }
-        >
-          <option>All</option>
-          <option>Food</option>
-          <option>Bills</option>
-          <option>Travel</option>
-          <option>
-            Shopping
-          </option>
-        </select>
-
-        <select
-          value={dateFilter}
-          onChange={(e) =>
-            setDateFilter(
-              e.target.value
-            )
-          }
-        >
-          <option>
-            All Time
-          </option>
-          <option>
-            This Month
-          </option>
-          <option>
-            Last Month
-          </option>
-          <option>
-            This Year
-          </option>
-        </select>
-
-        <button
-          className="main-btn"
-          onClick={
-            downloadPDF
-          }
-        >
-          Download PDF
-        </button>
-      </div>
-
-      <div
-  style={{
-    marginTop: "20px",
-  }}
->
-
-  <button
-    className="main-btn"
-    onClick={getAIAdvice}
-  >
-    🤖 Generate AI Insights
-  </button>
-
-  {aiAdvice && (
-
-    <div
-      className="ai-card"
-    >
-
-      <div className="ai-header">
-
-        <h2>
-          🤖 AI Financial Insights
-        </h2>
-
-        <span className="ai-badge">
-          Powered by Gemini
-        </span>
-
-      </div>
-
-      <div
-        className="ai-content"
-        dangerouslySetInnerHTML={{
-          __html: aiAdvice,
-        }}
-      />
-
-    </div>
-
-  )}
-
-</div>
-
-      {/* Chart */}
-      <div className="chart-card">
-        <h2>
-          Expense Analytics
-        </h2>
-
-       <ResponsiveContainer
-  width="100%"
-  height={320}
->
-  <PieChart>
-    <Pie
-      data={chartData}
-      cx="50%"
-      cy="50%"
-      outerRadius={110}
-      dataKey="value"
-      label
-    >
-      {chartData.map(
-        (
-          entry,
-          index
-        ) => (
-          <Cell
-            key={index}
-            fill={
-              COLORS[
-                index %
-                  COLORS.length
-              ]
-            }
-          />
-        )
-      )}
-    </Pie>
-
-    <Tooltip />
-    <Legend />
-  </PieChart>
-</ResponsiveContainer>
-      </div>
-
-      <div className="chart-card">
-  <h2>
-    Member Spending
-  </h2>
-
-  <ResponsiveContainer
-  width="100%"
-  height={300}
->
-  <BarChart
-    data={memberChartData}
-  >
-    <CartesianGrid
-      strokeDasharray="3 3"
-    />
-
-    <XAxis
-      dataKey="name"
-    />
-
-    <YAxis />
-
-    <Tooltip />
-
-    <Bar
-      dataKey="amount"
-      fill="#2563eb"
-    />
-  </BarChart>
-</ResponsiveContainer>
-</div>
-
-<div
-  className="ai-card"
-  style={{
-    marginTop: "20px",
-  }}
->
-  <h2>
-    AI Insights
-  </h2>
-
-  <p>
-    Total Family Spending:
-    {formatCurrency(total)}
-  </p>
-
-  {topCategory && (
-    <p>
-      Highest Spending:
-      {topCategory.name}
-      (₹{topCategory.value})
-    </p>
-  )}
-
-  <p>
-    Recommendation:
-    Reduce spending in
-    your highest category
-    by 10%.
-  </p>
-</div>
-
-{editingExpense && (
-  <div
-    className="stat-card"
-    style={{
-      marginTop: "20px",
-    }}
-  >
-    <h2>Edit Expense</h2>
-
-    <input
-      type="text"
-      placeholder="Title"
-      value={editTitle}
-      onChange={(e) =>
-        setEditTitle(e.target.value)
-      }
-    />
-
-    <input
-      type="number"
-      placeholder="Amount"
-      value={editAmount}
-      onChange={(e) =>
-        setEditAmount(e.target.value)
-      }
-    />
-
-    <select
-      value={editCategory}
-      onChange={(e) =>
-        setEditCategory(e.target.value)
-      }
-    >
-      <option value="Food">
-        Food
-      </option>
-
-      <option value="Bills">
-        Bills
-      </option>
-
-      <option value="Shopping">
-        Shopping
-      </option>
-
-      <option value="Travel">
-        Travel
-      </option>
-    </select>
-
-    <button
-      onClick={updateExpense}
-      className="main-btn"
-    >
-      Save Changes
-    </button>
-
-    <button
-      className="delete-btn"
-      onClick={() => {
-        setEditingExpense(null);
-        setEditTitle("");
-        setEditAmount("");
-        setEditCategory("");
-      }}
-    >
-      Cancel
-    </button>
-  </div>
-)}
-
-<input
-  type="text"
-  placeholder="🔍 Search Expenses"
-  value={searchTerm}
-  onChange={(e) =>
-    setSearchTerm(e.target.value)
-  }
 />
 
-<select
-  value={sortBy}
-  onChange={(e) =>
-    setSortBy(e.target.value)
+)}
+
+
+{/* Expenses */}
+
+{activeSection ===
+"expenses" && (
+
+<>
+
+<ExpenseForm
+
+onAdd={async () => {
+
+await fetchExpenses();
+
+await fetchActivities();
+
+}}
+
+/>
+
+<ExpenseList
+
+expenses={filteredExpenses}
+
+deleteExpense={deleteExpense}
+
+updateExpense={updateExpense}
+
+/>
+
+</>
+
+)}
+
+
+{/* Budgets */}
+
+{activeSection ===
+"budgets" && (
+
+<BudgetSection
+
+budgetCategory={
+budgetCategory
+}
+
+setBudgetCategory={
+setBudgetCategory
+}
+
+budgetAmount={
+budgetAmount
+}
+
+setBudgetAmount={
+setBudgetAmount
+}
+
+createBudget={
+createBudget
+}
+
+budgets={
+budgets
+}
+
+getSpentAmount={
+getSpentAmount
+}
+
+/>
+
+)}
+
+
+{/* Goals */}
+
+{activeSection ===
+"goals" && (
+
+<GoalsSection
+
+goals={goals}
+
+goalTitle={
+goalTitle
+}
+
+setGoalTitle={
+setGoalTitle
+}
+
+goalAmount={
+goalTarget
+}
+
+setGoalAmount={
+setGoalTarget
+}
+
+goalDeadline={
+goalDeadline
+}
+
+setGoalDeadline={
+setGoalDeadline
+}
+
+createGoal={
+createGoal
+}
+
+addSavings={
+addSavings
+}
+
+deleteGoal={
+deleteGoal
+}
+
+savingAmounts={
+savingAmounts
+}
+
+setSavingAmounts={
+setSavingAmounts
+}
+
+/>
+
+)}
+
+
+{/* Family */}
+
+{activeSection ===
+"family" && (
+
+<FamilyCard
+
+family={family}
+
+familyMembers={
+familyMembers
+}
+
+familyName={
+familyName
+}
+
+setFamilyName={
+setFamilyName
+}
+
+inviteCode={
+inviteCode
+}
+
+setInviteCode={
+setInviteCode
+}
+
+createFamily={
+createFamily
+}
+
+joinFamily={
+joinFamily
+}
+
+/>
+
+)}
+
+
+{/* Analytics */}
+
+{activeSection ===
+"analytics" && (
+
+<AnalyticsSection
+
+chartData={
+chartData
+}
+
+monthlyData={
+monthlyData
+}
+
+memberChartData={
+memberChartData
+}
+
+/>
+
+)}
+
+
+{/* AI */}
+
+{activeSection ===
+"ai" && (
+
+<AISection
+
+  getAIAdvice={
+
+    getAIAdvice
+
   }
->
-  <option value="latest">
-    Latest First
-  </option>
 
-  <option value="oldest">
-    Oldest First
-  </option>
+  aiAdvice={
 
-  <option value="highest">
-    Highest Amount
-  </option>
+    aiAdvice
 
-  <option value="lowest">
-    Lowest Amount
-  </option>
-</select>
+  }
+
+  loadingAI={
+
+    loadingAI
+
+  }
+
+/>
+
+)}
 
 
-      
-      {/* Expense List */}
-<div
-  style={{
-    marginTop: "30px",
-  }}
->
-  {expenses.map((expense) => (
+{/* Activity */}
 
-  <div
-    key={expense._id}
-    className="expense-card"
-  >
+{activeSection ===
+"activity" && (
 
-    <div>
+<ActivitySection
 
-      <h3>
-        {expense.title}
-      </h3>
+activities={
+activities
+}
 
-      <p>
-        {expense.category}
-      </p>
+/>
 
-      <small>
-        Added by:
-        {" "}
-        {expense.user?.email}
-      </small>
-
-    </div>
-
-    <div className="expense-actions">
-
-  <h2 className="expense-amount">
-    ₹{expense.amount}
-  </h2>
-
-  <button
-  className="edit-btn"
-  onClick={() => {
-
-    setEditTitle(expense.title);
-
-    setEditAmount(expense.amount);
-
-    setEditCategory(expense.category);
-
-    setEditingExpense(expense);
-
-    
-  }}
->
-  Edit
-</button>
-
-  <button
-    className="delete-btn"
-    onClick={() => deleteExpense(expense._id)}
-  >
-    Delete
-  </button>
-
-</div>
-
-  </div>
-
-))}
-  
-    
-  
-</div>
+)}
 
 </main>
 </div>
