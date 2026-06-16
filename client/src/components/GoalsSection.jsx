@@ -1,3 +1,12 @@
+import {
+  Target,
+  PiggyBank,
+  Trash2,
+  Calendar,
+  CheckCircle,
+  Pencil,
+} from "lucide-react";
+
 export default function GoalsSection({
 
   goals,
@@ -26,19 +35,43 @@ export default function GoalsSection({
 
 }) {
 
-return (
+const formatCurrency=(amount)=>{
+
+return new Intl.NumberFormat(
+
+"en-IN",
+
+{
+
+style:"currency",
+
+currency:"INR",
+
+maximumFractionDigits:0,
+
+}
+
+).format(amount);
+
+};
+
+return(
 
 <>
 
 {/* Create Goal */}
 
-<div className="stat-card">
+<div className="section-card">
 
-<h2>
+<h2 className="section-title">
+
+<Target size={22}/>
 
 Savings Goals
 
 </h2>
+
+<div className="goal-form">
 
 <input
 
@@ -112,9 +145,11 @@ Create Goal
 
 </div>
 
+</div>
+
 {/* Goal Progress */}
 
-<div style={{marginTop:"20px"}}>
+<div className="goal-container">
 
 <h2>
 
@@ -122,17 +157,69 @@ Goal Progress
 
 </h2>
 
-{goals.map((goal)=>{
+{goals.length===0 ? (
 
-const percentage=Math.min(
+<div className="empty-card">
 
-(goal.savedAmount/
+🎯 No goals created yet
 
-goal.targetAmount)
+</div>
 
-*100,
+) : (
+
+goals.map((goal)=>{
+
+const percentage=
+
+Math.min(
+
+(
+
+goal.savedAmount/
+
+goal.targetAmount
+
+)*100,
 
 100
+
+);
+
+const achieved=
+
+goal.savedAmount >=
+
+goal.targetAmount;
+
+const daysLeft=
+
+Math.ceil(
+
+(
+
+new Date(
+
+goal.deadline
+
+)
+
+-
+
+new Date()
+
+)
+
+/(
+
+1000*
+
+60*
+
+60*
+
+24
+
+)
 
 );
 
@@ -146,6 +233,10 @@ className="goal-card"
 
 >
 
+<div className="goal-top">
+
+<div>
+
 <h3>
 
 {goal.title}
@@ -154,29 +245,69 @@ className="goal-card"
 
 <p>
 
-₹{goal.savedAmount}
+{formatCurrency(
+
+goal.savedAmount
+
+)}
 
 /
 
-₹{goal.targetAmount}
+{formatCurrency(
+
+goal.targetAmount
+
+)}
 
 </p>
 
+</div>
+
+<div>
+
+{achieved ? (
+
+<div className="goal-achieved">
+
+<CheckCircle
+
+size={18}
+
+/>
+
+Achieved
+
+</div>
+
+) : (
+
+<div className="goal-days">
+
+<Calendar
+
+size={18}
+
+/>
+
+{daysLeft > 0
+
+? `${daysLeft} days left`
+
+: "Expired"}
+
+</div>
+
+)}
+
+</div>
+
+</div>
+
+<div className="progress-wrapper">
+
 <div
 
-style={{
-
-height:"12px",
-
-background:"#ddd",
-
-borderRadius:"20px",
-
-}}
-
->
-
-<div
+className="progress-bar"
 
 style={{
 
@@ -184,37 +315,45 @@ width:`${percentage}%`,
 
 height:"100%",
 
-background:"#2563eb",
+backgroundColor:
 
-borderRadius:"20px",
+achieved
+
+? "#22c55e"
+
+: percentage>=70
+
+? "#3b82f6"
+
+: percentage>=40
+
+? "#f59e0b"
+
+: "#ef4444"
 
 }}
 
-></div>
+>
 
 </div>
 
-<small>
+</div>
+
+<span className="goal-percentage">
 
 {percentage.toFixed(0)}%
 
 Complete
 
-</small>
+</span>
 
-<div
+{/* Active goals */}
 
-style={{
+{!achieved &&
 
-display:"flex",
+daysLeft > 0 && (
 
-gap:"10px",
-
-marginTop:"10px",
-
-}}
-
->
+<div className="goal-actions">
 
 <input
 
@@ -250,6 +389,8 @@ e.target.value,
 
 <button
 
+className="main-btn"
+
 onClick={()=>
 
 addSavings(
@@ -264,11 +405,19 @@ savingAmounts[goal._id]
 
 >
 
-Add
+<Pencil
+
+size={16}
+
+/>
+
+Save
 
 </button>
 
 <button
+
+className="danger-btn"
 
 onClick={()=>
 
@@ -282,17 +431,117 @@ goal._id
 
 >
 
+<Trash2
+
+size={16}
+
+/>
+
 Delete
 
 </button>
 
 </div>
 
+)}
+
+{/* Achieved */}
+
+{achieved && (
+
+<div
+
+style={{
+
+marginTop:"20px"
+
+}}
+
+>
+
+<button
+
+className="danger-btn"
+
+onClick={()=>
+
+deleteGoal(
+
+goal._id
+
+)
+
+}
+
+>
+
+<Trash2
+
+size={16}
+
+/>
+
+Delete Goal
+
+</button>
+
+</div>
+
+)}
+
+{/* Expired */}
+
+{!achieved &&
+
+daysLeft <=0 && (
+
+<div
+
+style={{
+
+marginTop:"20px"
+
+}}
+
+>
+
+<button
+
+className="danger-btn"
+
+onClick={()=>
+
+deleteGoal(
+
+goal._id
+
+)
+
+}
+
+>
+
+<Trash2
+
+size={16}
+
+/>
+
+Delete Goal
+
+</button>
+
+</div>
+
+)}
+
 </div>
 
 );
 
-})}
+})
+
+)}
 
 </div>
 

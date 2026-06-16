@@ -89,10 +89,11 @@ return (
       Login to continue managing
       your family finances
     </p>
+    
 
     <input
       type="email"
-      placeholder="📧 Email Address"
+      placeholder="Email Address"
       value={email}
       onChange={(e) =>
         setEmail(
@@ -103,7 +104,7 @@ return (
 
     <input
       type="password"
-      placeholder="🔒 Password"
+      placeholder="Enter your Password"
       value={password}
       onChange={(e) =>
         setPassword(

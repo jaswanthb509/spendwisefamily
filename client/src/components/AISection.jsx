@@ -1,75 +1,99 @@
 export default function AISection({
 
-getAIAdvice,
+  getAIAdvice,
 
-aiAdvice,
+  aiAdvice,
 
-loadingAI,
+  loadingAI,
 
 }) {
 
 return (
 
-<div
-className="stat-card"
->
+<div className="section-card ai-section">
 
-<h2>
+  {/* Header */}
 
-AI Insights
+  <div className="section-header">
 
-</h2>
+    <div>
 
-<button
+      <h2>
 
-className="main-btn"
+        🤖 AI Financial Advisor
 
-onClick={
-getAIAdvice
-}
+      </h2>
 
-disabled={
-loadingAI
-}
+      <p>
 
->
+        Get personalized financial insights for your family.
 
-{loadingAI
+      </p>
 
-? "Generating..."
+    </div>
 
-: "Ask Gemini"
+    <button
 
-}
+      className="main-btn"
 
-</button>
+      onClick={getAIAdvice}
 
-<div
+      disabled={loadingAI}
 
-style={{
+    >
 
-background:"#eff6ff",
+      {
 
-padding:"20px",
+      loadingAI
 
-borderRadius:
-"12px",
+      ? "Generating..."
 
-marginTop:
-"15px",
+      : "Generate Insights"
 
-whiteSpace:
-"pre-wrap",
+      }
 
-}}
+    </button>
 
->
+  </div>
 
-{aiAdvice ||
 
-"Generate AI financial insights"}
+  {/* Content */}
 
-</div>
+  <div className="ai-content">
+
+    {aiAdvice ? (
+
+      <div
+
+        dangerouslySetInnerHTML={{
+
+          __html: aiAdvice
+
+        }}
+
+      />
+
+    ) : (
+
+      <div className="ai-empty">
+
+        <h3>
+
+          💡 No AI Insights Yet
+
+        </h3>
+
+        <p>
+
+          Click the button above to analyze your expenses, budgets and savings goals.
+
+        </p>
+
+      </div>
+
+    )}
+
+  </div>
 
 </div>
 

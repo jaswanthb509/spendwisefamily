@@ -82,7 +82,7 @@ return (
 
     <input
       type="email"
-      placeholder="📧 Email Address"
+      placeholder="Email Address"
       value={email}
       onChange={(e) =>
         setEmail(
@@ -93,7 +93,7 @@ return (
 
     <input
       type="password"
-      placeholder="🔒 Password"
+      placeholder="Password"
       value={password}
       onChange={(e) =>
         setPassword(

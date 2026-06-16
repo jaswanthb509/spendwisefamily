@@ -851,11 +851,11 @@ const addSavings = async (
         data.targetAmount
       ) {
         toast.success(
-          "🏆 Goal Achieved!"
+          "Goal Achieved!"
         );
       } else {
         toast.success(
-          "💰 Savings Added"
+          "Savings Added"
         );
       }
 

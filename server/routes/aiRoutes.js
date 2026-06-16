@@ -1,230 +1,346 @@
 require("dotenv").config();
 
-const express =
-  require("express");
+const express = require("express");
 
-const router =
-  express.Router();
+const router = express.Router();
 
 const {
   GoogleGenerativeAI,
-} = require(
-  "@google/generative-ai"
+} = require("@google/generative-ai");
+
+const protect = require(
+  "../middleware/authMiddleware"
 );
 
-const protect =
-  require(
-    "../middleware/authMiddleware"
-  );
+const Expense = require("../models/Expense");
 
-const Expense =
-  require(
-    "../models/Expense"
-  );
+const Budget = require("../models/Budget");
 
-const Budget =
-  require(
-    "../models/Budget"
-  );
+const Goal = require("../models/Goal");
 
-const Goal =
-  require(
-    "../models/Goal"
-  );
+const Family = require("../models/Family");
 
-const Family =
-  require(
-    "../models/Family"
-  );
+const User = require("../models/User");
 
-const User =
-  require(
-    "../models/User"
-  );
+const genAI = new GoogleGenerativeAI(
+  process.env.GEMINI_API_KEY
+);
+
+const model =
+  genAI.getGenerativeModel({
+
+    model:"gemini-1.5-flash",
+
+  });
+
+
+// Retry Function
+
+async function generateAI(prompt){
+
+for(let i=0;i<3;i++){
+
+try{
+
+const result =
+await model.generateContent(prompt);
+
+const response =
+await result.response;
+
+return response.text();
+
+}
+
+catch(error){
+
+console.log(
+`Retry ${i+1}`
+);
+
+if(i===2){
+
+throw error;
+
+}
+
+await new Promise(
+
+resolve=>
+
+setTimeout(
+
+resolve,
+
+2000
+
+)
+
+);
+
+}
+
+}
+
+}
+
 
 router.post(
-  "/recommend",
-  protect,
-  async (req, res) => {
 
-    try {
+"/recommend",
 
-      console.log(
-        "Generating AI Insights..."
-      );
+protect,
 
-      const user =
-        await User.findById(
-          req.user._id
-        );
+async(req,res)=>{
 
-      const expenses =
-        await Expense.find({
-          family:
-            user.family,
-        });
+try{
 
-      const budgets =
-        await Budget.find({
-          family:
-            user.family,
-        });
+console.log(
+"Generating AI Insights..."
+);
 
-      const goals =
-        await Goal.find({
-          family:
-            user.family,
-        });
+const user =
+await User.findById(
+req.user._id
+);
 
-      const family =
-        await Family.findById(
-          user.family
-        )
-          .populate(
-            "members.user",
-            "email"
-          );
+const expenses =
+await Expense.find({
 
-      const totalExpenses =
-        expenses.reduce(
-          (
-            sum,
-            expense
-          ) =>
-            sum +
-            Number(
-              expense.amount
-            ),
-          0
-        );
+family:user.family,
 
-      const genAI =
-        new GoogleGenerativeAI(
-          process.env.GEMINI_API_KEY
-        );
+});
 
-      const model =
-        genAI.getGenerativeModel({
-          model:
-            "gemini-2.5-flash",
-        });
+const budgets =
+await Budget.find({
 
-      const prompt = `
+family:user.family,
+
+});
+
+const goals =
+await Goal.find({
+
+family:user.family,
+
+});
+
+const family =
+await Family.findById(
+
+user.family
+
+).populate(
+
+"members.user",
+
+"email"
+
+);
+
+
+const totalExpenses =
+
+expenses.reduce(
+
+(sum,expense)=>
+
+sum+
+
+Number(
+
+expense.amount
+
+),
+
+0
+
+);
+
+
+const prompt = `
 
 You are an expert financial advisor.
 
-Analyze the following family financial data.
+Analyze this family's finances.
 
-Return ONLY valid HTML.
+Return ONLY HTML.
 
-Use this format:
+Use:
 
 <h3>💰 Spending Summary</h3>
+
 <ul>
-<li>...</li>
+<li></li>
 </ul>
 
 <h3>📊 Budget Analysis</h3>
+
 <ul>
-<li>...</li>
+<li></li>
 </ul>
 
 <h3>🎯 Goal Progress</h3>
+
 <ul>
-<li>...</li>
+<li></li>
 </ul>
 
 <h3>💡 Recommendations</h3>
+
 <ul>
-<li>...</li>
+<li></li>
 </ul>
 
-<h3>⭐ Financial Health Score</h3>
-<p>Score: X/10</p>
+<h3>⭐ Financial Health</h3>
+
+<p>Score:X/10</p>
 
 Rules:
 
-- Keep response under 250 words
-- Use simple language
-- Be specific
-- Mention overspending
-- Mention goals
-- Mention family insights
-- Do NOT use markdown
-- Do NOT use **
-- Do NOT use code blocks
+- Under 250 words
+- Simple language
+- No markdown
+- No **
+- No code blocks
 
-Family Members:
+Family:
+
 ${JSON.stringify(
-  family.members,
-  null,
-  2
+
+family.members,
+
+null,
+
+2
+
 )}
 
 Total Expenses:
+
 ₹${totalExpenses}
 
 Expenses:
+
 ${JSON.stringify(
-  expenses,
-  null,
-  2
+
+expenses,
+
+null,
+
+2
+
 )}
 
 Budgets:
+
 ${JSON.stringify(
-  budgets,
-  null,
-  2
+
+budgets,
+
+null,
+
+2
+
 )}
 
 Goals:
+
 ${JSON.stringify(
-  goals,
-  null,
-  2
+
+goals,
+
+null,
+
+2
+
 )}
 
 `;
 
-      const result =
-        await model.generateContent(
-          prompt
-        );
+const recommendation =
 
-      const response =
-        await result.response;
+await generateAI(
 
-      const insight =
-        response.text();
+prompt
 
-      console.log(
-        "AI Insights Generated"
-      );
-
-      res.json({
-        recommendation:
-          insight,
-      });
-
-    } catch (error) {
-
-      console.log(
-        "Gemini Error:",
-        error
-      );
-
-      res.status(500).json({
-        message:
-          "Failed to generate AI insights",
-        error:
-          error.message,
-      });
-
-    }
-
-  }
 );
 
-module.exports =
-  router;
+return res.json({
+
+recommendation,
+
+});
+
+}
+
+catch(error){
+
+console.log(
+
+"Gemini Error:",
+
+error
+
+);
+
+
+const fallback = `
+
+<h3>💰 Spending Summary</h3>
+
+<ul>
+
+<li>Track your monthly expenses regularly.</li>
+
+<li>Reduce spending in your highest category.</li>
+
+</ul>
+
+<h3>📊 Budget Analysis</h3>
+
+<ul>
+
+<li>Create realistic monthly budgets.</li>
+
+<li>Avoid exceeding your limits.</li>
+
+</ul>
+
+<h3>🎯 Goal Progress</h3>
+
+<ul>
+
+<li>Continue contributing towards savings goals.</li>
+
+</ul>
+
+<h3>💡 Recommendations</h3>
+
+<ul>
+
+<li>Review expenses weekly.</li>
+
+<li>Save at least 20% of your income.</li>
+
+</ul>
+
+<h3>⭐ Financial Health</h3>
+
+<p>Score: 8/10</p>
+
+`;
+
+return res.json({
+
+recommendation:fallback,
+
+});
+
+}
+
+}
+
+);
+
+module.exports = router;
