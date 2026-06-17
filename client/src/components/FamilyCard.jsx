@@ -18,25 +18,29 @@ export default function FamilyCard({
 
 }) {
 
-return (
+return(
 
 <div className="family-card">
+
+<h2>
+
+👨‍👩‍👧‍👦 Family Group
+
+</h2>
 
 {!family ? (
 
 <>
 
-<h2>
-
-Family Group
-
-</h2>
-
 <p>
 
-Create a family or join one.
+Create a new family
+
+or join an existing one.
 
 </p>
+
+{/* Create */}
 
 <div className="family-actions">
 
@@ -73,6 +77,8 @@ Create Family
 </button>
 
 </div>
+
+{/* Join */}
 
 <div className="family-actions">
 
@@ -116,11 +122,7 @@ Join Family
 
 <>
 
-<h2>
-
-Family Group
-
-</h2>
+{/* Family Info */}
 
 <div className="family-info-row">
 
@@ -174,19 +176,39 @@ Members
 
 </div>
 
+{/* Members */}
+
 <div className="members-section">
 
 <h3>
 
-Members
+Family Members
 
 </h3>
 
 <div className="member-list">
 
-{familyMembers.map(
+{
 
-(member,index)=>(
+familyMembers.map(
+
+(member,index)=>{
+
+const fullName =
+
+member.user
+
+?
+
+`${member.user.firstName || ""}
+
+${member.user.lastName || ""}`
+
+:
+
+"Unknown";
+
+return(
 
 <div
 
@@ -196,21 +218,33 @@ className="member-pill"
 
 >
 
-{member.role==="admin"
+{
 
-? "(Admin)"
+member.role==="admin"
 
-: "(Member)"}
+?
+
+"👑"
+
+:
+
+"👤"
+
+}
 
 {" "}
 
-{member.user?.email}
+{fullName}
 
 </div>
 
+);
+
+}
+
 )
 
-)}
+}
 
 </div>
 

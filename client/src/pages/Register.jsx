@@ -1,134 +1,218 @@
 import { useState } from "react";
 import "../App.css";
 
-function Register({
-goToLogin,
-}) {
+function Register({ goToLogin }) {
 
-const [email, setEmail] =
-useState("");
+  const [firstName, setFirstName] = useState("");
 
-const [password, setPassword] =
-useState("");
+  const [lastName, setLastName] = useState("");
 
-const handleRegister =
-async () => {
+  const [email, setEmail] = useState("");
 
+  const [password, setPassword] = useState("");
 
-  try {
+  const [loading, setLoading] = useState(false);
 
-    const res =
-      await fetch(
+  const handleRegister = async () => {
+
+    if (
+      !firstName ||
+      !lastName ||
+      !email ||
+      !password
+    ) {
+
+      alert("Please fill all fields");
+
+      return;
+    }
+
+    try {
+
+      setLoading(true);
+
+      console.log({
+        firstName,
+        lastName,
+        email,
+        password,
+      });
+
+      const res = await fetch(
         "http://localhost:5000/api/auth/register",
         {
           method: "POST",
+
           headers: {
             "Content-Type":
               "application/json",
           },
-          body:
-            JSON.stringify({
-              email,
-              password,
-            }),
+
+          body: JSON.stringify({
+            firstName,
+            lastName,
+            email,
+            password,
+          }),
         }
       );
 
-    const data =
-      await res.json();
+      const data =
+        await res.json();
 
-    alert(
-      data.message
-    );
+      if (res.ok) {
 
-    if (
-      res.ok
-    ) {
-      goToLogin();
+        alert(
+          "Registration successful"
+        );
+
+        goToLogin();
+
+      } else {
+
+        alert(
+          data.message
+        );
+      }
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert(
+        "Server Error"
+      );
+
+    } finally {
+
+      setLoading(false);
+
     }
 
-  } catch (error) {
+  };
 
-    console.log(
-      error
-    );
+  return (
 
-    alert(
-      "Server Error"
-    );
+    <div className="auth-page">
 
-  }
+      <div className="auth-box">
 
-};
+        <h2>
+          Create Account
+        </h2>
 
+        <p className="auth-subtitle">
 
-return (
+          Start managing family finances smarter
 
+        </p>
 
-<div className="auth-page">
+        <input
+          type="text"
 
-  <div className="auth-box">
+          placeholder="First Name"
 
-  
+          value={firstName}
 
-    <h2>
-      Create Account
-    </h2>
+          onChange={(e) =>
 
-    <p className="auth-subtitle">
-      Start managing family
-      finances smarter
-    </p>
+            setFirstName(
+              e.target.value
+            )
 
-    <input
-      type="email"
-      placeholder="Email Address"
-      value={email}
-      onChange={(e) =>
-        setEmail(
-          e.target.value
-        )
-      }
-    />
+          }
+        />
 
-    <input
-      type="password"
-      placeholder="Password"
-      value={password}
-      onChange={(e) =>
-        setPassword(
-          e.target.value
-        )
-      }
-    />
+        <input
+          type="text"
 
-    <button
-      className="primary-btn auth-btn"
-      onClick={
-        handleRegister
-      }
-    >
-      Create Account
-    </button>
+          placeholder="Last Name"
 
-    <p className="switch-text">
-      Already have an account?
+          value={lastName}
 
-      <span
-        className="link-text"
-        onClick={goToLogin}
-      >
-        Login
-      </span>
+          onChange={(e) =>
 
-    </p>
+            setLastName(
+              e.target.value
+            )
 
-  </div>
+          }
+        />
 
-</div>
+        <input
+          type="email"
 
+          placeholder="Email Address"
 
-);
+          value={email}
+
+          onChange={(e) =>
+
+            setEmail(
+              e.target.value
+            )
+
+          }
+        />
+
+        <input
+          type="password"
+
+          placeholder="Password"
+
+          value={password}
+
+          onChange={(e) =>
+
+            setPassword(
+              e.target.value
+            )
+
+          }
+        />
+
+        <button
+
+          className="primary-btn auth-btn"
+
+          onClick={handleRegister}
+
+          disabled={loading}
+
+        >
+
+          {loading
+
+            ? "Creating..."
+
+            : "Create Account"}
+
+        </button>
+
+        <p className="switch-text">
+
+          Already have an account?
+
+          <span
+
+            className="link-text"
+
+            onClick={goToLogin}
+
+          >
+
+            Login
+
+          </span>
+
+        </p>
+
+      </div>
+
+    </div>
+
+  );
+
 }
 
 export default Register;

@@ -20,7 +20,7 @@ return (
 
       <h2>
 
-        🤖 AI Financial Advisor
+         AI Financial Advisor
 
       </h2>
 
@@ -79,7 +79,7 @@ return (
 
         <h3>
 
-          💡 No AI Insights Yet
+           No AI Insights Yet
 
         </h3>
 

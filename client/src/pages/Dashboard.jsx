@@ -1,170 +1,273 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-} from "recharts";
-
-
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import { formatDistanceToNow } from "date-fns";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import Summary from "../components/Summary";
-import BudgetSection from "../components/BudgetSection";
 
-import AISection from "../components/AISection";
-
-import ActivitySection from "../components/ActivitySection";
 import ExpenseForm from "../components/ExpenseForm";
-
 import ExpenseList from "../components/ExpenseList";
 
-import FamilyCard from "../components/FamilyCard";
+import BudgetSection from "../components/BudgetSection";
 
 import GoalsSection from "../components/GoalsSection";
 
+import FamilyCard from "../components/FamilyCard";
+
 import AnalyticsSection from "../components/AnalyticsSection";
 
+import AISection from "../components/AiSection";
 
-import "../App.css";
+import ActivitySection from "../components/ActivitySection";
+
 import toast from "react-hot-toast";
 
-function Dashboard({ goHome, darkMode, setDarkMode }) {
-  const [expenses, setExpenses] = useState([]);
-  const [budgets,setBudgets] = useState([]);
-  const [
-  activeSection,
-  setActiveSection
-] = useState(
-  "dashboard"
-);
+import "../App.css";
 
-const [budgetCategory,setBudgetCategory] = useState("");
+function Dashboard({
 
-const [budgetAmount,setBudgetAmount] = useState("");
-  const [filter, setFilter] = useState("All");
-  const [searchTerm,
-  setSearchTerm] =
-  useState("");
+  goHome,
 
-const [sortBy,
-  setSortBy] =
-  useState("latest");
+  darkMode,
 
-  const [dateFilter, setDateFilter] =
-    useState("All Time");
+  setDarkMode,
 
-  const [family, setFamily] =
-  useState(null);
+}) {
 
-  const [familyName,
-  setFamilyName] =
-  useState("");
-
-  const [title, setTitle] = useState("");
-const [amount, setAmount] = useState("");
-const [savingAmounts, setSavingAmounts] =useState({});
-const [category, setCategory] = useState("");
-const [goals,
-setGoals] =
-useState([]);
-
-const [goalTitle,
-setGoalTitle] =
-useState("");
-
-const [goalTarget,
-setGoalTarget] =
-useState("");
-
-const [goalDeadline,
-setGoalDeadline] =
-useState("");
-
-  const [inviteCode,
-  setInviteCode] =
-  useState("");
+  /* ======================
+     TOKEN
+  ====================== */
 
   const token =
-  localStorage.getItem("token");
-
-console.log(
-  "TOKEN =",
-  token
-);
-
-const [aiAdvice, setAiAdvice] =
-  useState("");
-const [loadingAI,setLoadingAI]=useState(false);
-
-const [activities, setActivities] =
-  useState([]);
-
-const [
-  familyMembers,
-  setFamilyMembers
-] = useState([]);
-
-const [showNotifications,
-  setShowNotifications] =
-  useState(false);
-
-
-// Theme Effect
-useEffect(() => {
-
-  if (darkMode) {
-
-    document.body.classList.add(
-      "dark-mode"
+    localStorage.getItem(
+      "token"
     );
 
-    localStorage.setItem(
-      "theme",
-      "dark"
-    );
+  /* ======================
+     NAVIGATION
+  ====================== */
 
-  } else {
+  const [
 
-    document.body.classList.remove(
-      "dark-mode"
-    );
+    activeSection,
 
-    localStorage.setItem(
-      "theme",
-      "light"
-    );
+    setActiveSection
 
-  }
+  ] = useState(
 
-}, [darkMode]);
+    "dashboard"
 
+  );
 
-// Initial Data Loading
-useEffect(() => {
+  /* ======================
+     DATABASE DATA
+  ====================== */
 
-  fetchExpenses();
-  fetchFamily();
-  fetchBudgets();
-  fetchGoals();
-  fetchActivities();
-  fetchFamilyMembers();
+  const [
 
-}, []);
+    expenses,
 
+    setExpenses
+
+  ] = useState([]);
+
+  const [
+
+    budgets,
+
+    setBudgets
+
+  ] = useState([]);
+
+  const [
+
+    goals,
+
+    setGoals
+
+  ] = useState([]);
+
+  const [
+
+    activities,
+
+    setActivities
+
+  ] = useState([]);
+
+  const [
+
+    family,
+
+    setFamily
+
+  ] = useState(null);
+
+  const [
+
+    familyMembers,
+
+    setFamilyMembers
+
+  ] = useState([]);
+
+  /* ======================
+     UI STATES
+  ====================== */
+
+  const [
+
+    showNotifications,
+
+    setShowNotifications
+
+  ] = useState(false);
+
+  const [
+
+    loadingAI,
+
+    setLoadingAI
+
+  ] = useState(false);
+
+  const [
+
+    aiAdvice,
+
+    setAiAdvice
+
+  ] = useState("");
+
+  /* ======================
+     GOAL STATES
+  ====================== */
+
+  const [
+
+    savingAmounts,
+
+    setSavingAmounts
+
+  ] = useState({});
+
+  const [
+
+    goalTitle,
+
+    setGoalTitle
+
+  ] = useState("");
+
+  const [
+
+    goalTarget,
+
+    setGoalTarget
+
+  ] = useState("");
+
+  const [
+
+    goalDeadline,
+
+    setGoalDeadline
+
+  ] = useState("");
+
+  /* ======================
+     BUDGET STATES
+  ====================== */
+
+  const [
+
+    budgetCategory,
+
+    setBudgetCategory
+
+  ] = useState("");
+
+  const [
+
+    budgetAmount,
+
+    setBudgetAmount
+
+  ] = useState("");
+
+  /* ======================
+     FAMILY STATES
+  ====================== */
+
+  const [
+
+    familyName,
+
+    setFamilyName
+
+  ] = useState("");
+
+  const [
+
+    inviteCode,
+
+    setInviteCode
+
+  ] = useState("");
+
+  /* ======================
+     REMOVE THESE
+  ====================== */
+
+  // DELETE THESE
+
+  // const [title,setTitle]
+  // const [amount,setAmount]
+  // const [category,setCategory]
+
+  // ExpenseForm already
+  // manages its own state
+
+  /* ======================
+     FILTERED EXPENSES
+  ====================== */
+
+  const filteredExpenses =
+
+    expenses;
+
+  /* ======================
+     LOAD DASHBOARD
+  ====================== */
+
+  useEffect(() => {
+
+    loadDashboard();
+
+  }, []);
+
+  const loadDashboard =
+
+  async () => {
+
+    await Promise.all([
+
+      fetchExpenses(),
+
+      fetchFamily(),
+
+      fetchBudgets(),
+
+      fetchGoals(),
+
+      fetchActivities(),
+
+    ]);
+
+  };
+
+/* ======================
+   FETCH EXPENSES
+====================== */
 
 const fetchExpenses = async () => {
 
@@ -192,17 +295,32 @@ const fetchExpenses = async () => {
 
       await res.json();
 
-    setExpenses(data);
+    if (res.ok) {
+
+      setExpenses(data);
+
+    }
 
   }
 
-  catch(error){
+  catch (error) {
 
     console.log(error);
+
+    toast.error(
+
+      "Failed to load expenses"
+
+    );
 
   }
 
 };
+
+
+/* ======================
+   UPDATE EXPENSE
+====================== */
 
 const updateExpense = async (
 
@@ -252,9 +370,9 @@ const updateExpense = async (
 
       );
 
-      fetchExpenses();
+      await fetchExpenses();
 
-      fetchActivities();
+      await fetchActivities();
 
     }
 
@@ -272,11 +390,7 @@ const updateExpense = async (
 
   catch (error) {
 
-    console.log(
-
-      error
-
-    );
+    console.log(error);
 
     toast.error(
 
@@ -288,1229 +402,1452 @@ const updateExpense = async (
 
 };
 
+
+/* ======================
+   FETCH FAMILY
+====================== */
+
 const fetchFamily = async () => {
+
   try {
+
     const res = await fetch(
+
       "http://localhost:5000/api/family/me",
+
       {
+
         headers: {
-          Authorization: `Bearer ${token}`,
+
+          Authorization:
+
+            `Bearer ${token}`,
+
         },
+
       }
+
     );
 
-    const data = await res.json();
+    if (!res.ok) {
 
-    if (res.ok) {
-      setFamily(data);
+      setFamily(null);
+
+      setFamilyMembers([]);
+
+      return;
+
     }
-    console.log("Family Members:", data);
-  } catch (error) {
-    console.log(error);
-     toast.error(
-    "Something went wrong"
-  );
-  }
-};
 
-const fetchFamilyMembers = async () => {
-  try {
-    const res = await fetch(
-      "http://localhost:5000/api/family/me",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const data =
 
-    const data = await res.json();
+      await res.json();
+
+    setFamily(data);
 
     setFamilyMembers(
+
       data.members || []
+
     );
-  } catch (error) {
-    console.log(error);
+
   }
+
+  catch (error) {
+
+    console.log(error);
+
+  }
+
 };
+
+
+/* ======================
+   FETCH BUDGETS
+====================== */
 
 const fetchBudgets = async () => {
+
   try {
+
     const res = await fetch(
+
       "http://localhost:5000/api/budgets",
+
       {
+
         headers: {
+
           Authorization:
+
             `Bearer ${token}`,
+
         },
+
       }
+
     );
 
     const data =
+
       await res.json();
 
     if (res.ok) {
+
       setBudgets(data);
+
     }
-  } catch (error) {
-    console.log(error);
-     toast.error(
-    "Something went wrong"
-  );
+
   }
-};
 
-const fetchGoals =
-async () => {
-  try {
-    const res =
-      await fetch(
-        "http://localhost:5000/api/goals",
-        {
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      );
+  catch (error) {
 
-    const data =
-      await res.json();
-
-    if (res.ok) {
-      setGoals(data);
-    }
-  } catch (error) {
-    console.log(error);
-     toast.error(
-    "Something went wrong"
-  );
-  }
-};
-
-const fetchActivities =
-  async () => {
-    try {
-      const res =
-        await fetch(
-          "http://localhost:5000/api/activity",
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
-const data =
-  await res.json();
-
-console.log(
-  JSON.stringify(
-    data,
-    null,
-    2
-  )
-);
-
-if (
-  Array.isArray(data)
-) {
-  setActivities(data);
-} else {
-  setActivities([]);
-}
-    } catch (error) {
-      console.log(error);
-       toast.error(
-    "Something went wrong"
-  );
-    }
-  };
-
-const createFamily = async () => {
-  try {
-    const res = await fetch(
-      "http://localhost:5000/api/family/create",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: familyName,
-        }),
-      }
-    );
-
-    const data = await res.json();
-
-    if (res.ok) {
-      alert("Family Created");
-      fetchFamily();
-      await fetchActivities();
-    } else {
-      alert(data.message);
-    }
-  } catch (error) {
-    console.log(error);
-     toast.error(
-    "Something went wrong"
-  );
-  }
-};
-
-const joinFamily = async () => {
-  try {
-    const res = await fetch(
-      "http://localhost:5000/api/family/join",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          inviteCode,
-        }),
-      }
-    );
-
-    const data = await res.json();
-
-    if (res.ok) {
-      alert("Joined Family");
-      fetchFamily();
-      await fetchActivities();
-    } else {
-      alert(data.message);
-    }
-  } catch (error) {
-    console.log(error);
-     toast.error(
-    "Something went wrong"
-  );
-  }
-};
-
-const addExpense = async () => {
-  try {
-    const res = await fetch(
-      "http://localhost:5000/api/expenses",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          title,
-          amount: Number(amount),
-          category,
-        }),
-      }
-    );
-
-    const data = await res.json();
-
-if (res.ok) {
-  setTitle("");
-  setAmount("");
-  setCategory("");
-
-  fetchExpenses();
-  fetchActivities();
-
-  toast.success(
-    "Expense added successfully"
-  );
-} else {
-  toast.error(
-    data.message
-  );
-}
-  } catch (error) {
     console.log(error);
 
     toast.error(
-    "Something went wrong");
+
+      "Failed to load budgets"
+
+    );
+
   }
+
 };
 
 
-const deleteExpense =
-  async (expenseId) => {
-    try {
-      const res =
-        await fetch(
-          `http://localhost:5000/api/expenses/${expenseId}`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
+/* ======================
+   FETCH GOALS
+====================== */
 
-      if (res.ok) {
-        toast.success(
-        "🗑 Expense deleted"
+const fetchGoals = async () => {
+
+  try {
+
+    const res = await fetch(
+
+      "http://localhost:5000/api/goals",
+
+      {
+
+        headers: {
+
+          Authorization:
+
+            `Bearer ${token}`,
+
+        },
+
+      }
+
+    );
+
+    const data =
+
+      await res.json();
+
+    if (res.ok) {
+
+      setGoals(data);
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+    toast.error(
+
+      "Failed to load goals"
+
+    );
+
+  }
+
+};
+
+
+/* ======================
+   FETCH ACTIVITIES
+====================== */
+
+const fetchActivities = async () => {
+
+  try {
+
+    const res = await fetch(
+
+      "http://localhost:5000/api/activity",
+
+      {
+
+        headers: {
+
+          Authorization:
+
+            `Bearer ${token}`,
+
+        },
+
+      }
+
+    );
+
+    const data =
+
+      await res.json();
+
+    setActivities(
+
+      Array.isArray(data)
+
+      ? data
+
+      : []
+
+    );
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+    setActivities([]);
+
+  }
+
+};
+
+/* ======================
+   CREATE FAMILY
+====================== */
+
+const createFamily = async () => {
+
+  if (!familyName) {
+
+    toast.error(
+
+      "Enter family name"
+
+    );
+
+    return;
+
+  }
+
+  try {
+
+    const res = await fetch(
+
+      "http://localhost:5000/api/family/create",
+
+      {
+
+        method: "POST",
+
+        headers: {
+
+          "Content-Type":
+
+            "application/json",
+
+          Authorization:
+
+            `Bearer ${token}`,
+
+        },
+
+        body: JSON.stringify({
+
+          name: familyName,
+
+        }),
+
+      }
+
+    );
+
+    const data =
+
+      await res.json();
+
+    if (res.ok) {
+
+      toast.success(
+
+        "Family Created"
+
       );
 
-        fetchExpenses();
-        fetchActivities();
-      }
-    } catch (error) {
-      console.log(error);
-       toast.error(
-    "Something went wrong"
-  );
+      setFamilyName("");
+
+      await fetchFamily();
+
+      await fetchActivities();
+
     }
-  };
+
+    else {
+
+      toast.error(
+
+        data.message
+
+      );
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+    toast.error(
+
+      "Something went wrong"
+
+    );
+
+  }
+
+};
+
+
+/* ======================
+   JOIN FAMILY
+====================== */
+
+const joinFamily = async () => {
+
+  if (!inviteCode) {
+
+    toast.error(
+
+      "Enter invite code"
+
+    );
+
+    return;
+
+  }
+
+  try {
+
+    const res = await fetch(
+
+      "http://localhost:5000/api/family/join",
+
+      {
+
+        method: "POST",
+
+        headers: {
+
+          "Content-Type":
+
+            "application/json",
+
+          Authorization:
+
+            `Bearer ${token}`,
+
+        },
+
+        body: JSON.stringify({
+
+          inviteCode,
+
+        }),
+
+      }
+
+    );
+
+    const data =
+
+      await res.json();
+
+    if (res.ok) {
+
+      toast.success(
+
+        "Joined Family"
+
+      );
+
+      setInviteCode("");
+
+      await fetchFamily();
+
+      await fetchActivities();
+
+    }
+
+    else {
+
+      toast.error(
+
+        data.message
+
+      );
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+    toast.error(
+
+      "Something went wrong"
+
+    );
+
+  }
+
+};
+
+
+/* ======================
+   DELETE EXPENSE
+====================== */
+
+const deleteExpense = async (
+
+  expenseId
+
+) => {
+
+  try {
+
+    const res = await fetch(
+
+      `http://localhost:5000/api/expenses/${expenseId}`,
+
+      {
+
+        method: "DELETE",
+
+        headers: {
+
+          Authorization:
+
+            `Bearer ${token}`,
+
+        },
+
+      }
+
+    );
+
+    if (res.ok) {
+
+      toast.success(
+
+        "Expense deleted"
+
+      );
+
+      await fetchExpenses();
+
+      await fetchActivities();
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+    toast.error(
+
+      "Something went wrong"
+
+    );
+
+  }
+
+};
+
+
+/* ======================
+   CREATE BUDGET
+====================== */
 
 const createBudget = async () => {
 
+  if (
+
+    !budgetCategory ||
+
+    !budgetAmount
+
+  ) {
+
+    toast.error(
+
+      "Fill all fields"
+
+    );
+
+    return;
+
+  }
+
   try {
 
     const res = await fetch(
+
       "http://localhost:5000/api/budgets",
+
       {
+
         method: "POST",
 
         headers: {
+
           "Content-Type":
+
             "application/json",
 
           Authorization:
+
             `Bearer ${token}`,
+
         },
 
         body: JSON.stringify({
+
           category:
+
             budgetCategory,
 
           amount:
+
             Number(
+
               budgetAmount
+
             ),
+
         }),
+
       }
+
     );
 
     const data =
+
       await res.json();
 
-    console.log(
-      "Budget Response:",
-      data
-    );
-
     if (res.ok) {
+
+      toast.success(
+
+        "Budget Created"
+
+      );
 
       setBudgetCategory("");
+
       setBudgetAmount("");
 
-      fetchBudgets();
+      await fetchBudgets();
 
-      toast.success(
-        "Budget Created Successfully"
-      );
-
-    } else {
-
-      toast.error(
-        data.message ||
-        "Failed to create budget"
-      );
-
-    }
-
-  } catch (error) {
-
-    console.log(
-      "Create Budget Error:",
-      error
-    );
-
-    toast.error(
-      "Something went wrong"
-    );
-
-  }
-
-};
-
-const createGoal =
-async () => {
-  try {
-    const res =
-      await fetch(
-        "http://localhost:5000/api/goals",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json",
-
-            Authorization:
-              `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            title:
-              goalTitle,
-
-            targetAmount:
-              Number(
-                goalTarget
-              ),
-
-            deadline:
-              goalDeadline,
-          }),
-        }
-      );
-
-    const data =
-      await res.json();
-
-    if (res.ok) {
-
-     toast.success(
-    "🎯 Goal created"
-     );
-
-      setGoalTitle("");
-      setGoalTarget("");
-      setGoalDeadline("");
-
-      await fetchGoals();
       await fetchActivities();
 
-      toast.success(
-"Goal Created"
-);
     }
-  } catch (error) {
-    console.log(error);
-    toast.error(
-    "Something went wrong"
-  );
+
+    else {
+
+      toast.error(
+
+        data.message
+
+      );
+
+    }
+
   }
-};
 
-const exportReport = () => {
+  catch (error) {
 
-  const doc = new jsPDF();
+    console.log(error);
 
-  doc.setFontSize(20);
+    toast.error(
 
-  doc.text(
-    "SpendWiseFamily Report",
-    14,
-    20
-  );
+      "Something went wrong"
 
-  doc.setFontSize(12);
+    );
 
-  doc.text(
-    `Generated: ${
-      new Date()
-        .toLocaleDateString()
-    }`,
-    14,
-    30
-  );
-
-  /* Expenses */
-
-  autoTable(doc, {
-
-    startY: 40,
-
-    head: [[
-      "Title",
-      "Category",
-      "Amount"
-    ]],
-
-    body: expenses.map(
-      (expense) => [
-
-        expense.title,
-
-        expense.category,
-
-        `{formatCurrency(
-  expense.amount
-)}`
-
-      ]
-    ),
-
-  });
-
-  /* Goals */
-
-  autoTable(doc, {
-
-    startY:
-      doc.lastAutoTable
-        .finalY + 15,
-
-    head: [[
-      "Goal",
-      "Saved",
-      "Target"
-    ]],
-
-    body: goals.map(
-      (goal) => [
-
-        goal.title,
-
-        `{formatCurrency(
-  goal.savedAmount
-)}`,
-
-        `{formatCurrency(
-  goal.targetAmount
-)}`
-
-      ]
-    ),
-
-  });
-
-  /* Budgets */
-
-  autoTable(doc, {
-
-    startY:
-      doc.lastAutoTable
-        .finalY + 15,
-
-    head: [[
-      "Category",
-      "Budget"
-    ]],
-
-    body: budgets.map(
-      (budget) => [
-
-        budget.category,
-
-        `₹${budget.amount}`
-
-      ]
-    ),
-
-  });
-
-  doc.save(
-    "SpendWise_Report.pdf"
-  );
-
-  toast.success(
-    "📄 Report Downloaded"
-  );
+  }
 
 };
 
-const addSavings = async (
-  goalId
-) => {
+
+/* ======================
+   CREATE GOAL
+====================== */
+
+const createGoal = async () => {
+
+  if (
+
+    !goalTitle ||
+
+    !goalTarget ||
+
+    !goalDeadline
+
+  ) {
+
+    toast.error(
+
+      "Fill all fields"
+
+    );
+
+    return;
+
+  }
+
   try {
 
     const res = await fetch(
-      `http://localhost:5000/api/goals/${goalId}/save`,
+
+      "http://localhost:5000/api/goals",
+
       {
-        method: "PUT",
+
+        method: "POST",
+
         headers: {
+
           "Content-Type":
+
             "application/json",
+
           Authorization:
+
             `Bearer ${token}`,
+
         },
+
         body: JSON.stringify({
-          amount: Number(
-            savingAmounts[goalId]
-          ),
+
+          title:
+
+            goalTitle,
+
+          targetAmount:
+
+            Number(
+
+              goalTarget
+
+            ),
+
+          deadline:
+
+            goalDeadline,
+
         }),
+
       }
+
     );
 
     const data =
+
       await res.json();
 
     if (res.ok) {
 
-      if (
-        data.savedAmount >=
-        data.targetAmount
-      ) {
-        toast.success(
-          "Goal Achieved!"
-        );
-      } else {
-        toast.success(
-          "Savings Added"
-        );
-      }
+      toast.success(
 
-      setSavingAmounts(
-        (prev) => ({
-          ...prev,
-          [goalId]: "",
-        })
+        "Goal Created"
+
       );
 
-      fetchGoals();
-      fetchActivities();
+      setGoalTitle("");
+
+      setGoalTarget("");
+
+      setGoalDeadline("");
+
+      await fetchGoals();
+
+      await fetchActivities();
+
     }
 
-  } catch (error) {
+    else {
+
+      toast.error(
+
+        data.message
+
+      );
+
+    }
+
+  }
+
+  catch (error) {
 
     console.log(error);
 
     toast.error(
+
       "Something went wrong"
+
     );
+
   }
+
 };
 
-  const deleteGoal =
-  async (goalId) => {
-    try {
-      const res =
-        await fetch(
-          `http://localhost:5000/api/goals/${goalId}`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
 
-      if (res.ok) {
-        toast.success(
-    "Goal deleted"
-     ); 
-        fetchGoals();
-        await fetchActivities();
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error(
-    "Something went wrong"
-  );
-    }
-  };
+/* ======================
+   ADD SAVINGS
+====================== */
 
+const addSavings = async (
 
-const logout = () => {
-  localStorage.removeItem("token");
-  goHome();
-};
-  /* ======================
-     FILTER LOGIC
-  ====================== */
+  goalId
 
- let filteredExpenses =
-  expenses
-    .filter((expense) =>
-      expense.title
-        ?.toLowerCase()
-        .includes(
-          searchTerm.toLowerCase()
-        )
-    )
-    .sort((a, b) => {
-
-      if (
-        sortBy === "highest"
-      ) {
-        return (
-          Number(b.amount) -
-          Number(a.amount)
-        );
-      }
-
-      if (
-        sortBy === "lowest"
-      ) {
-        return (
-          Number(a.amount) -
-          Number(b.amount)
-        );
-      }
-
-      if (
-        sortBy === "oldest"
-      ) {
-        return (
-          new Date(a.date) -
-          new Date(b.date)
-        );
-      }
-
-      return (
-        new Date(b.date) -
-        new Date(a.date)
-      );
-
-    });
-
-  /* Date Filter */
-  const now = new Date();
-
-  filteredExpenses =
-    filteredExpenses.filter(
-      (item) => {
-        const itemDate =
-          new Date(item.date);
-
-        if (
-          dateFilter ===
-          "This Month"
-        ) {
-          return (
-            itemDate.getMonth() ===
-              now.getMonth() &&
-            itemDate.getFullYear() ===
-              now.getFullYear()
-          );
-        }
-
-        if (
-          dateFilter ===
-          "Last Month"
-        ) {
-          const lastMonth =
-            new Date(
-              now.getFullYear(),
-              now.getMonth() -
-                1
-            );
-
-          return (
-            itemDate.getMonth() ===
-              lastMonth.getMonth() &&
-            itemDate.getFullYear() ===
-              lastMonth.getFullYear()
-          );
-        }
-
-        if (
-          dateFilter ===
-          "This Year"
-        ) {
-          return (
-            itemDate.getFullYear() ===
-            now.getFullYear()
-          );
-        }
-
-        return true;
-      }
-    );
-
-    const editExpense = async (
-  expense
 ) => {
-
-  const newTitle = prompt(
-    "Edit title",
-    expense.title
-  );
-
-  if (!newTitle) return;
 
   try {
 
-    const res =
-      await fetch(
-        `http://localhost:5000/api/expenses/${expense._id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type":
-              "application/json",
-            Authorization:
-              `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            ...expense,
-            title: newTitle,
-          }),
-        }
-      );
+    const res = await fetch(
 
-    const data =
-      await res.json();
+      `http://localhost:5000/api/goals/${goalId}/save`,
 
-    console.log(data);
+      {
 
-    fetchExpenses();
+        method: "PUT",
 
-  } catch (err) {
-    console.log(err);
-  }
-};
+        headers: {
 
-  /* Total */
-  const total =
-    filteredExpenses.reduce(
-      (sum, item) =>
-        sum + item.amount,
-      0
+          "Content-Type":
+
+            "application/json",
+
+          Authorization:
+
+            `Bearer ${token}`,
+
+        },
+
+        body: JSON.stringify({
+
+          amount: Number(
+
+            savingAmounts[goalId]
+
+          ),
+
+        }),
+
+      }
+
     );
 
-  const currentUserEmail =
-  localStorage.getItem(
-    "email"
-  );
+    const data =
 
-const currentMember =
-  family?.members?.find(
-    (member) =>
-      member.user?.email ===
-      currentUserEmail
-  );
+      await res.json();
+
+    if (res.ok) {
+
+      toast.success(
+
+        data.savedAmount >=
+
+        data.targetAmount
+
+        ?
+
+        "Goal Achieved"
+
+        :
+
+        "Savings Added"
+
+      );
+
+      setSavingAmounts(
+
+        (prev)=>({
+
+          ...prev,
+
+          [goalId]:"",
+
+        })
+
+      );
+
+      await fetchGoals();
+
+      await fetchActivities();
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+    toast.error(
+
+      "Something went wrong"
+
+    );
+
+  }
+
+};
+
+
+/* ======================
+   DELETE GOAL
+====================== */
+
+const deleteGoal = async (
+
+  goalId
+
+) => {
+
+  try {
+
+    const res = await fetch(
+
+      `http://localhost:5000/api/goals/${goalId}`,
+
+      {
+
+        method: "DELETE",
+
+        headers: {
+
+          Authorization:
+
+            `Bearer ${token}`,
+
+        },
+
+      }
+
+    );
+
+    if (res.ok) {
+
+      toast.success(
+
+        "Goal Deleted"
+
+      );
+
+      await fetchGoals();
+
+      await fetchActivities();
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+    toast.error(
+
+      "Something went wrong"
+
+    );
+
+  }
+
+};
+
+
+/* ======================
+   LOGOUT
+====================== */
+
+const logout = () => {
+
+  localStorage.clear();
+
+  goHome();
+
+};
+
+
+/* ======================
+   TOTAL EXPENSES
+====================== */
+
+const total =
+
+expenses.reduce(
+
+(sum,item)=>
+
+sum +
+
+Number(
+
+item.amount
+
+),
+
+0
+
+);
 
   /* ======================
      CHART DATA
   ====================== */
 
+/* ======================
+   CHART DATA
+====================== */
+
 const chartMap = {};
 
 filteredExpenses.forEach(
-  (item) => {
 
-    chartMap[
-      item.category
-    ] =
+(expense)=>{
 
-      (
-        chartMap[
-          item.category
-        ] || 0
-      ) +
+const category =
 
-      Number(
-        item.amount
-      );
+expense.category ||
 
-  }
+"Other";
+
+chartMap[category] =
+
+(
+
+chartMap[category]
+
+|| 0
+
+)
+
++
+
+Number(
+
+expense.amount
+
 );
-
-  const chartData =
-    Object.keys(chartMap).map(
-      (key) => ({
-        name: key,
-        value:
-          chartMap[key],
-      })
-    );
-
-const totalSpent =
-
-  filteredExpenses.reduce(
-
-    (
-      sum,
-      expense
-    ) =>
-
-      sum +
-      Number(
-        expense.amount
-      ),
-
-    0
-
-  );
-
-const topCategory =
-  chartData.length > 0
-    ? [...chartData].sort(
-        (a, b) =>
-          b.value - a.value
-      )[0]
-    : null;
-
-function getSpentAmount(
-  category
-) {
-
-  return filteredExpenses
-
-    .filter(
-      (expense) =>
-
-        expense.category
-          ?.toLowerCase() ===
-
-        category
-          ?.toLowerCase()
-
-    )
-
-    .reduce(
-      (
-        total,
-        expense
-      ) =>
-
-        total +
-        Number(
-          expense.amount
-        ),
-
-      0
-    );
 
 }
 
-    const memberMap = {};
+);
+
+const chartData =
+
+Object.keys(
+
+chartMap
+
+).map(
+
+(key)=>({
+
+name:key,
+
+value:
+
+chartMap[key],
+
+})
+
+);
+
+
+/* ======================
+   MEMBER CHART
+====================== */
+
+const memberMap = {};
 
 filteredExpenses.forEach(
-  (expense) => {
-    const email =
-      expense.user?.email ||
-      "Unknown";
 
-    if (memberMap[email]) {
-      memberMap[email] +=
-        expense.amount;
-    } else {
-      memberMap[email] =
-        expense.amount;
-    }
-  }
+(expense)=>{
+
+const name =
+
+expense.user
+
+?
+
+`${expense.user.firstName || ""} ${expense.user.lastName || ""}`
+
+:
+
+"Unknown";
+
+memberMap[name] =
+
+(
+
+memberMap[name]
+
+|| 0
+
+)
+
++
+
+Number(
+
+expense.amount
+
+);
+
+}
+
 );
 
 const memberChartData =
-  Object.keys(memberMap).map(
-    (email) => ({
-      name: email,
-      amount:
-        memberMap[email],
-    })
-  );
 
-  const COLORS = [
-    "#2563eb",
-    "#10b981",
-    "#f59e0b",
-    "#ef4444",
-    "#8b5cf6",
-  ];
+Object.keys(
 
-  const formatCurrency = (
-  amount
-) => {
+memberMap
 
-  return new Intl.NumberFormat(
-    "en-IN",
-    {
-      style: "currency",
-      currency: "INR",
-      maximumFractionDigits: 0,
-    }
-  ).format(
-    Number(amount) || 0
-  );
+).map(
 
-};
-  /* ======================
-     PDF REPORT
-  ====================== */
+(name)=>({
 
-  const downloadPDF = () => {
-    const doc = new jsPDF();
+name,
 
-    doc.setFontSize(18);
-    doc.text(
-      "SpendWiseFamily Expense Report",
-      14,
-      20
-    );
+amount:
 
-    doc.setFontSize(12);
+memberMap[name],
 
-    doc.text(
-      `Total Expenses: {formatCurrency(total)}`,
-      14,
-      30
-    );
+})
 
-    doc.text(
-      `Generated: ${new Date().toLocaleDateString()}`,
-      14,
-      38
-    );
-
-    const rows =
-      filteredExpenses.map(
-        (item) => [
-          item.title,
-          item.category,
-          `₹${item.amount}`,
-          new Date(
-            item.date
-          ).toLocaleDateString(),
-        ]
-      );
-
-    autoTable(doc, {
-      startY: 48,
-      head: [
-        [
-          "Title",
-          "Category",
-          "Amount",
-          "Date",
-        ],
-      ],
-      body: rows,
-    });
-
-    doc.save(
-      "expense-report.pdf"
-    );
-  };
-
-  const getCategorySpent = (
-  category
-) => {
-
-  return expenses
-    .filter(
-      (expense) =>
-        expense.category ===
-        category
-    )
-    .reduce(
-      (total, expense) =>
-        total +
-        Number(
-          expense.amount
-        ),
-      0
-    );
-
-};
-
-const monthlyData = expenses.reduce(
-  (acc, expense) => {
-
-    const month =
-      new Date(
-        expense.date
-      ).toLocaleString(
-        "default",
-        {
-          month: "short",
-        }
-      );
-
-    const existing =
-      acc.find(
-        (item) =>
-          item.month === month
-      );
-
-    if (existing) {
-
-      existing.amount +=
-        Number(
-          expense.amount
-        );
-
-    } else {
-
-      acc.push({
-        month,
-        amount: Number(
-          expense.amount
-        ),
-      });
-
-    }
-
-    return acc;
-
-  },
-  []
 );
+
+
+/* ======================
+   MONTHLY DATA
+====================== */
+
+const monthlyData =
+
+expenses.reduce(
+
+(acc,expense)=>{
+
+const date =
+
+expense.createdAt ||
+
+expense.date;
+
+const month =
+
+new Date(
+
+date
+
+).toLocaleString(
+
+"default",
+
+{
+
+month:"short",
+
+}
+
+);
+
+const existing =
+
+acc.find(
+
+(item)=>
+
+item.month===month
+
+);
+
+if(existing){
+
+existing.amount +=
+
+Number(
+
+expense.amount
+
+);
+
+}
+
+else{
+
+acc.push({
+
+month,
+
+amount:Number(
+
+expense.amount
+
+),
+
+});
+
+}
+
+return acc;
+
+},
+
+[]
+
+);
+
+
+/* ======================
+   SPENT AMOUNT
+====================== */
+
+const getSpentAmount = (
+
+category
+
+) => {
+
+return filteredExpenses
+
+.filter(
+
+(expense)=>
+
+expense.category
+
+?.toLowerCase()
+
+===
+
+category
+
+?.toLowerCase()
+
+)
+
+.reduce(
+
+(total,expense)=>
+
+total +
+
+Number(
+
+expense.amount
+
+),
+
+0
+
+);
+
+};
+
+
+/* ======================
+   COLORS
+====================== */
+
+const COLORS = [
+
+"#2563eb",
+
+"#10b981",
+
+"#f59e0b",
+
+"#ef4444",
+
+"#8b5cf6",
+
+];
+
+
+/* ======================
+   FORMAT CURRENCY
+====================== */
+
+const formatCurrency = (
+
+amount
+
+) => {
+
+return new Intl.NumberFormat(
+
+"en-IN",
+
+{
+
+style:"currency",
+
+currency:"INR",
+
+maximumFractionDigits:0,
+
+}
+
+).format(
+
+Number(amount) || 0
+
+);
+
+};
+
+
+/* ======================
+   HEALTH SCORE
+====================== */
+
+const budgetScore =
+
+budgets.length
+
+? 10
+
+: 4;
+
+const goalScore =
+
+goals.length
+
+? 10
+
+: 4;
+
+const expenseScore =
+
+total > 0
+
+? 8
+
+: 4;
+
+const savingsScore =
+
+goals.some(
+
+(goal)=>
+
+goal.savedAmount > 0
+
+)
+
+? 10
+
+: 5;
+
+const healthScore = (
+
+(
+
+budgetScore +
+
+goalScore +
+
+expenseScore +
+
+savingsScore
+
+) / 4
+
+).toFixed(1);
+
+
+/* ======================
+   AI INSIGHTS
+====================== */
 
 const getAIAdvice = async () => {
 
-  try {
+try{
 
-    setLoadingAI(true);
+setLoadingAI(true);
 
-    toast.loading(
+toast.loading(
 
-      "Generating AI insights...",
+"Generating AI insights...",
 
-      {
+{
 
-        id: "ai",
+id:"ai",
 
-      }
+}
 
-    );
+);
 
-    const res = await fetch(
+const res = await fetch(
 
-      "http://localhost:5000/api/ai/recommend",
+"http://localhost:5000/api/ai/recommend",
 
-      {
+{
 
-        method: "POST",
+method:"POST",
 
-        headers: {
+headers:{
 
-          "Content-Type":
+"Content-Type":
 
-            "application/json",
+"application/json",
 
-          Authorization:
+Authorization:
 
-            `Bearer ${token}`,
+`Bearer ${token}`,
 
-        },
+},
 
-        body: JSON.stringify({
+}
 
-          expenses,
+);
 
-          goals,
+const data =
 
-          budgets,
+await res.json();
 
-        }),
+if(res.ok){
 
-      }
+setAiAdvice(
 
-    );
+data.recommendation
 
-    const data = await res.json();
+);
 
-    if (res.ok) {
+toast.success(
 
-      setAiAdvice(
+"AI insights generated",
 
-        data.recommendation
+{
 
-      );
+id:"ai",
 
-      toast.success(
+}
 
-        "AI insights generated",
+);
 
-        {
+}
 
-          id: "ai",
+else{
 
-        }
+throw new Error();
 
-      );
+}
 
-    } else {
+}
 
-      setAiAdvice(
+catch(error){
 
-        "AI insights are currently unavailable. Please try again later."
+console.log(error);
 
-      );
+setAiAdvice(`
 
-      toast.error(
+<h3>📊 Spending Summary</h3>
 
-        data.message ||
+<ul>
 
-          "AI service unavailable",
+<li>Track expenses regularly.</li>
 
-        {
+<li>Reduce unnecessary spending.</li>
 
-          id: "ai",
+</ul>
 
-        }
+<h3>📈 Budget Analysis</h3>
 
-      );
+<ul>
 
-    }
+<li>Create budgets for all categories.</li>
 
-  } catch (error) {
+<li>Avoid overspending.</li>
 
-    console.log(error);
+</ul>
 
-    setAiAdvice(
+<h3>🎯 Goal Progress</h3>
 
-`📊 Financial Summary
+<ul>
 
-• Track spending regularly.
+<li>Keep contributing to active goals.</li>
 
-• Focus on your highest spending category.
+</ul>
 
-• Continue contributing towards active savings goals.
+<h3>💡 Recommendations</h3>
 
-• Maintain a monthly budget for better financial discipline.
+<ul>
 
-⚠️ AI service is temporarily unavailable.`
+<li>Review expenses weekly.</li>
 
-    );
+<li>Save at least 20% of income.</li>
 
-    toast.error(
+</ul>
 
-      "AI service unavailable",
+<h3>⭐ Financial Health</h3>
 
-      {
+<p>Score: ${healthScore}/10</p>
 
-        id: "ai",
+`);
 
-      }
+toast.error(
 
-    );
+"AI service unavailable",
 
-  } finally {
+{
 
-    setLoadingAI(false);
+id:"ai",
 
-  }
+}
+
+);
+
+}
+
+finally{
+
+setLoadingAI(false);
+
+}
 
 };
 
-  const budgetScore =
-  budgets.length > 0
-    ? 10
-    : 5;
+const exportReport = () => {
 
-const goalScore =
-  goals.length > 0
-    ? 10
-    : 5;
+toast.success(
 
-const expenseScore =
-  total > 0
-    ? 8
-    : 5;
+"Export feature coming soon"
 
-const healthScore = (
-  (
-    budgetScore +
-    goalScore +
-    expenseScore
-  ) / 3
-).toFixed(1);
+);
 
-  return (
-  <div className="dash-page">
+};
+
+ return (
+
+<div className="dash-page">
 
 {/* Navbar */}
 
@@ -1518,37 +1855,43 @@ const healthScore = (
 
 activities={activities}
 
-showNotifications={
-  showNotifications
-}
+showNotifications={showNotifications}
 
-setShowNotifications={
-  setShowNotifications
-}
+setShowNotifications={setShowNotifications}
 
 darkMode={darkMode}
 
-setDarkMode={
-  setDarkMode
-}
+setDarkMode={setDarkMode}
 
 logout={logout}
 
-exportReport={
-  exportReport
-}
+exportReport={exportReport}
 
 currentMember={
-  currentMember
+
+familyMembers.find(
+
+(member)=>
+
+member.user?._id===
+
+localStorage.getItem(
+
+"userId"
+
+)
+
+)
+
 }
 
 />
 
 <div className="dashboard-layout">
 
-  {/* Sidebar */}
+{/* Sidebar */}
 
-  <Sidebar
+<Sidebar
 
 activeSection={activeSection}
 
@@ -1556,14 +1899,13 @@ setActiveSection={setActiveSection}
 
 />
 
-  {/* Content Area */}
+{/* Main Content */}
 
 <main className="content-area">
 
 {/* Dashboard */}
 
-{activeSection ===
-"dashboard" && (
+{activeSection==="dashboard" && (
 
 <Summary
 
@@ -1581,23 +1923,21 @@ exportReport={exportReport}
 
 setActiveSection={setActiveSection}
 
-topCategory={topCategory}
-
 />
 
 )}
 
-
 {/* Expenses */}
 
-{activeSection ===
-"expenses" && (
+{activeSection==="expenses" && (
 
 <>
 
 <ExpenseForm
 
-onAdd={async () => {
+darkMode={darkMode}
+
+onAdd={async()=>{
 
 await fetchExpenses();
 
@@ -1621,221 +1961,144 @@ updateExpense={updateExpense}
 
 )}
 
-
 {/* Budgets */}
 
-{activeSection ===
-"budgets" && (
+{activeSection==="budgets" && (
 
 <BudgetSection
 
-budgetCategory={
-budgetCategory
-}
+budgetCategory={budgetCategory}
 
-setBudgetCategory={
-setBudgetCategory
-}
+setBudgetCategory={setBudgetCategory}
 
-budgetAmount={
-budgetAmount
-}
+budgetAmount={budgetAmount}
 
-setBudgetAmount={
-setBudgetAmount
-}
+setBudgetAmount={setBudgetAmount}
 
-createBudget={
-createBudget
-}
+createBudget={createBudget}
 
-budgets={
-budgets
-}
+budgets={budgets}
 
-getSpentAmount={
-getSpentAmount
-}
+getSpentAmount={getSpentAmount}
 
 />
 
 )}
 
-
 {/* Goals */}
 
-{activeSection ===
-"goals" && (
+{activeSection==="goals" && (
 
 <GoalsSection
 
 goals={goals}
 
-goalTitle={
-goalTitle
-}
+goalTitle={goalTitle}
 
-setGoalTitle={
-setGoalTitle
-}
+setGoalTitle={setGoalTitle}
 
-goalAmount={
-goalTarget
-}
+goalAmount={goalTarget}
 
-setGoalAmount={
-setGoalTarget
-}
+setGoalAmount={setGoalTarget}
 
-goalDeadline={
-goalDeadline
-}
+goalDeadline={goalDeadline}
 
-setGoalDeadline={
-setGoalDeadline
-}
+setGoalDeadline={setGoalDeadline}
 
-createGoal={
-createGoal
-}
+createGoal={createGoal}
 
-addSavings={
-addSavings
-}
+addSavings={addSavings}
 
-deleteGoal={
-deleteGoal
-}
+deleteGoal={deleteGoal}
 
-savingAmounts={
-savingAmounts
-}
+savingAmounts={savingAmounts}
 
-setSavingAmounts={
-setSavingAmounts
-}
+setSavingAmounts={setSavingAmounts}
 
 />
 
 )}
 
-
 {/* Family */}
 
-{activeSection ===
-"family" && (
+{activeSection==="family" && (
 
 <FamilyCard
 
 family={family}
 
-familyMembers={
-familyMembers
-}
+familyMembers={familyMembers}
 
-familyName={
-familyName
-}
+familyName={familyName}
 
-setFamilyName={
-setFamilyName
-}
+setFamilyName={setFamilyName}
 
-inviteCode={
-inviteCode
-}
+inviteCode={inviteCode}
 
-setInviteCode={
-setInviteCode
-}
+setInviteCode={setInviteCode}
 
-createFamily={
-createFamily
-}
+createFamily={createFamily}
 
-joinFamily={
-joinFamily
-}
+joinFamily={joinFamily}
 
 />
 
 )}
-
 
 {/* Analytics */}
 
-{activeSection ===
-"analytics" && (
+{activeSection==="analytics" && (
 
 <AnalyticsSection
 
-chartData={
-chartData
-}
+chartData={chartData}
 
-monthlyData={
-monthlyData
-}
+monthlyData={monthlyData}
 
-memberChartData={
-memberChartData
-}
+memberChartData={memberChartData}
+
+COLORS={COLORS}
 
 />
 
 )}
-
 
 {/* AI */}
 
-{activeSection ===
-"ai" && (
+{activeSection==="ai" && (
 
 <AISection
 
-  getAIAdvice={
+getAIAdvice={getAIAdvice}
 
-    getAIAdvice
+aiAdvice={aiAdvice}
 
-  }
-
-  aiAdvice={
-
-    aiAdvice
-
-  }
-
-  loadingAI={
-
-    loadingAI
-
-  }
+loadingAI={loadingAI}
 
 />
 
 )}
 
-
 {/* Activity */}
 
-{activeSection ===
-"activity" && (
+{activeSection==="activity" && (
 
 <ActivitySection
 
-activities={
-activities
-}
+activities={activities}
 
 />
 
 )}
 
 </main>
+
 </div>
 
 </div>
-  );
+
+);
+
 }
 
 export default Dashboard;

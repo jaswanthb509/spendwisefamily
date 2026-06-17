@@ -1,219 +1,389 @@
 import {
+
   Wallet,
+
   Bell,
+
   Moon,
+
   Sun,
+
   LogOut,
+
   FileDown,
+
+  Crown,
+
+  User,
+
 } from "lucide-react";
 
 export default function Navbar({
-  activities,
+
+  activities = [],
+
   showNotifications,
+
   setShowNotifications,
+
   darkMode,
+
   setDarkMode,
+
   logout,
+
   exportReport,
+
   currentMember,
+
 }) {
+
+  /* ======================
+     USER INFO
+  ====================== */
+
+  const firstName =
+
+    localStorage.getItem(
+
+      "firstName"
+
+    ) || "";
+
+  const lastName =
+
+    localStorage.getItem(
+
+      "lastName"
+
+    ) || "";
+
+  const fullName =
+
+    `${firstName} ${lastName}`
+
+      .trim() ||
+
+    "Guest User";
+
+  const avatarLetter =
+
+    firstName
+
+    ? firstName
+
+      .charAt(0)
+
+      .toUpperCase()
+
+    : "G";
+
+  /* ======================
+     THEME
+  ====================== */
+
+  const toggleTheme = () => {
+
+    const newTheme =
+
+      !darkMode;
+
+    setDarkMode(
+
+      newTheme
+
+    );
+
+    localStorage.setItem(
+
+      "theme",
+
+      newTheme
+
+      ? "dark"
+
+      : "light"
+
+    );
+
+  };
+
   return (
 
 <nav className="dash-nav">
 
-  {/* Left */}
+{/* Left */}
 
-  <div className="logo-section">
+<div className="logo-section">
 
-    <Wallet size={28} />
+<Wallet size={28} />
 
-    <h2 className="dash-logo">
-      SpendWiseFamily
-    </h2>
+<h2 className="dash-logo">
 
-  </div>
+SpendWiseFamily
 
-  {/* Right */}
+</h2>
 
-  <div className="nav-right">
+</div>
 
-    {/* Profile */}
+{/* Right */}
 
-    <div className="profile-card">
+<div className="nav-right">
 
-      <div className="profile-avatar">
+{/* Profile */}
 
-        {localStorage
-          .getItem("email")
-          ?.charAt(0)
-          .toUpperCase()}
+<div className="profile-card">
 
-      </div>
+<div className="profile-avatar">
 
-      <div className="profile-info">
+{avatarLetter}
 
-        <h4>
+</div>
 
-          {localStorage.getItem(
-            "email"
-          )}
+<div className="profile-info">
 
-        </h4>
+<h4>
 
-        <span>
+{fullName}
 
-          {currentMember?.role ===
-          "admin"
+</h4>
 
-            ? "Admin"
+<span>
 
-            : "Member"}
+{
 
-        </span>
+currentMember?.role ===
 
-      </div>
+"admin"
 
-    </div>
+? (
 
-    {/* Notification */}
+<>
 
-    <div className="notification-wrapper">
+<Crown size={14} />
 
-      <button
+Admin
 
-        className="notification-btn"
+</>
 
-        onClick={() =>
+)
 
-          setShowNotifications(
+: (
 
-            !showNotifications
+<>
 
-          )
+<User size={14} />
 
-        }
+Member
 
-      >
+</>
 
-        <Bell size={18} />
+)
 
-        {activities.length > 0 && (
+}
 
-          <span
-            className="notification-count"
-          >
+</span>
 
-            {activities.length}
+</div>
 
-          </span>
+</div>
 
-        )}
+{/* Notifications */}
 
-      </button>
+<div className="notification-wrapper">
 
-      {showNotifications && (
+<button
 
-        <div
-          className="notification-dropdown"
-        >
+className="notification-btn"
 
-          <h4>
-            Notifications
-          </h4>
+onClick={()=>
 
-          {activities
-            .slice(0, 5)
-            .map((activity) => (
+setShowNotifications(
 
-              <div
+!showNotifications
 
-                key={activity._id}
+)
 
-                className="notification-item"
+}
 
-              >
+>
 
-                <p>
+<Bell size={18} />
 
-                  {activity.action}
+{
 
-                </p>
+activities.length > 0 && (
 
-              </div>
+<span
 
-            ))}
+className="notification-count"
 
-        </div>
+>
 
-      )}
+{activities.length}
 
-    </div>
+</span>
 
-    {/* Theme */}
+)
 
-    <button
+}
 
-      className="theme-btn"
+</button>
 
-      onClick={() =>
+{
 
-        setDarkMode(
+showNotifications && (
 
-          !darkMode
+<div
 
-        )
+className="notification-dropdown"
 
-      }
+>
 
-    >
+<h4>
 
-      {darkMode ? (
+Notifications
 
-        <Sun size={18} />
+</h4>
 
-      ) : (
+{
 
-        <Moon size={18} />
+activities.length === 0
 
-      )}
+? (
 
-    </button>
+<p>
 
-    {/* Export */}
+No notifications
 
-    <button
+</p>
 
-      className="export-btn"
+)
 
-      onClick={exportReport}
+: (
 
-    >
+activities
 
-      <FileDown size={18} />
+.slice(0,5)
 
-      Export
+.map(
 
-    </button>
+(activity)=>(
 
-    {/* Logout */}
+<div
 
-    <button
+key={activity._id}
 
-      className="logout-btn"
+className="notification-item"
 
-      onClick={logout}
+>
 
-    >
+<p>
 
-      <LogOut size={18} />
+{activity.action}
 
-      Logout
+</p>
 
-    </button>
+<small>
 
-  </div>
+{
+
+new Date(
+
+activity.createdAt
+
+)
+
+.toLocaleString()
+
+}
+
+</small>
+
+</div>
+
+)
+
+)
+
+)
+
+}
+
+</div>
+
+)
+
+}
+
+</div>
+
+{/* Theme */}
+
+<button
+
+className="theme-btn"
+
+onClick={toggleTheme}
+
+>
+
+{
+
+darkMode
+
+? (
+
+<Sun size={18} />
+
+)
+
+: (
+
+<Moon size={18} />
+
+)
+
+}
+
+</button>
+
+{/* Export */}
+
+<button
+
+className="export-btn"
+
+onClick={exportReport}
+
+>
+
+<FileDown size={18} />
+
+Export
+
+</button>
+
+{/* Logout */}
+
+<button
+
+className="logout-btn"
+
+onClick={logout}
+
+>
+
+<LogOut size={18} />
+
+Logout
+
+</button>
+
+</div>
 
 </nav>
 
-  );
+);
+
 }

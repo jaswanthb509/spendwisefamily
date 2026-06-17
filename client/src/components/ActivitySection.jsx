@@ -1,49 +1,78 @@
+import {
+
+History,
+
+User,
+
+} from "lucide-react";
+
 export default function ActivitySection({
 
 activities,
 
 }) {
 
-return (
+return(
 
-<div
-className="stat-card"
->
+<div className="section-card">
+
+<div className="section-header">
 
 <h2>
+
+<History size={22}/>
 
 Recent Activity
 
 </h2>
 
-{activities.length>0 ? (
+</div>
+
+{
+
+activities.length > 0
+
+? (
+
+<div className="activity-list">
+
+{
 
 activities.map(
 
-(activity)=>(
+(activity)=>{
+
+const fullName =
+
+activity.user
+
+? `${activity.user.firstName || ""}
+
+${activity.user.lastName || ""}`
+
+: "Family Member";
+
+return(
 
 <div
 
-key={
-activity._id
-}
+key={activity._id}
 
-className="
-activity-card"
+className="activity-card"
 
 >
 
-<div
-className="
-activity-content"
+<div className="activity-icon">
 
->
+<User size={18}/>
+
+</div>
+
+<div className="activity-content">
 
 <h4>
 
-{activity.user?.email ||
-
-"Family Member"}
+{fullName}
 
 </h4>
 
@@ -67,21 +96,29 @@ activity.createdAt
 
 </div>
 
-)
+);
+
+}
 
 )
 
-) : (
+}
 
-<p>
+</div>
 
-No activities
+)
 
-found
+: (
 
-</p>
+<div className="empty-card">
 
-)}
+📭 No recent activities
+
+</div>
+
+)
+
+}
 
 </div>
 
