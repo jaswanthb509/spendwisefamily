@@ -1,247 +1,467 @@
-import { useState } from "react";
+import {
+
+useState,
+
+useEffect,
+
+} from "react";
+
 import "./App.css";
 
 import Login from "./pages/Login";
+
 import Register from "./pages/Register";
+
 import Dashboard from "./pages/Dashboard";
 
+function App(){
 
-function App() {
-  const [page, setPage] = useState(
-    localStorage.getItem("token")
-      ? "dashboard"
-      : "home"
-  );
+const [
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setPage("home");
-  };
+page,
 
-const [darkMode, setDarkMode] =
-  useState(
-    localStorage.getItem("theme")
-      === "dark"
-  );
+setPage
 
-  return (
-    <div className="app">
+] = useState(
 
-      {/* HOME PAGE */}
-      {page === "home" && (
-        <div className="home-page">
+localStorage.getItem(
 
-          {/* NAVBAR */}
-          <nav className="navbar">
+"token"
 
-            <h2 className="logo">
-              SpendWiseFamily.
-            </h2>
+)
 
-            <div className="nav-actions">
+? "dashboard"
 
-              <button
-                className="nav-btn"
-                onClick={() =>{
-                  console.log("LOGIN CLICKED")
-                  setPage("login")
-                }}
-              >
-                Login
-              </button>
+: "home"
 
-              <button
-                className="primary-btn"
-                onClick={() =>
-                  setPage("register")
-                }
-              >
-                Sign Up
-              </button>
+);
 
-              <div
-             className={
-               darkMode
-               ? "dark-theme"
-               : ""
-               }
-              ></div>
+const [
 
-            </div>
+darkMode,
 
-          </nav>
+setDarkMode
 
-          {/* HERO */}
-          <section className="hero">
+] = useState(
 
-            <div className="hero-ai">
-              🚀 AI Powered Family Finance Tracker
-            </div>
+localStorage.getItem(
 
-            <h1>
-              Manage Family
-              Expenses Smarter
-            </h1>
+"theme"
 
-            <p>
-              Track spending,
-              analyze trends,
-              save more and
-              grow together.
-            </p>
+)==="dark"
 
-            <div className="hero-buttons">
+);
 
-              <button
-                className="primary-btn"
-                onClick={() =>
-                  setPage("register")
-                }
-              >
-                🚀 Start Free
-              </button>
+useEffect(()=>{
 
-            </div>
+document.body.className=
 
-          </section>
+darkMode
 
-          {/* FEATURES */}
-          <section className="features">
+? "dark-theme"
 
-            <div className="card">
-              <h3>
-                 1. Expense Tracking
-              </h3>
+: "";
 
-              <p>
-                Add and manage
-                family expenses
-                effortlessly.
-              </p>
-            </div>
+localStorage.setItem(
 
-            <div className="card">
-              <h3>
-                2. Smart Analytics
-              </h3>
+"theme",
 
-              <p>
-                Visual charts
-                and spending
-                insights.
-              </p>
-            </div>
+darkMode
 
-            <div className="card">
-              <h3>
-                3. Savings Goals
-              </h3>
+? "dark"
 
-              <p>
-                Create and
-                track savings
-                goals together.
-              </p>
-            </div>
+: "light"
 
-            <div className="card">
-              <h3>
-                4. AI Insights
-              </h3>
+);
 
-              <p>
-                Get great
-                recommendations
-                for better savings.
-              </p>
-            </div>
+},[darkMode]);
 
-          </section>
+const handleLogout=()=>{
 
- 
-          {/* CTA */}
-          <section
-            style={{
-              textAlign: "center",
-              marginTop: "80px",
-            }}
-          >
+localStorage.clear();
 
-            <h2>
-              Ready To Take
-              Control Of Your
-              Family Finances?
-            </h2>
+setPage("home");
 
-            <br />
+};
 
-            <button
-              className="primary-btn"
-              onClick={() =>
-                setPage("register")
-              }
-            >
-              Get Started
-            </button>
+return(
 
-          </section>
+<div
 
-          {/* FOOTER */}
-          <footer className="footer">
+className={`app ${
 
-            <h2>
-              SpendWiseFamily
-            </h2>
+darkMode
 
-            <p>
-              Expense Tracking •
-              Savings Goals •
-              Budget Management •
-              AI Insights
-            </p>
+? "dark-theme"
 
-            <p>
-              © 2026
-              SpendWiseFamily
-            </p>
+: ""
 
-          </footer>
+}`}
 
-        </div>
-      )}
+>
 
-      {/* LOGIN */}
-      {page === "login" && (
-        <Login
-          goToRegister={() =>
-            setPage("register")
-          }
-          goToDashboard={() =>
-            setPage("dashboard")
-          }
-        />
-      )}
+{/* Home */}
 
-      {/* REGISTER */}
-      {page === "register" && (
-        <Register
-          goToLogin={() =>
-            setPage("login")
-          }
-        />
-      )}
+{
 
-      {/* DASHBOARD */}
-      {page === "dashboard" && (
-        <Dashboard
-  goHome={handleLogout}
-  darkMode={darkMode}
-  setDarkMode={setDarkMode}
+page==="home" && (
+
+<div className="home-page">
+
+{/* Navbar */}
+
+<nav className="navbar">
+
+<h2 className="logo">
+
+SpendWiseFamily
+
+</h2>
+
+<div className="nav-actions">
+
+<button
+
+className="nav-btn"
+
+onClick={()=>
+
+setPage("login")
+
+}
+
+>
+
+Login
+
+</button>
+
+<button
+
+className="primary-btn"
+
+onClick={()=>
+
+setPage(
+
+"register"
+
+)
+
+}
+
+>
+
+Sign Up
+
+</button>
+
+</div>
+
+</nav>
+
+{/* Hero */}
+
+<section className="hero">
+
+<div className="hero-ai">
+
+🚀 AI Powered Family Finance Tracker
+
+</div>
+
+<h1>
+
+Manage Family
+
+Expenses Smarter
+
+</h1>
+
+<p className="hero-para">
+
+Track spending,
+
+save smarter
+
+and grow together.
+
+</p>
+
+<div className="hero-buttons">
+
+<button
+
+className="primary-btn"
+
+onClick={()=>
+
+setPage(
+
+"register"
+
+)
+
+}
+
+>
+
+🚀 Start Free
+
+</button>
+
+</div>
+
+</section>
+
+{/* Features */}
+
+<section className="features">
+
+<div className="card">
+
+<h3>
+
+1. Expense Tracking
+
+</h3>
+
+<p>
+
+Track all expenses.
+
+</p>
+
+</div>
+
+<div className="card">
+
+<h3>
+
+2. Smart Analytics
+
+</h3>
+
+<p>
+
+Visual spending charts.
+
+</p>
+
+</div>
+
+<div className="card">
+
+<h3>
+
+3. Savings Goals
+
+</h3>
+
+<p>
+
+Track goals together.
+
+</p>
+
+</div>
+
+<div className="card">
+
+<h3>
+
+4. AI Insights
+
+</h3>
+
+<p>
+
+Get smart recommendations.
+
+</p>
+
+</div>
+
+</section>
+
+{/* CTA */}
+
+<section
+
+style={{
+
+textAlign:"center",
+
+marginTop:"80px",
+
+}}
+
+>
+
+<h2>
+
+Ready To Take
+
+Control Of
+
+Your Finances?
+
+</h2>
+
+<br/>
+
+<button
+
+className="primary-btn"
+
+onClick={()=>
+
+setPage(
+
+"register"
+
+)
+
+}
+
+>
+
+Get Started
+
+</button>
+
+</section>
+
+{/* Footer */}
+
+<footer className="footer">
+
+<h2>
+
+SpendWiseFamily
+
+</h2>
+
+<p>
+
+Expense Tracking •
+
+Savings Goals •
+
+AI Insights
+
+</p>
+
+<p>
+
+© 2026
+
+SpendWiseFamily
+
+</p>
+
+</footer>
+
+</div>
+
+)
+
+}
+
+{/* Login */}
+
+{
+
+page==="login" && (
+
+<Login
+
+goToRegister={()=>
+
+setPage(
+
+"register"
+
+)
+
+}
+
+goToDashboard={()=>
+
+setPage(
+
+"dashboard"
+
+)
+
+}
+
 />
-      )}
 
-    </div>
-  );
+)
+
+}
+
+{/* Register */}
+
+{
+
+page==="register" && (
+
+<Register
+
+goToLogin={()=>
+
+setPage(
+
+"login"
+
+)
+
+}
+
+/>
+
+)
+
+}
+
+{/* Dashboard */}
+
+{
+
+page==="dashboard" && (
+
+<Dashboard
+
+goHome={
+
+handleLogout
+
+}
+
+darkMode={
+
+darkMode
+
+}
+
+setDarkMode={
+
+setDarkMode
+
+}
+
+/>
+
+)
+
+}
+
+</div>
+
+);
+
 }
 
 export default App;

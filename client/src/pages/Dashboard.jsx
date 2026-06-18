@@ -409,7 +409,17 @@ const updateExpense = async (
 
 const fetchFamily = async () => {
 
+  if (!token) {
+
+    console.log("No token found");
+
+    return;
+
+  }
+
   try {
+
+    console.log("Fetching family...");
 
     const res = await fetch(
 
@@ -417,17 +427,25 @@ const fetchFamily = async () => {
 
       {
 
+        method: "GET",
+
         headers: {
 
-          Authorization:
+          Authorization: `Bearer ${token}`,
 
-            `Bearer ${token}`,
+          "Content-Type": "application/json",
 
         },
 
       }
 
     );
+
+    console.log("Family Status:", res.status);
+
+    const data = await res.json();
+
+    console.log("Family Data:", data);
 
     if (!res.ok) {
 
@@ -438,10 +456,6 @@ const fetchFamily = async () => {
       return;
 
     }
-
-    const data =
-
-      await res.json();
 
     setFamily(data);
 
@@ -455,7 +469,17 @@ const fetchFamily = async () => {
 
   catch (error) {
 
-    console.log(error);
+    console.log(
+
+      "Fetch Family Error:",
+
+      error
+
+    );
+
+    setFamily(null);
+
+    setFamilyMembers([]);
 
   }
 

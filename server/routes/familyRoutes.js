@@ -177,7 +177,7 @@ router.get(
           )
           .populate(
             "members.user",
-            "email"
+            "firstName lastName email"
           );
 
       res.json(family);

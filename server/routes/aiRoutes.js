@@ -1,108 +1,119 @@
-require("dotenv").config();
-
 const express = require("express");
 
 const router = express.Router();
 
-const {
-  GoogleGenerativeAI,
-} = require("@google/generative-ai");
+const { GoogleGenerativeAI } =
+require("@google/generative-ai");
 
-const protect = require(
-  "../middleware/authMiddleware"
-);
+const protect =
+require("../middleware/authMiddleware");
 
-const Expense = require("../models/Expense");
+const User =
+require("../models/User");
 
-const Budget = require("../models/Budget");
+const Expense =
+require("../models/Expense");
 
-const Goal = require("../models/Goal");
+const Budget =
+require("../models/Budget");
 
-const Family = require("../models/Family");
+const Goal =
+require("../models/Goal");
 
-const User = require("../models/User");
+const Family =
+require("../models/Family");
 
-const genAI = new GoogleGenerativeAI(
+
+/* ==========================
+   GEMINI SETUP
+========================== */
+
+const genAI =
+new GoogleGenerativeAI(
   process.env.GEMINI_API_KEY
 );
 
 const model =
-  genAI.getGenerativeModel({
+genAI.getGenerativeModel({
 
-    model:"gemini-1.5-flash",
+model:"gemini-2.5-flash",
 
-  });
+});
 
 
-// Retry Function
-
-async function generateAI(prompt){
-
-for(let i=0;i<3;i++){
-
-try{
-
-const result =
-await model.generateContent(prompt);
-
-const response =
-await result.response;
-
-return response.text();
-
-}
-
-catch(error){
-
-console.log(
-`Retry ${i+1}`
-);
-
-if(i===2){
-
-throw error;
-
-}
-
-await new Promise(
-
-resolve=>
-
-setTimeout(
-
-resolve,
-
-2000
-
-)
-
-);
-
-}
-
-}
-
-}
-
+/* ==========================
+   AI INSIGHTS
+========================== */
 
 router.post(
-
 "/recommend",
 
 protect,
 
-async(req,res)=>{
+async (req,res)=>{
 
 try{
 
 console.log(
-"Generating AI Insights..."
+"AI route hit"
 );
+
+
+/* USER */
 
 const user =
 await User.findById(
 req.user._id
 );
+
+if(!user){
+
+return res.status(404).json({
+
+message:"User not found",
+
+});
+
+}
+
+
+/* FAMILY */
+
+if(!user.family){
+
+return res.status(400).json({
+
+message:
+"Please create or join a family first",
+
+});
+
+}
+
+const family =
+await Family.findById(
+user.family
+).populate(
+
+"members.user",
+
+"firstName lastName"
+
+);
+
+if(!family){
+
+return res.status(404).json({
+
+message:
+"Family not found",
+
+});
+
+}
+
+
+/* FETCH DATA */
 
 const expenses =
 await Expense.find({
@@ -125,31 +136,45 @@ family:user.family,
 
 });
 
-const family =
-await Family.findById(
 
-user.family
+console.log(
 
-).populate(
+"Expenses:",
 
-"members.user",
-
-"email"
+expenses.length
 
 );
 
+console.log(
+
+"Budgets:",
+
+budgets.length
+
+);
+
+console.log(
+
+"Goals:",
+
+goals.length
+
+);
+
+
+/* CALCULATIONS */
 
 const totalExpenses =
 
 expenses.reduce(
 
-(sum,expense)=>
+(sum,item)=>
 
-sum+
+sum +
 
 Number(
 
-expense.amount
+item.amount
 
 ),
 
@@ -158,53 +183,50 @@ expense.amount
 );
 
 
+/* PROMPT */
+
 const prompt = `
 
-You are an expert financial advisor.
+You are a financial advisor.
 
-Analyze this family's finances.
+Analyze this family's financial data.
 
 Return ONLY HTML.
 
-Use:
+Maximum 250 words.
+
+Sections:
 
 <h3>💰 Spending Summary</h3>
 
-<ul>
-<li></li>
-</ul>
+<ul><li></li></ul>
 
 <h3>📊 Budget Analysis</h3>
 
-<ul>
-<li></li>
-</ul>
+<ul><li></li></ul>
 
 <h3>🎯 Goal Progress</h3>
 
-<ul>
-<li></li>
-</ul>
+<ul><li></li></ul>
 
 <h3>💡 Recommendations</h3>
 
-<ul>
-<li></li>
-</ul>
+<ul><li></li></ul>
 
 <h3>⭐ Financial Health</h3>
 
 <p>Score:X/10</p>
 
-Rules:
+Use simple language.
 
-- Under 250 words
-- Simple language
-- No markdown
-- No **
-- No code blocks
+No markdown.
 
-Family:
+No **
+
+No code blocks.
+
+
+Family Members:
 
 ${JSON.stringify(
 
@@ -258,17 +280,31 @@ null,
 
 `;
 
-const recommendation =
 
-await generateAI(
+/* GEMINI */
+
+const result =
+
+await model.generateContent(
 
 prompt
 
 );
 
-return res.json({
+const response =
+
+await result.response;
+
+const recommendation =
+
+response.text();
+
+
+return res.status(200).json({
 
 recommendation,
+
+fallback:false,
 
 });
 
@@ -278,12 +314,14 @@ catch(error){
 
 console.log(
 
-"Gemini Error:",
+"AI ERROR:",
 
-error
+error.message
 
 );
 
+
+/* FALLBACK */
 
 const fallback = `
 
@@ -291,9 +329,9 @@ const fallback = `
 
 <ul>
 
-<li>Track your monthly expenses regularly.</li>
+<li>Track your expenses regularly.</li>
 
-<li>Reduce spending in your highest category.</li>
+<li>Reduce unnecessary spending.</li>
 
 </ul>
 
@@ -301,9 +339,9 @@ const fallback = `
 
 <ul>
 
-<li>Create realistic monthly budgets.</li>
+<li>Create monthly budgets.</li>
 
-<li>Avoid exceeding your limits.</li>
+<li>Stay within limits.</li>
 
 </ul>
 
@@ -311,7 +349,7 @@ const fallback = `
 
 <ul>
 
-<li>Continue contributing towards savings goals.</li>
+<li>Keep contributing to your goals.</li>
 
 </ul>
 
@@ -321,19 +359,21 @@ const fallback = `
 
 <li>Review expenses weekly.</li>
 
-<li>Save at least 20% of your income.</li>
+<li>Save 20% of your income.</li>
 
 </ul>
 
 <h3>⭐ Financial Health</h3>
 
-<p>Score: 8/10</p>
+<p>Score:8/10</p>
 
 `;
 
-return res.json({
+return res.status(200).json({
 
 recommendation:fallback,
+
+fallback:true,
 
 });
 
