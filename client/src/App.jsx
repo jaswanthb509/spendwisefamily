@@ -86,19 +86,7 @@ setPage("home");
 
 return(
 
-<div
-
-className={`app ${
-
-darkMode
-
-? "dark-theme"
-
-: ""
-
-}`}
-
->
+<div className={`app ${darkMode ? "dark" : ""}`}>
 
 {/* Home */}
 
@@ -114,7 +102,7 @@ page==="home" && (
 
 <h2 className="logo">
 
-SpendWiseFamily
+SpendWiseFamily.
 
 </h2>
 
@@ -166,7 +154,7 @@ Sign Up
 
 <div className="hero-ai">
 
-🚀 AI Powered Family Finance Tracker
+AI Powered Family Finance Tracker
 
 </div>
 
@@ -206,7 +194,7 @@ setPage(
 
 >
 
-🚀 Start Free
+Start Free
 
 </button>
 
