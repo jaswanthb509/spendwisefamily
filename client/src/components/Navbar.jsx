@@ -116,11 +116,9 @@ export default function Navbar({
 
 <div className="logo-section">
 
-<Wallet size={28} />
-
 <h2 className="dash-logo">
 
-SpendWiseFamily
+SpendWiseFamily.
 
 </h2>
 

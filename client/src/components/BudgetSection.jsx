@@ -16,192 +16,253 @@ export default function BudgetSection({
 
 }) {
 
-return (
+
+const categories=[
+
+"Food",
+
+"Transport",
+
+"Bills",
+
+"Shopping",
+
+"Health",
+
+"Education",
+
+"Entertainment",
+
+"Travel",
+
+"Subscriptions",
+
+"Other",
+
+];
+
+return(
 
 <>
 
-<div
-  className="stat-card"
-  style={{
-    marginTop: "20px",
-  }}
+
+<div className="section-card">
+
+<h2 className="section-title">
+
+Budget Tracking:
+
+</h2>
+
+<div className="expense-form-grid">
+
+<select
+
+value={budgetCategory}
+
+onChange={(e)=>
+
+setBudgetCategory(
+
+e.target.value
+
+)
+
+}
+
 >
 
-  <h2>
-    Budget Tracking
-  </h2>
+<option value="">
 
-  <select
+Select Category
 
-    value={budgetCategory}
+</option>
 
-    onChange={(e)=>
+{
 
-      setBudgetCategory(
+categories.map(
 
-        e.target.value
+(category)=>(
 
-      )
+<option
 
-    }
+key={category}
 
-  >
+value={category}
 
-    <option value="">
-      Category
-    </option>
+>
 
-    <option value="Food">
-      Food
-    </option>
+{category}
 
-    <option value="Bills">
-      Bills
-    </option>
+</option>
 
-    <option value="Travel">
-      Travel
-    </option>
+)
 
-    <option value="Shopping">
-      Shopping
-    </option>
+)
 
-  </select>
+}
 
-  <input
+</select>
 
-    type="number"
+<input
 
-    placeholder="
-    Budget Amount"
+type="number"
 
-    value={budgetAmount}
+placeholder="Budget Amount"
 
-    onChange={(e)=>
+value={budgetAmount}
 
-      setBudgetAmount(
+onChange={(e)=>
 
-        e.target.value
+setBudgetAmount(
 
-      )
+e.target.value
 
-    }
+)
 
-  />
+}
 
-  <button
+/>
 
-    className="main-btn"
+<button
 
-    onClick={
-      createBudget
-    }
+className="main-btn"
 
-  >
+onClick={createBudget}
 
-    Set Budget
+>
 
-  </button>
+Set Budget
+
+</button>
+
+</div>
 
 </div>
 
 
-<div
-  className="stat-card"
-  style={{
-    marginTop: "20px",
-  }}
->
+<div className="section-card">
 
-<h2>
-
-Budget List
+<h2 className="section-title">
+Budget Overview:
 
 </h2>
 
-{budgets.map(
+{
+
+budgets.length===0
+
+?
+
+(
+
+<div className="empty-card">
+
+No budgets created yet..
+
+</div>
+
+)
+
+:
+
+(
+
+budgets.map(
+
 (budget)=>{
 
-const spent =
+const spent=
+
 getSpentAmount(
+
 budget.category
+
 );
 
-const percentage =
+const percentage=
+
 Math.min(
-(spent /
-budget.amount)
-*100,
+
+(
+
+spent/
+
+budget.amount
+
+)*100,
+
 100
+
 );
 
-return (
+const remaining=
+
+Math.max(
+
+budget.amount-
+
+spent,
+
+0
+
+);
+
+const status=
+
+percentage>=100
+
+? "danger"
+
+: percentage>=80
+
+? "warning"
+
+: "safe";
+
+return(
 
 <div
 
 key={budget._id}
 
-style={{
-
-marginBottom:
-"20px",
-
-}}
+className="budget-card"
 
 >
 
-<h4>
+<div className="budget-header">
+
+<h3>
 
 {budget.category}
 
-</h4>
+</h3>
 
-<p>
-
-₹{spent}
-
-/
+<span>
 
 ₹{budget.amount}
 
+</span>
+
+</div>
+
+<p className="budget-text">
+
+Spent ₹{spent} of ₹{budget.amount}
+
 </p>
 
-<div
-
-style={{
-
-height:"12px",
-
-background:"#ddd",
-
-borderRadius:
-"20px",
-
-}}
-
->
+<div className="budget-progress">
 
 <div
+
+className={`budget-fill ${status}`}
 
 style={{
 
 width:
-`${percentage}%`,
 
-height:
-"100%",
-
-background:
-
-percentage>80
-
-? "#ef4444"
-
-: "#22c55e",
-
-borderRadius:
-"20px",
+`${percentage}%`
 
 }}
 
@@ -209,13 +270,29 @@ borderRadius:
 
 </div>
 
-<small>
+<div className="budget-footer">
 
-Remaining ₹
+<span>
 
-{budget.amount-spent}
+{percentage.toFixed(0)}%
 
-</small>
+used
+
+</span>
+
+<span
+
+className={`budget-${status}`}
+
+>
+
+₹{remaining}
+
+<p>(remaining)</p>
+
+</span>
+
+</div>
 
 </div>
 
@@ -223,7 +300,11 @@ Remaining ₹
 
 }
 
-)}
+)
+
+)
+
+}
 
 </div>
 

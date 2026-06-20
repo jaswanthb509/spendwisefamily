@@ -1,8 +1,13 @@
 import {
+
   PlusCircle,
+
   Target,
+
   Users,
+
   FileDown,
+
 } from "lucide-react";
 
 export default function Summary({
@@ -23,281 +28,260 @@ export default function Summary({
 
 }) {
 
-return (
+  return (
 
 <>
 
+{/* Welcome Section */}
+
 <div className="dash-header">
 
-  <div className="welcome-card">
+<div className="welcome-card">
 
-    <div className="welcome-top">
+<div className="welcome-top">
 
-      <div>
+<div>
 
-        <h1>
+<h1>
 
-          Welcome Back
+Welcome Back 
 
-        </h1>
+</h1>
 
-        <p>
+<p>
 
-          Manage expenses,
+Manage expenses, budgets,
 
-          budgets, savings goals
+family members and savings
 
-          and family finances
+goals in one place.
 
-          in one place.
-
-        </p>
-
-      </div>
-
-      <div
-        className="welcome-badge"
-      >
-
-        A Smart Finance Tracker
-
-      </div>
-
-    </div>
-
-    <div className="welcome-stats">
-
-      <div
-        className="welcome-stat-card"
-      >
-
-        <h3>
-
-          {formatCurrency(
-            total
-          )}
-
-        </h3>
-
-        <span>
-
-          Total Expenses
-
-        </span>
-
-      </div>
-
-      <div
-        className="welcome-stat-card"
-      >
-
-        <h3>
-
-          {
-            familyMembers.length
-          }
-
-        </h3>
-
-        <span>
-
-          Family Members
-
-        </span>
-
-      </div>
-
-      <div
-        className="welcome-stat-card"
-      >
-
-        <h3>
-
-          {goals.length}
-
-        </h3>
-
-        <span>
-
-          Active Goals
-
-        </span>
-
-      </div>
-
-      <div
-        className="health-card"
-      >
-
-        <h3
-
-          style={{
-
-            color:
-
-              healthScore >= 8
-
-                ? "#22c55e"
-
-                : healthScore >= 6
-
-                ? "#f59e0b"
-
-                : "#ef4444",
-
-          }}
-
-        >
-
-          {healthScore}/10
-
-        </h3>
-
-        <span>
-
-          Financial Health
-
-        </span>
-
-      </div>
-
-    </div>
-
-  </div>
+</p>
 
 </div>
 
+<div className="welcome-badge">
+
+Smart Finance Tracker
+
+</div>
+
+</div>
+
+
+
+<div className="welcome-stats">
+
+<div className="welcome-stat-card">
+
+<h3>
+
+{formatCurrency(total)}
+
+</h3>
+
+<span>
+
+Total Expenses
+
+</span>
+
+</div>
+
+<div className="welcome-stat-card">
+
+<h3>
+
+{familyMembers.length}
+
+</h3>
+
+<span>
+
+Family Members
+
+</span>
+
+</div>
+
+<div className="welcome-stat-card">
+
+<h3>
+
+{goals.length}
+
+</h3>
+
+<span>
+
+Savings Goals
+
+</span>
+
+</div>
+
+<div className="health-card">
+
+<h3
+
+style={{
+
+color:
+
+healthScore >= 8
+
+? "#22c55e"
+
+: healthScore >= 6
+
+? "#f59e0b"
+
+: "#ef4444",
+
+}}
+
+>
+
+{healthScore}/10
+
+</h3>
+
+<span>
+
+Financial Health
+
+</span>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
 <div className="quick-actions">
 
-  <div
+<div
 
-    className="action-card"
+className="action-card"
 
-    onClick={() =>
+onClick={()=>
 
-      setActiveSection(
+setActiveSection(
 
-        "expenses"
+"expenses"
 
-      )
+)
 
-    }
+}
 
-  >
+>
 
-    <PlusCircle
-      size={34}
-    />
+<PlusCircle size={34} />
 
-    <h4>
+<h4>
 
-      Add Expense
+Add Expense
 
-    </h4>
+</h4>
 
-    <p>
+<p>
 
-      Record a new expense
+Track a new expense
 
-    </p>
+</p>
 
-  </div>
+</div>
 
-  <div
+<div
 
-    className="action-card"
+className="action-card"
 
-    onClick={() =>
+onClick={()=>
 
-      setActiveSection(
+setActiveSection(
 
-        "goals"
+"goals"
 
-      )
+)
 
-    }
+}
 
-  >
+>
 
-    <Target
-      size={34}
-    />
+<Target size={34} />
 
-    <h4>
+<h4>
 
-      Create Goal
+Savings Goals
 
-    </h4>
+</h4>
 
-    <p>
+<p>
 
-      Track savings
+Create savings targets
 
-    </p>
+</p>
 
-  </div>
+</div>
 
-  <div
+<div
 
-    className="action-card"
+className="action-card"
 
-    onClick={() =>
+onClick={()=>
 
-      setActiveSection(
+setActiveSection(
 
-        "family"
+"family"
 
-      )
+)
 
-    }
+}
 
-  >
+>
 
-    <Users
-      size={34}
-    />
+<Users size={34} />
 
-    <h4>
+<h4>
 
-      Family Group
+Family Group
 
-    </h4>
+</h4>
 
-    <p>
+<p>
 
-      Manage members
+Manage family members
 
-    </p>
+</p>
 
-  </div>
+</div>
 
-  <div
+<div
 
-    className="action-card"
+className="action-card"
 
-    onClick={
-      exportReport
-    }
+onClick={exportReport}
 
-  >
+>
 
-    <FileDown
-      size={34}
-    />
+<FileDown size={34} />
 
-    <h4>
+<h4>
 
-      Export PDF
+Export Report
 
-    </h4>
+</h4>
 
-    <p>
+<p>
 
-      Download report
+Download PDF report
 
-    </p>
+</p>
 
-  </div>
+</div>
 
 </div>
 

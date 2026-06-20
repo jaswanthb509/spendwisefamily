@@ -33,18 +33,11 @@ function Dashboard({
 
 }) {
 
-  /* ======================
-     TOKEN
-  ====================== */
-
   const token =
     localStorage.getItem(
       "token"
     );
 
-  /* ======================
-     NAVIGATION
-  ====================== */
 
   const [
 
@@ -58,9 +51,6 @@ function Dashboard({
 
   );
 
-  /* ======================
-     DATABASE DATA
-  ====================== */
 
   const [
 
@@ -86,6 +76,26 @@ function Dashboard({
 
   ] = useState([]);
 
+ const isGuest =
+
+localStorage.getItem(
+
+"guestMode"
+
+)==="true";
+
+const [guestActions,
+
+setGuestActions]=
+
+useState(0);
+
+const [showGuestPopup,
+
+setShowGuestPopup]=
+
+useState(false);
+
   const [
 
     activities,
@@ -110,9 +120,6 @@ function Dashboard({
 
   ] = useState([]);
 
-  /* ======================
-     UI STATES
-  ====================== */
 
   const [
 
@@ -138,9 +145,6 @@ function Dashboard({
 
   ] = useState("");
 
-  /* ======================
-     GOAL STATES
-  ====================== */
 
   const [
 
@@ -174,9 +178,6 @@ function Dashboard({
 
   ] = useState("");
 
-  /* ======================
-     BUDGET STATES
-  ====================== */
 
   const [
 
@@ -194,9 +195,6 @@ function Dashboard({
 
   ] = useState("");
 
-  /* ======================
-     FAMILY STATES
-  ====================== */
 
   const [
 
@@ -214,32 +212,12 @@ function Dashboard({
 
   ] = useState("");
 
-  /* ======================
-     REMOVE THESE
-  ====================== */
-
-  // DELETE THESE
-
-  // const [title,setTitle]
-  // const [amount,setAmount]
-  // const [category,setCategory]
-
-  // ExpenseForm already
-  // manages its own state
-
-  /* ======================
-     FILTERED EXPENSES
-  ====================== */
 
   const filteredExpenses =
 
     expenses;
 
-  /* ======================
-     LOAD DASHBOARD
-  ====================== */
-
-  useEffect(() => {
+    useEffect(() => {
 
     loadDashboard();
 
@@ -265,9 +243,6 @@ function Dashboard({
 
   };
 
-/* ======================
-   FETCH EXPENSES
-====================== */
 
 const fetchExpenses = async () => {
 
@@ -316,11 +291,6 @@ const fetchExpenses = async () => {
   }
 
 };
-
-
-/* ======================
-   UPDATE EXPENSE
-====================== */
 
 const updateExpense = async (
 
@@ -403,10 +373,6 @@ const updateExpense = async (
 };
 
 
-/* ======================
-   FETCH FAMILY
-====================== */
-
 const fetchFamily = async () => {
 
   if (!token) {
@@ -485,11 +451,6 @@ const fetchFamily = async () => {
 
 };
 
-
-/* ======================
-   FETCH BUDGETS
-====================== */
-
 const fetchBudgets = async () => {
 
   try {
@@ -539,10 +500,6 @@ const fetchBudgets = async () => {
 };
 
 
-/* ======================
-   FETCH GOALS
-====================== */
-
 const fetchGoals = async () => {
 
   try {
@@ -590,11 +547,6 @@ const fetchGoals = async () => {
   }
 
 };
-
-
-/* ======================
-   FETCH ACTIVITIES
-====================== */
 
 const fetchActivities = async () => {
 
@@ -644,9 +596,6 @@ const fetchActivities = async () => {
 
 };
 
-/* ======================
-   CREATE FAMILY
-====================== */
 
 const createFamily = async () => {
 
@@ -741,10 +690,6 @@ const createFamily = async () => {
 };
 
 
-/* ======================
-   JOIN FAMILY
-====================== */
-
 const joinFamily = async () => {
 
   if (!inviteCode) {
@@ -838,10 +783,6 @@ const joinFamily = async () => {
 };
 
 
-/* ======================
-   DELETE EXPENSE
-====================== */
-
 const deleteExpense = async (
 
   expenseId
@@ -901,17 +842,36 @@ const deleteExpense = async (
 };
 
 
-/* ======================
-   CREATE BUDGET
-====================== */
-
 const createBudget = async () => {
+
+  if(isGuest){
+
+toast.error(
+
+"Please login to continue"
+
+);
+
+return;
+
+}
+
+  if(
+
+!handleGuestAction()
+
+){
+
+return;
+
+}
 
   if (
 
     !budgetCategory ||
 
-    !budgetAmount
+    !budgetAmount  
+
 
   ) {
 
@@ -1016,11 +976,29 @@ const createBudget = async () => {
 };
 
 
-/* ======================
-   CREATE GOAL
-====================== */
-
 const createGoal = async () => {
+
+  if(isGuest){
+
+toast.error(
+
+"Please login to continue"
+
+);
+
+return;
+
+}
+
+  if(
+
+!handleGuestAction()
+
+){
+
+return;
+
+}
 
   if (
 
@@ -1139,10 +1117,6 @@ const createGoal = async () => {
 };
 
 
-/* ======================
-   ADD SAVINGS
-====================== */
-
 const addSavings = async (
 
   goalId
@@ -1241,11 +1215,6 @@ const addSavings = async (
 
 };
 
-
-/* ======================
-   DELETE GOAL
-====================== */
-
 const deleteGoal = async (
 
   goalId
@@ -1305,10 +1274,6 @@ const deleteGoal = async (
 };
 
 
-/* ======================
-   LOGOUT
-====================== */
-
 const logout = () => {
 
   localStorage.clear();
@@ -1317,10 +1282,33 @@ const logout = () => {
 
 };
 
+const handleGuestAction=()=>{
 
-/* ======================
-   TOTAL EXPENSES
-====================== */
+if(!isGuest)
+
+return true;
+
+if(guestActions>=2){
+
+setShowGuestPopup(
+
+true
+
+);
+
+return false;
+
+}
+
+setGuestActions(
+
+prev=>prev+1
+
+);
+
+return true;
+
+};
 
 const total =
 
@@ -1340,13 +1328,6 @@ item.amount
 
 );
 
-  /* ======================
-     CHART DATA
-  ====================== */
-
-/* ======================
-   CHART DATA
-====================== */
 
 const chartMap = {};
 
@@ -1402,10 +1383,6 @@ chartMap[key],
 
 );
 
-
-/* ======================
-   MEMBER CHART
-====================== */
 
 const memberMap = {};
 
@@ -1467,10 +1444,6 @@ memberMap[name],
 
 );
 
-
-/* ======================
-   MONTHLY DATA
-====================== */
 
 const monthlyData =
 
@@ -1549,10 +1522,6 @@ return acc;
 );
 
 
-/* ======================
-   SPENT AMOUNT
-====================== */
-
 const getSpentAmount = (
 
 category
@@ -1596,10 +1565,6 @@ expense.amount
 };
 
 
-/* ======================
-   COLORS
-====================== */
-
 const COLORS = [
 
 "#2563eb",
@@ -1614,10 +1579,6 @@ const COLORS = [
 
 ];
 
-
-/* ======================
-   FORMAT CURRENCY
-====================== */
 
 const formatCurrency = (
 
@@ -1647,10 +1608,6 @@ Number(amount) || 0
 
 };
 
-
-/* ======================
-   HEALTH SCORE
-====================== */
 
 const budgetScore =
 
@@ -1706,10 +1663,6 @@ savingsScore
 
 ).toFixed(1);
 
-
-/* ======================
-   AI INSIGHTS
-====================== */
 
 const getAIAdvice = async () => {
 
@@ -1793,7 +1746,7 @@ console.log(error);
 
 setAiAdvice(`
 
-<h3>📊 Spending Summary</h3>
+<h3>1. Spending Summary</h3>
 
 <ul>
 
@@ -1803,7 +1756,7 @@ setAiAdvice(`
 
 </ul>
 
-<h3>📈 Budget Analysis</h3>
+<h3>2. Budget Analysis</h3>
 
 <ul>
 
@@ -1813,7 +1766,7 @@ setAiAdvice(`
 
 </ul>
 
-<h3>🎯 Goal Progress</h3>
+<h3>3. Goal Progress</h3>
 
 <ul>
 
@@ -1821,7 +1774,7 @@ setAiAdvice(`
 
 </ul>
 
-<h3>💡 Recommendations</h3>
+<h3>4. Recommendations</h3>
 
 <ul>
 
@@ -1831,7 +1784,7 @@ setAiAdvice(`
 
 </ul>
 
-<h3>⭐ Financial Health</h3>
+<h3>5. Financial Health</h3>
 
 <p>Score: ${healthScore}/10</p>
 
@@ -1873,8 +1826,6 @@ toast.success(
 
 <div className="dash-page">
 
-{/* Navbar */}
-
 <Navbar
 
 activities={activities}
@@ -1913,8 +1864,6 @@ localStorage.getItem(
 
 <div className="dashboard-layout">
 
-{/* Sidebar */}
-
 <Sidebar
 
 activeSection={activeSection}
@@ -1923,11 +1872,9 @@ setActiveSection={setActiveSection}
 
 />
 
-{/* Main Content */}
 
 <main className="content-area">
 
-{/* Dashboard */}
 
 {activeSection==="dashboard" && (
 
@@ -1951,7 +1898,6 @@ setActiveSection={setActiveSection}
 
 )}
 
-{/* Expenses */}
 
 {activeSection==="expenses" && (
 
@@ -1966,6 +1912,8 @@ onAdd={async()=>{
 await fetchExpenses();
 
 await fetchActivities();
+
+isGuest={isGuest};
 
 }}
 
@@ -1985,7 +1933,6 @@ updateExpense={updateExpense}
 
 )}
 
-{/* Budgets */}
 
 {activeSection==="budgets" && (
 
@@ -2005,11 +1952,12 @@ budgets={budgets}
 
 getSpentAmount={getSpentAmount}
 
+isGuest={isGuest}
+
 />
 
 )}
 
-{/* Goals */}
 
 {activeSection==="goals" && (
 
@@ -2039,11 +1987,12 @@ savingAmounts={savingAmounts}
 
 setSavingAmounts={setSavingAmounts}
 
+isGuest={isGuest}
+
 />
 
 )}
 
-{/* Family */}
 
 {activeSection==="family" && (
 
@@ -2069,8 +2018,6 @@ joinFamily={joinFamily}
 
 )}
 
-{/* Analytics */}
-
 {activeSection==="analytics" && (
 
 <AnalyticsSection
@@ -2087,7 +2034,6 @@ COLORS={COLORS}
 
 )}
 
-{/* AI */}
 
 {activeSection==="ai" && (
 
@@ -2099,11 +2045,12 @@ aiAdvice={aiAdvice}
 
 loadingAI={loadingAI}
 
+isGuest={isGuest}
+
 />
 
 )}
 
-{/* Activity */}
 
 {activeSection==="activity" && (
 

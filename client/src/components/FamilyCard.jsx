@@ -24,7 +24,7 @@ return(
 
 <h2>
 
-👨‍👩‍👧‍👦 Family Group
+Family Group
 
 </h2>
 
@@ -224,11 +224,11 @@ member.role==="admin"
 
 ?
 
-"👑"
+"(Admin)"
 
 :
 
-"👤"
+"(Member)"
 
 }
 

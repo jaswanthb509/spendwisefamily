@@ -78,9 +78,41 @@ darkMode
 
 const handleLogout=()=>{
 
-localStorage.clear();
+localStorage.removeItem(
 
-setPage("home");
+"token"
+
+);
+
+localStorage.removeItem(
+
+"guestMode"
+
+);
+
+setPage(
+
+"home"
+
+);
+
+};
+
+const handleStartFree = () => {
+
+localStorage.setItem(
+
+"guestMode",
+
+"true"
+
+);
+
+setPage(
+
+"dashboard"
+
+);
 
 };
 
@@ -88,7 +120,7 @@ return(
 
 <div className={`app ${darkMode ? "dark" : ""}`}>
 
-{/* Home */}
+
 
 {
 
@@ -96,7 +128,6 @@ page==="home" && (
 
 <div className="home-page">
 
-{/* Navbar */}
 
 <nav className="navbar">
 
@@ -148,7 +179,6 @@ Sign Up
 
 </nav>
 
-{/* Hero */}
 
 <section className="hero">
 
@@ -179,30 +209,16 @@ and grow together.
 <div className="hero-buttons">
 
 <button
-
-className="primary-btn"
-
-onClick={()=>
-
-setPage(
-
-"register"
-
-)
-
-}
-
+ className="main-btn"
+ onClick={handleStartFree}
 >
-
-Start Free
-
+ Start Exploring
 </button>
 
 </div>
 
 </section>
 
-{/* Features */}
 
 <section className="features">
 
@@ -272,7 +288,6 @@ Get smart recommendations.
 
 </section>
 
-{/* CTA */}
 
 <section
 
@@ -320,33 +335,33 @@ Get Started
 
 </section>
 
-{/* Footer */}
-
 <footer className="footer">
 
-<h2>
+<h2>SpendWiseFamily</h2>
 
-SpendWiseFamily
+<div className="footer-links">
 
-</h2>
+<span>Expense Tracking</span>
+
+<span>•</span>
+
+<span>Savings Goals</span>
+
+<span>•</span>
+
+<span>AI Insights</span>
+
+</div>
 
 <p>
-
-Expense Tracking •
-
-Savings Goals •
-
-AI Insights
-
+Helping families manage expenses, budgets and savings together.
 </p>
 
-<p>
+<div className="footer-copy">
 
-© 2026
+© 2026 SpendWiseFamily. All rights reserved. By Jaswanth
 
-SpendWiseFamily
-
-</p>
+</div>
 
 </footer>
 
@@ -356,7 +371,7 @@ SpendWiseFamily
 
 }
 
-{/* Login */}
+
 
 {
 
@@ -390,7 +405,6 @@ setPage(
 
 }
 
-{/* Register */}
 
 {
 
@@ -414,7 +428,6 @@ setPage(
 
 }
 
-{/* Dashboard */}
 
 {
 
@@ -422,23 +435,13 @@ page==="dashboard" && (
 
 <Dashboard
 
-goHome={
+goHome={handleLogout}
 
-handleLogout
+darkMode={darkMode}
 
-}
+setDarkMode={setDarkMode}
 
-darkMode={
-
-darkMode
-
-}
-
-setDarkMode={
-
-setDarkMode
-
-}
+setPage={setPage}
 
 />
 

@@ -24,10 +24,6 @@ const Family =
 require("../models/Family");
 
 
-/* ==========================
-   GEMINI SETUP
-========================== */
-
 const genAI =
 new GoogleGenerativeAI(
   process.env.GEMINI_API_KEY
@@ -39,11 +35,6 @@ genAI.getGenerativeModel({
 model:"gemini-2.5-flash",
 
 });
-
-
-/* ==========================
-   AI INSIGHTS
-========================== */
 
 router.post(
 "/recommend",
@@ -58,8 +49,6 @@ console.log(
 "AI route hit"
 );
 
-
-/* USER */
 
 const user =
 await User.findById(
@@ -76,8 +65,6 @@ message:"User not found",
 
 }
 
-
-/* FAMILY */
 
 if(!user.family){
 
@@ -112,8 +99,6 @@ message:
 
 }
 
-
-/* FETCH DATA */
 
 const expenses =
 await Expense.find({
@@ -162,7 +147,6 @@ goals.length
 );
 
 
-/* CALCULATIONS */
 
 const totalExpenses =
 
@@ -183,8 +167,6 @@ item.amount
 );
 
 
-/* PROMPT */
-
 const prompt = `
 
 You are a financial advisor.
@@ -197,23 +179,23 @@ Maximum 250 words.
 
 Sections:
 
-<h3>💰 Spending Summary</h3>
+<h3>1. Spending Summary</h3>
 
 <ul><li></li></ul>
 
-<h3>📊 Budget Analysis</h3>
+<h3>2. Budget Analysis</h3>
 
 <ul><li></li></ul>
 
-<h3>🎯 Goal Progress</h3>
+<h3>3. Goal Progress</h3>
 
 <ul><li></li></ul>
 
-<h3>💡 Recommendations</h3>
+<h3>3. Recommendations</h3>
 
 <ul><li></li></ul>
 
-<h3>⭐ Financial Health</h3>
+<h3>4. Financial Health</h3>
 
 <p>Score:X/10</p>
 
@@ -281,7 +263,6 @@ null,
 `;
 
 
-/* GEMINI */
 
 const result =
 
@@ -321,11 +302,9 @@ error.message
 );
 
 
-/* FALLBACK */
-
 const fallback = `
 
-<h3>💰 Spending Summary</h3>
+<h3>1. Spending Summary</h3>
 
 <ul>
 
@@ -335,7 +314,7 @@ const fallback = `
 
 </ul>
 
-<h3>📊 Budget Analysis</h3>
+<h3>2. Budget Analysis</h3>
 
 <ul>
 
@@ -345,7 +324,7 @@ const fallback = `
 
 </ul>
 
-<h3>🎯 Goal Progress</h3>
+<h3>3. Goal Progress</h3>
 
 <ul>
 
@@ -353,7 +332,7 @@ const fallback = `
 
 </ul>
 
-<h3>💡 Recommendations</h3>
+<h3>4. Recommendations</h3>
 
 <ul>
 
@@ -363,7 +342,7 @@ const fallback = `
 
 </ul>
 
-<h3>⭐ Financial Health</h3>
+<h3>5. Financial Health</h3>
 
 <p>Score:8/10</p>
 

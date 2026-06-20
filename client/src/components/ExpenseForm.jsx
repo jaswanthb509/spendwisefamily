@@ -2,258 +2,397 @@ import { useState } from "react";
 
 import axios from "axios";
 
+import toast from "react-hot-toast";
+
 import { PlusCircle } from "lucide-react";
 
-export default function ExpenseForm({ onAdd }) {
+export default function ExpenseForm({
 
-  const [title, setTitle] = useState("");
+  onAdd,
 
-  const [amount, setAmount] = useState("");
+  isGuest,
 
-  const [category, setCategory] = useState("");
+}) {
 
-  const [date, setDate] = useState(
+const [title,setTitle]=
 
-    new Date()
+useState("");
 
-      .toISOString()
+const [amount,setAmount]=
 
-      .substring(0, 10)
+useState("");
 
-  );
+const [category,setCategory]=
 
-  const handleSubmit = async (e) => {
+useState("");
 
-    e.preventDefault();
+const [date,setDate]=
 
-    if (
+useState(
 
-      !title ||
+new Date()
 
-      !amount ||
+.toISOString()
 
-      !category ||
+.substring(0,10)
 
-      !date
+);
 
-    ) {
+const [loading,setLoading]=
 
-      return;
+useState(false);
 
-    }
 
-    try {
+/* ==========================
+   EXPENSE CATEGORIES
+========================== */
 
-      const token =
+const categories=[
 
-        localStorage.getItem(
+"Food",
 
-          "token"
+"Transport",
 
-        );
+"Bills",
 
-      await axios.post(
+"Shopping",
 
-        "http://localhost:5000/api/expenses",
+"Health",
 
-        {
+"Education",
 
-          title,
+"Entertainment",
 
-          amount,
+"Travel",
 
-          category,
+"Subscriptions",
 
-          date,
+"Other",
 
-        },
+];
 
-        {
 
-          headers: {
+/* ==========================
+   ADD EXPENSE
+========================== */
 
-            Authorization:
+const handleSubmit=
 
-              `Bearer ${token}`,
+async(e)=>{
 
-          },
+e.preventDefault();
 
-        }
 
-      );
+/* Guest Mode */
 
-      setTitle("");
+if(isGuest){
 
-      setAmount("");
+toast.error(
 
-      setCategory("");
+"Please login to save expenses."
 
-      setDate(
+);
 
-        new Date()
+return;
 
-          .toISOString()
+}
 
-          .substring(0, 10)
 
-      );
+/* Validation */
 
-      if (onAdd) {
+if(
 
-        await onAdd();
+!title ||
 
-      }
+!amount ||
 
-    } catch (error) {
+!category ||
 
-      console.log(error);
+!date
 
-    }
+){
 
-  };
+toast.error(
 
-  return (
+"Please fill all fields"
 
-    <div className="section-card">
+);
 
-      <h2>
+return;
 
-        <PlusCircle size={24} />
+}
 
-        Add Expense
+try{
 
-      </h2>
+setLoading(true);
 
-      <form
+const token=
 
-        className="expense-form-grid"
+localStorage.getItem(
 
-        onSubmit={handleSubmit}
+"token"
 
-      >
+);
 
-        <input
+await axios.post(
 
-          type="text"
+"http://localhost:5000/api/expenses",
 
-          placeholder="Expense Title"
+{
 
-          value={title}
+title,
 
-          onChange={(e) =>
+amount:Number(
 
-            setTitle(
+amount
 
-              e.target.value
+),
 
-            )
+category,
 
-          }
+date,
 
-        />
+},
 
-        <input
+{
 
-          type="number"
+headers:{
 
-          placeholder="Amount"
+Authorization:
 
-          value={amount}
+`Bearer ${token}`,
 
-          onChange={(e) =>
+},
 
-            setAmount(
+}
 
-              e.target.value
+);
 
-            )
 
-          }
+/* Reset Form */
 
-        />
+setTitle("");
 
-        <select
+setAmount("");
 
-          value={category}
+setCategory("");
 
-          onChange={(e) =>
+setDate(
 
-            setCategory(
+new Date()
 
-              e.target.value
+.toISOString()
 
-            )
+.substring(0,10)
 
-          }
+);
 
-        >
 
-          <option value="">
+/* Refresh Dashboard */
 
-            Category
+if(onAdd){
 
-          </option>
+await onAdd();
 
-          <option value="Food">
+}
 
-            Food
+toast.success(
 
-          </option>
+"Expense added successfully 🎉"
 
-          <option value="Bills">
+);
 
-            Bills
+}
 
-          </option>
+catch(error){
 
-          <option value="Shopping">
+console.log(error);
 
-            Shopping
+toast.error(
 
-          </option>
+"Unable to add expense"
 
-          <option value="Travel">
+);
 
-            Travel
+}
 
-          </option>
+finally{
 
-        </select>
+setLoading(false);
 
-        <input
+}
 
-          type="date"
+};
 
-          value={date}
 
-          onChange={(e) =>
+/* ==========================
+   UI
+========================== */
 
-            setDate(
+return(
 
-              e.target.value
+<div className="section-card">
 
-            )
+<h2 className="section-title">
 
-          }
+<PlusCircle
 
-        />
+size={24}
 
-        <button
+/>
 
-          className="main-btn"
+Add Expense
 
-          type="submit"
+</h2>
 
-        >
+<form
 
-          Add Expense
+className="expense-form-grid"
 
-        </button>
+onSubmit={
 
-      </form>
+handleSubmit
 
-    </div>
+}
 
-  );
+>
+
+<input
+
+type="text"
+
+placeholder="Expense Title"
+
+value={title}
+
+onChange={(e)=>
+
+setTitle(
+
+e.target.value
+
+)
+
+}
+
+/>
+
+<input
+
+type="number"
+
+placeholder="Amount"
+
+value={amount}
+
+onChange={(e)=>
+
+setAmount(
+
+e.target.value
+
+)
+
+}
+
+/>
+
+<select
+
+value={category}
+
+onChange={(e)=>
+
+setCategory(
+
+e.target.value
+
+)
+
+}
+
+>
+
+<option value="">
+
+Select Category
+
+</option>
+
+{
+
+categories.map(
+
+(item)=>(
+
+<option
+
+key={item}
+
+value={item}
+
+>
+
+{item}
+
+</option>
+
+)
+
+)
+
+}
+
+</select>
+
+<input
+
+type="date"
+
+value={date}
+
+onChange={(e)=>
+
+setDate(
+
+e.target.value
+
+)
+
+}
+
+/>
+
+<button
+
+className="main-btn"
+
+type="submit"
+
+disabled={loading}
+
+>
+
+{
+
+loading
+
+?
+
+"Adding..."
+
+:
+
+"Add Expense"
+
+}
+
+</button>
+
+</form>
+
+</div>
+
+);
 
 }
