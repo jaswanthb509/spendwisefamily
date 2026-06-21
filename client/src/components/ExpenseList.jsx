@@ -2,151 +2,189 @@ import { useState } from "react";
 
 import {
 
-  Pencil,
+Pencil,
 
-  Trash2,
+Trash2,
 
-  Save,
+Save,
 
-  X,
+X,
+
+Search,
 
 } from "lucide-react";
 
 export default function ExpenseList({
 
-  expenses,
+expenses=[],
 
-  deleteExpense,
+deleteExpense,
 
-  updateExpense,
+updateExpense,
 
-}) {
+currentMember,
 
-  const [
+isGuest,
 
-    filter,
+}){
 
-    setFilter,
+const [filter,setFilter]=
 
-  ] = useState("");
+useState("");
 
-  const [
+const [editingId,setEditingId]=
 
-    editingId,
+useState(null);
 
-    setEditingId,
+const [editTitle,setEditTitle]=
 
-  ] = useState(null);
+useState("");
 
-  const [
+const [editAmount,setEditAmount]=
 
-    editTitle,
+useState("");
 
-    setEditTitle,
+const [editCategory,setEditCategory]=
 
-  ] = useState("");
+useState("");
 
-  const [
 
-    editAmount,
+const categories=[
 
-    setEditAmount,
+"Food",
 
-  ] = useState("");
+"Transport",
 
-  const [
+"Bills",
 
-    editCategory,
+"Shopping",
 
-    setEditCategory,
+"Health",
 
-  ] = useState("");
+"Education",
 
-  const startEdit = (
+"Entertainment",
 
-    expense
+"Travel",
 
-  ) => {
+"Subscriptions",
 
-    setEditingId(
+"Other",
 
-      expense._id
+];
 
-    );
 
-    setEditTitle(
+const canModifyExpense=(expense)=>{
 
-      expense.title
+if(isGuest){
 
-    );
+return false;
 
-    setEditAmount(
+}
 
-      expense.amount
+if(currentMember?.role==="admin"){
 
-    );
+return true;
 
-    setEditCategory(
+}
 
-      expense.category
+const owner=
 
-    );
+expense.user?._id ||
 
-  };
+expense.user;
 
-  const saveEdit = () => {
+return(
 
-    updateExpense(
+owner===
 
-      editingId,
+currentMember?._id
 
-      {
+);
 
-        title:
+};
 
-          editTitle,
 
-        amount:
+const startEdit=(expense)=>{
 
-          editAmount,
+setEditingId(
 
-        category:
+expense._id
 
-          editCategory,
+);
 
-      }
+setEditTitle(
 
-    );
+expense.title
 
-    setEditingId(
+);
 
-      null
+setEditAmount(
 
-    );
+expense.amount
 
-  };
+);
 
-  const filteredExpenses =
+setEditCategory(
 
-    expenses.filter(
+expense.category
 
-      (expense) =>
+);
 
-        expense.category
+};
 
-          ?.toLowerCase()
 
-          .includes(
+const saveEdit=()=>{
 
-            filter
+updateExpense(
 
-              .toLowerCase()
+editingId,
 
-          )
+{
 
-    );
+title:editTitle,
 
-  return (
+amount:Number(
+
+editAmount
+
+),
+
+category:
+
+editCategory,
+
+}
+
+);
+
+setEditingId(null);
+
+};
+
+
+const filteredExpenses=
+
+expenses.filter(
+
+(expense)=>
+
+expense.category
+
+?.toLowerCase()
+
+.includes(
+
+filter
+
+.toLowerCase()
+
+)
+
+);
+
+
+return(
 
 <div className="section-card">
 
@@ -155,6 +193,13 @@ export default function ExpenseList({
 Expense History
 
 </h2>
+
+
+<div className="expense-filters">
+
+<div className="search-box">
+
+<Search size={18}/>
 
 <input
 
@@ -176,9 +221,16 @@ e.target.value
 
 />
 
+</div>
+
+</div>
+
+
 <div className="expense-list">
 
-{filteredExpenses.map(
+{
+
+filteredExpenses.map(
 
 (expense)=>(
 
@@ -190,139 +242,7 @@ className="expense-card"
 
 >
 
-{editingId===
-
-expense._id ? (
-
-<>
-
-<div className="edit-grid">
-
-<input
-
-value={editTitle}
-
-onChange={(e)=>
-
-setEditTitle(
-
-e.target.value
-
-)
-
-}
-
-/>
-
-<input
-
-type="number"
-
-value={editAmount}
-
-onChange={(e)=>
-
-setEditAmount(
-
-e.target.value
-
-)
-
-}
-
-/>
-
-<select
-
-value={editCategory}
-
-onChange={(e)=>
-
-setEditCategory(
-
-e.target.value
-
-)
-
-}
-
->
-
-<option>
-
-Food
-
-</option>
-
-<option>
-
-Bills
-
-</option>
-
-<option>
-
-Shopping
-
-</option>
-
-<option>
-
-Travel
-
-</option>
-
-</select>
-
-</div>
-
-<div className="expense-actions">
-
-<button
-
-className="main-btn"
-
-onClick={saveEdit}
-
->
-
-<Save size={16}/>
-
-Save
-
-</button>
-
-<button
-
-className="danger-btn"
-
-onClick={()=>
-
-setEditingId(
-
-null
-
-)
-
-}
-
->
-
-<X size={16}/>
-
-Cancel
-
-</button>
-
-</div>
-
-</>
-
-) : (
-
-<>
-
-<div>
+<div className="expense-info">
 
 <h3>
 
@@ -332,7 +252,15 @@ Cancel
 
 <p>
 
-₹{expense.amount}
+₹{
+
+Number(
+
+expense.amount
+
+).toLocaleString()
+
+}
 
 </p>
 
@@ -343,6 +271,15 @@ Cancel
 </span>
 
 </div>
+
+
+{
+
+canModifyExpense(
+
+expense
+
+) && (
 
 <div className="expense-actions">
 
@@ -368,6 +305,7 @@ Edit
 
 </button>
 
+
 <button
 
 className="danger-btn"
@@ -392,15 +330,17 @@ Delete
 
 </div>
 
-</>
+)
 
-)}
+}
 
 </div>
 
 )
 
-)}
+)
+
+}
 
 </div>
 

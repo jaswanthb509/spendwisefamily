@@ -120,6 +120,8 @@ useState(false);
 
   ] = useState([]);
 
+  const [currentMember,setCurrentMember]=useState(null);
+
 
   const [
 
@@ -372,82 +374,69 @@ const updateExpense = async (
 
 };
 
-
 const fetchFamily = async () => {
 
-  if (!token) {
+try {
 
-    console.log("No token found");
+const res = await fetch(
 
-    return;
+"http://localhost:5000/api/family/me",
 
-  }
+{
 
-  try {
+headers:{
 
-    console.log("Fetching family...");
+Authorization:`Bearer ${token}`,
 
-    const res = await fetch(
+},
 
-      "http://localhost:5000/api/family/me",
+}
 
-      {
+);
 
-        method: "GET",
+if(!res.ok){
 
-        headers: {
+setFamily(null);
 
-          Authorization: `Bearer ${token}`,
+setFamilyMembers([]);
 
-          "Content-Type": "application/json",
+setCurrentMember(null);
 
-        },
+return;
 
-      }
+}
 
-    );
+const data = await res.json();
 
-    console.log("Family Status:", res.status);
+console.log(data);
 
-    const data = await res.json();
+setFamily({
 
-    console.log("Family Data:", data);
+name:data.name,
 
-    if (!res.ok) {
+inviteCode:data.inviteCode,
 
-      setFamily(null);
+});
 
-      setFamilyMembers([]);
+setFamilyMembers(
 
-      return;
+data.members || []
 
-    }
+);
 
-    setFamily(data);
+setCurrentMember(
 
-    setFamilyMembers(
+data.currentMember
 
-      data.members || []
+);
 
-    );
+}
 
-  }
+catch(error){
 
-  catch (error) {
+console.log(error);
 
-    console.log(
-
-      "Fetch Family Error:",
-
-      error
-
-    );
-
-    setFamily(null);
-
-    setFamilyMembers([]);
-
-  }
+}
 
 };
 
@@ -1666,6 +1655,18 @@ savingsScore
 
 const getAIAdvice = async () => {
 
+  if(isGuest){
+
+toast.error(
+
+"Please login to continue"
+
+);
+
+return;
+
+}
+
 try{
 
 setLoadingAI(true);
@@ -1814,6 +1815,18 @@ setLoadingAI(false);
 
 const exportReport = () => {
 
+  if(isGuest){
+
+toast.error(
+
+"Please login to continue"
+
+);
+
+return;
+
+}
+
 toast.success(
 
 "Export feature coming soon"
@@ -1913,19 +1926,21 @@ await fetchExpenses();
 
 await fetchActivities();
 
-isGuest={isGuest};
-
 }}
 
 />
 
 <ExpenseList
 
-expenses={filteredExpenses}
+expenses={expenses}
 
 deleteExpense={deleteExpense}
 
 updateExpense={updateExpense}
+
+currentMember={currentMember}
+
+isGuest={isGuest}
 
 />
 

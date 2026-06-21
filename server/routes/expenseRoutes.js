@@ -1,323 +1,563 @@
 const express = require("express");
+
 const router = express.Router();
 
 const Expense = require("../models/Expense");
+
 const User = require("../models/User");
+
 const Activity = require("../models/Activity");
 
-const protect =
-require("../middleware/authMiddleware");
+const protect = require("../middleware/authMiddleware");
 
-/* =====================
-GET ALL FAMILY EXPENSES
-===================== */
+
+// ================= GET =================
 
 router.get(
+
 "/",
+
 protect,
-async (req, res) => {
-try {
 
+async(req,res)=>{
 
-  const user =
-    await User.findById(
-      req.user._id
-    );
+try{
 
-  if (!user.family) {
-    return res.json([]);
-  }
+const user=
 
-  const expenses =
-    await Expense.find({
-      family:
-        user.family,
-    }).populate({
-      path: "user",
-      select: "email",
-    });
+await User.findById(
 
-  res.json(expenses);
+req.user._id
 
-} catch (error) {
-
-  console.log(error);
-
-  res.status(500).json({
-    message:
-      "Failed to load expenses",
-    error:
-      error.message,
-  });
-
-}
-
-
-}
 );
 
-/* =====================
-ADD EXPENSE
-===================== */
+if(!user.family){
+
+return res.json([]);
+
+}
+
+const expenses=
+
+await Expense.find({
+
+family:user.family,
+
+}).populate({
+
+path:"user",
+
+select:
+
+"email firstName lastName role",
+
+});
+
+res.json(
+
+expenses
+
+);
+
+}
+
+catch(error){
+
+console.log(error);
+
+res.status(500)
+
+.json({
+
+message:
+
+"Failed to load expenses",
+
+error:
+
+error.message,
+
+});
+
+}
+
+}
+
+);
+
+
+// ================= POST =================
 
 router.post(
+
 "/",
+
 protect,
-async (req, res) => {
-try {
+
+async(req,res)=>{
+
+try{
+
+const{
+
+title,
+
+amount,
+
+category,
+
+}=req.body;
 
 
-  const {
-    title,
-    amount,
-    category,
-  } = req.body;
+if(
 
-  if (
-    !title ||
-    !amount ||
-    !category
-  ) {
-    return res
-      .status(400)
-      .json({
-        message:
-          "All fields are required",
-      });
-  }
+!title ||
 
-  const user =
-    await User.findById(
-      req.user._id
-    );
+!amount ||
 
-  if (!user.family) {
-    return res
-      .status(400)
-      .json({
-        message:
-          "Join a family first",
-      });
-  }
+!category
 
-  const expense =
-    await Expense.create({
-      user:
-        req.user._id,
+){
 
-      family:
-        user.family,
+return res
 
-      title:
-        title.trim(),
+.status(400)
 
-      amount:
-        Number(amount),
+.json({
 
-      category:
-        category.trim(),
-    });
+message:
 
-  await Activity.create({
-    family:
-      user.family,
+"All fields are required",
 
-    user:
-      req.user._id,
-
-    action:
-      `added expense "${expense.title}" (₹${expense.amount})`,
-  });
-
-  res.status(201).json({
-    message:
-      "Expense added successfully",
-
-    expense,
-  });
-
-} catch (error) {
-
-  console.log(error);
-
-  res.status(500).json({
-    message:
-      "Failed to add expense",
-    error:
-      error.message,
-  });
+});
 
 }
 
 
-}
+const user=
+
+await User.findById(
+
+req.user._id
+
 );
 
-/* =====================
-UPDATE EXPENSE
-===================== */
+
+if(
+
+!user.family
+
+){
+
+return res
+
+.status(400)
+
+.json({
+
+message:
+
+"Join a family first",
+
+});
+
+}
+
+
+const expense=
+
+await Expense.create({
+
+user:req.user._id,
+
+family:user.family,
+
+title:title.trim(),
+
+amount:Number(
+
+amount
+
+),
+
+category:
+
+category.trim(),
+
+});
+
+
+await Activity.create({
+
+family:user.family,
+
+user:req.user._id,
+
+action:
+
+`added expense "${expense.title}" (₹${expense.amount})`,
+
+});
+
+
+res.status(201)
+
+.json({
+
+message:
+
+"Expense added successfully",
+
+expense,
+
+});
+
+}
+
+catch(error){
+
+console.log(error);
+
+res.status(500)
+
+.json({
+
+message:
+
+"Failed to add expense",
+
+error:
+
+error.message,
+
+});
+
+}
+
+}
+
+);
+
+
+// ================= UPDATE =================
 
 router.put(
+
 "/:id",
+
 protect,
-async (req, res) => {
-try {
 
+async(req,res)=>{
 
-  const expense =
-    await Expense.findById(
-      req.params.id
-    );
+try{
 
-  if (!expense) {
-    return res
-      .status(404)
-      .json({
-        message:
-          "Expense not found",
-      });
-  }
+const expense=
 
-  if (
-    expense.user.toString() !==
-    req.user._id.toString()
-  ) {
-    return res
-      .status(403)
-      .json({
-        message:
-          "Not authorized",
-      });
-  }
+await Expense.findById(
 
-  const {
-    title,
-    amount,
-    category,
-  } = req.body;
+req.params.id
 
-  expense.title =
-    title ??
-    expense.title;
-
-  expense.amount =
-    amount !== undefined
-      ? Number(amount)
-      : expense.amount;
-
-  expense.category =
-    category ??
-    expense.category;
-
-  const updatedExpense =
-    await expense.save();
-
-  await Activity.create({
-    family:
-      expense.family,
-
-    user:
-      req.user._id,
-
-    action:
-      `updated expense "${updatedExpense.title}" (₹${updatedExpense.amount})`,
-  });
-
-  res.json({
-    message:
-      "Expense updated successfully",
-
-    expense:
-      updatedExpense,
-  });
-
-} catch (error) {
-
-  console.log(error);
-
-  res.status(500).json({
-    message:
-      "Update failed",
-    error:
-      error.message,
-  });
-
-}
-
-
-}
 );
 
-/* =====================
-DELETE EXPENSE
-===================== */
+
+if(!expense){
+
+return res
+
+.status(404)
+
+.json({
+
+message:
+
+"Expense not found",
+
+});
+
+}
+
+
+const user=
+
+await User.findById(
+
+req.user._id
+
+);
+
+
+const isOwner=
+
+expense.user
+
+.toString()===
+
+req.user._id
+
+.toString();
+
+
+const isAdmin=
+
+user.role==="admin";
+
+
+if(
+
+!isOwner &&
+
+!isAdmin
+
+){
+
+return res
+
+.status(403)
+
+.json({
+
+message:
+
+"Not authorized",
+
+});
+
+}
+
+
+const{
+
+title,
+
+amount,
+
+category,
+
+}=req.body;
+
+
+expense.title=
+
+title ??
+
+expense.title;
+
+
+expense.amount=
+
+amount !== undefined
+
+? Number(amount)
+
+: expense.amount;
+
+
+expense.category=
+
+category ??
+
+expense.category;
+
+
+const updatedExpense=
+
+await expense.save();
+
+
+await Activity.create({
+
+family:
+
+expense.family,
+
+user:
+
+req.user._id,
+
+action:
+
+`updated expense "${updatedExpense.title}" (₹${updatedExpense.amount})`,
+
+});
+
+
+res.json({
+
+message:
+
+"Expense updated successfully",
+
+expense:
+
+updatedExpense,
+
+});
+
+}
+
+catch(error){
+
+console.log(error);
+
+res.status(500)
+
+.json({
+
+message:
+
+"Update failed",
+
+error:
+
+error.message,
+
+});
+
+}
+
+}
+
+);
+
+
+// ================= DELETE =================
 
 router.delete(
+
 "/:id",
+
 protect,
-async (req, res) => {
-try {
+
+async(req,res)=>{
+
+try{
+
+const expense=
+
+await Expense.findById(
+
+req.params.id
+
+);
 
 
-  const expense =
-    await Expense.findById(
-      req.params.id
-    );
+if(!expense){
 
-  if (!expense) {
-    return res
-      .status(404)
-      .json({
-        message:
-          "Expense not found",
-      });
-  }
+return res
 
-  if (
-    expense.user.toString() !==
-    req.user._id.toString()
-  ) {
-    return res
-      .status(403)
-      .json({
-        message:
-          "Not authorized",
-      });
-  }
+.status(404)
 
-  await Activity.create({
-    family:
-      expense.family,
+.json({
 
-    user:
-      req.user._id,
+message:
 
-    action:
-      `deleted expense "${expense.title}" (₹${expense.amount})`,
-  });
+"Expense not found",
 
-  await expense.deleteOne();
-
-  res.json({
-    message:
-      "Expense deleted successfully",
-  });
-
-} catch (error) {
-
-  console.log(error);
-
-  res.status(500).json({
-    message:
-      "Delete failed",
-    error:
-      error.message,
-  });
+});
 
 }
 
 
+const user=
+
+await User.findById(
+
+req.user._id
+
+);
+
+
+const isOwner=
+
+expense.user
+
+.toString()===
+
+req.user._id
+
+.toString();
+
+
+const isAdmin=
+
+user.role==="admin";
+
+
+if(
+
+!isOwner &&
+
+!isAdmin
+
+){
+
+return res
+
+.status(403)
+
+.json({
+
+message:
+
+"Not authorized",
+
+});
+
 }
+
+
+await Activity.create({
+
+family:
+
+expense.family,
+
+user:
+
+req.user._id,
+
+action:
+
+`deleted expense "${expense.title}" (₹${expense.amount})`,
+
+});
+
+
+await expense.deleteOne();
+
+
+res.json({
+
+message:
+
+"Expense deleted successfully",
+
+});
+
+}
+
+catch(error){
+
+console.log(error);
+
+res.status(500)
+
+.json({
+
+message:
+
+"Delete failed",
+
+error:
+
+error.message,
+
+});
+
+}
+
+}
+
 );
 
 module.exports = router;

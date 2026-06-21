@@ -1,20 +1,20 @@
 export default function FamilyCard({
 
-  family,
+family,
 
-  familyMembers,
+familyMembers=[],
 
-  familyName,
+familyName,
 
-  setFamilyName,
+setFamilyName,
 
-  inviteCode,
+inviteCode,
 
-  setInviteCode,
+setInviteCode,
 
-  createFamily,
+createFamily,
 
-  joinFamily,
+joinFamily,
 
 }) {
 
@@ -28,19 +28,17 @@ Family Group
 
 </h2>
 
-{!family ? (
+{
+
+!family ? (
 
 <>
 
 <p>
 
-Create a new family
-
-or join an existing one.
+Create a new family or join an existing one.
 
 </p>
-
-{/* Create */}
 
 <div className="family-actions">
 
@@ -77,8 +75,6 @@ Create Family
 </button>
 
 </div>
-
-{/* Join */}
 
 <div className="family-actions">
 
@@ -118,11 +114,13 @@ Join Family
 
 </>
 
-) : (
+)
+
+:
+
+(
 
 <>
-
-{/* Family Info */}
 
 <div className="family-info-row">
 
@@ -176,8 +174,6 @@ Members
 
 </div>
 
-{/* Members */}
-
 <div className="members-section">
 
 <h3>
@@ -194,7 +190,7 @@ familyMembers.map(
 
 (member,index)=>{
 
-const fullName =
+const fullName=
 
 member.user
 
@@ -204,9 +200,11 @@ member.user
 
 ${member.user.lastName || ""}`
 
+.trim()
+
 :
 
-"Unknown";
+"Unknown User";
 
 return(
 
@@ -218,23 +216,31 @@ className="member-pill"
 
 >
 
+<strong>
+
+{fullName}
+
+</strong>
+
+{" "}
+
+-
+
+{" "}
+
 {
 
 member.role==="admin"
 
 ?
 
-"(Admin)"
+"👑 Admin"
 
 :
 
-"(Member)"
+"👤 Member"
 
 }
-
-{" "}
-
-{fullName}
 
 </div>
 
@@ -252,7 +258,9 @@ member.role==="admin"
 
 </>
 
-)}
+)
+
+}
 
 </div>
 
