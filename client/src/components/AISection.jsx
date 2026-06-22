@@ -12,15 +12,13 @@ return (
 
 <div className="section-card ai-section">
 
-  {/* Header */}
-
   <div className="section-header">
 
     <div>
 
       <h2>
 
-         AI Financial Advisor
+         AI Financial Advisor:
 
       </h2>
 
@@ -56,8 +54,6 @@ return (
 
   </div>
 
-
-  {/* Content */}
 
   <div className="ai-content">
 

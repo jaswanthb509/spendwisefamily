@@ -407,28 +407,15 @@ return;
 }
 
 const data = await res.json();
-
 console.log(data);
 
-setFamily({
+console.log(data.currentMember);
 
-name:data.name,
+setFamily(data.family);
 
-inviteCode:data.inviteCode,
+setFamilyMembers(data.members);
 
-});
-
-setFamilyMembers(
-
-data.members || []
-
-);
-
-setCurrentMember(
-
-data.currentMember
-
-);
+setCurrentMember(data.currentMember);
 
 }
 

@@ -182,6 +182,12 @@ translateY(-3px);
 
 }
 
+.main-content{
+
+padding:10px 20px;
+
+}
+
 .nav-btn{
 
 height:52px;
@@ -203,6 +209,78 @@ border:
 1px solid
 
 var(--border);
+
+}
+
+.danger-btn{
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+gap:8px;
+
+border:none;
+
+padding:12px 20px;
+
+border-radius:14px;
+
+font-size:15px;
+
+font-weight:600;
+
+cursor:pointer;
+
+color:white;
+
+background:
+
+linear-gradient(
+
+135deg,
+
+#ef4444,
+
+#dc2626
+
+);
+
+transition:.3s;
+
+}
+
+.danger-btn:hover{
+
+transform:
+
+translateY(-2px);
+
+box-shadow:
+
+0 10px 20px
+
+rgba(
+
+239,
+
+68,
+
+68,
+
+0.25
+
+);
+
+}
+
+.danger-btn svg{
+
+width:18px;
+
+height:18px;
 
 }
 
@@ -1203,9 +1281,11 @@ font-size:42px;
 
 margin-top:25px;
 
-padding:35px;
+padding:38px;
 
-border-radius:28px;
+border-radius:30px;
+
+min-height:290px;
 
 background:
 
@@ -1241,13 +1321,12 @@ rgba(
 
 .family-card h2{
 
-font-size:34px;
+margin-bottom:25px;
 
-font-weight:800;
-
-margin-bottom:30px;
+font-size:3rem;
 
 }
+
 
 .family-info-row{
 
@@ -1782,96 +1861,6 @@ padding:25px;
 
 }
 
-.expense-card{
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
-
-gap:20px;
-
-padding:28px;
-
-margin-top:20px;
-
-border-radius:24px;
-
-background:var(--card);
-
-border:1px solid var(--border);
-
-box-shadow:var(--shadow);
-
-transition:.3s;
-
-}
-
-.expense-card:hover{
-
-transform:translateY(-5px);
-
-}
-
-.expense-left{
-
-display:flex;
-
-flex-direction:column;
-
-gap:8px;
-
-}
-
-.expense-left h3{
-
-font-size:28px;
-
-font-weight:700;
-
-color:var(--text);
-
-}
-
-.expense-left p{
-
-font-size:16px;
-
-color:var(--subtext);
-
-}
-
-.expense-amount{
-
-font-size:32px;
-
-font-weight:800;
-
-color:var(--primary);
-
-}
-
-.expense-actions{
-
-display:flex;
-
-align-items:center;
-
-gap:12px;
-
-flex-wrap:wrap;
-
-}
-
-.expense-actions button{
-
-min-width:100px;
-
-}
-
-
-
 .goal-form{
 
 display:flex;
@@ -2105,14 +2094,6 @@ rgba(
 
 
 @media(max-width:768px){
-
-.expense-card{
-
-flex-direction:column;
-
-align-items:flex-start;
-
-}
 
 .goal-top{
 
@@ -2703,95 +2684,6 @@ gap:12px;
 font-size:38px;
 
 margin-bottom:30px;
-
-}
-
-
-.expense-form-grid{
-
-display:grid;
-
-grid-template-columns:
-
-2fr
-
-1.5fr
-
-1.5fr
-
-1.5fr
-
-auto;
-
-gap:18px;
-
-align-items:center;
-
-}
-
-.expense-form-grid button{
-
-height:58px;
-
-}
-
-.expense-form-grid input,
-
-.expense-form-grid select{
-
-flex:1;
-
-min-width:220px;
-
-}
-
-.expense-filters{
-
-display:flex;
-
-gap:18px;
-
-flex-wrap:wrap;
-
-margin-bottom:30px;
-
-}
-
-.expense-list{
-
-display:flex;
-
-flex-direction:column;
-
-gap:22px;
-
-}
-
-.danger-btn{
-
-border:none;
-
-padding:12px 18px;
-
-border-radius:14px;
-
-font-weight:700;
-
-cursor:pointer;
-
-color:white;
-
-background:
-
-linear-gradient(
-
-135deg,
-
-#ef4444,
-
-#dc2626
-
-);
 
 }
 
@@ -3540,5 +3432,207 @@ linear-gradient(
 #7c3aed
 
 );
+
+}
+
+
+.expense-form-grid{
+
+display:grid;
+
+grid-template-columns:
+2fr
+1.5fr
+1.5fr
+1.5fr
+auto;
+
+gap:20px;
+
+align-items:center;
+
+}
+
+.expense-form-grid input,
+
+.expense-form-grid select{
+
+height:58px;
+
+padding:0 20px;
+
+border-radius:18px;
+
+}
+
+.expense-filters{
+
+margin:30px 0;
+
+}
+
+.search-box{
+
+display:flex;
+
+align-items:center;
+
+gap:10px;
+
+width:300px;
+
+padding:0 20px;
+
+height:58px;
+
+border-radius:18px;
+
+background:var(--card);
+
+border:1px solid var(--border);
+
+}
+
+.search-box input{
+
+flex:1;
+
+border:none;
+
+outline:none;
+
+background:transparent;
+
+}
+
+.expense-list{
+
+display:flex;
+
+flex-direction:column;
+
+gap:25px;
+
+}
+
+.expense-card{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+padding:28px;
+
+border-radius:24px;
+
+background:var(--card);
+
+border:1px solid var(--border);
+
+}
+
+.expense-info{
+
+display:flex;
+
+flex-direction:column;
+
+gap:8px;
+
+}
+
+.expense-info h3{
+
+font-size:28px;
+
+margin:0;
+
+}
+
+.expense-info p{
+
+font-size:24px;
+
+font-weight:700;
+
+margin:0;
+
+}
+
+.expense-info span{
+
+font-size:18px;
+
+opacity:.8;
+
+}
+
+.expense-actions{
+
+display:flex;
+
+gap:15px;
+
+}
+
+.expense-actions button{
+
+display:flex;
+
+align-items:center;
+
+gap:8px;
+
+padding:12px 18px;
+
+}
+
+.edit-grid{
+
+display:grid;
+
+grid-template-columns:
+
+1fr
+
+1fr
+
+1fr;
+
+gap:20px;
+
+width:100%;
+
+margin-bottom:20px;
+
+}
+
+.empty-state{
+
+padding:50px;
+
+text-align:center;
+
+}
+
+@media(max-width:1000px){
+
+.expense-form-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.expense-card{
+
+flex-direction:column;
+
+align-items:flex-start;
+
+gap:20px;
+
+}
 
 }

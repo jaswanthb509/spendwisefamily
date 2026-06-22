@@ -107,6 +107,12 @@ data.token
 
 );
 
+localStorage.removeItem(
+
+"guestMode"
+
+);
+
 localStorage.setItem(
 
 "userId",
@@ -206,7 +212,7 @@ return(
 
 <h2>
 
-Welcome Back 👋
+Welcome Back 
 
 </h2>
 

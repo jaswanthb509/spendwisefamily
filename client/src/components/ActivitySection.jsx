@@ -22,7 +22,7 @@ return(
 
 <History size={22}/>
 
-Recent Activity
+Recent Activity:
 
 </h2>
 
@@ -112,7 +112,7 @@ activity.createdAt
 
 <div className="empty-card">
 
-📭 No recent activities
+No recent activities..
 
 </div>
 

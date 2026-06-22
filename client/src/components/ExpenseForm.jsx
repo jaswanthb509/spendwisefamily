@@ -241,7 +241,7 @@ size={24}
 
 />
 
-Add Expense
+Add Expense:
 
 </h2>
 

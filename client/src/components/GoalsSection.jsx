@@ -59,7 +59,6 @@ return(
 
 <>
 
-{/* Create Goal */}
 
 <div className="section-card">
 
@@ -67,7 +66,7 @@ return(
 
 <Target size={22}/>
 
-Savings Goals
+Savings Goals:
 
 </h2>
 
@@ -161,7 +160,7 @@ Goal Progress
 
 <div className="empty-card">
 
-🎯 No goals created yet
+ No goals created yet
 
 </div>
 

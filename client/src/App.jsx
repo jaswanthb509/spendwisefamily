@@ -14,13 +14,14 @@ import Register from "./pages/Register";
 
 import Dashboard from "./pages/Dashboard";
 
-function App(){
+
+function App() {
 
 const [
 
 page,
 
-setPage
+setPage,
 
 ] = useState(
 
@@ -36,11 +37,12 @@ localStorage.getItem(
 
 );
 
+
 const [
 
 darkMode,
 
-setDarkMode
+setDarkMode,
 
 ] = useState(
 
@@ -48,17 +50,20 @@ localStorage.getItem(
 
 "theme"
 
-)==="dark"
+) === "dark"
 
 );
 
-useEffect(()=>{
 
-document.body.className=
+// ================= THEME =================
+
+useEffect(() => {
+
+document.body.className =
 
 darkMode
 
-? "dark-theme"
+? "dark-mode"
 
 : "";
 
@@ -74,9 +79,12 @@ darkMode
 
 );
 
-},[darkMode]);
+}, [darkMode]);
 
-const handleLogout=()=>{
+
+// ================= LOGOUT =================
+
+const handleLogout = () => {
 
 localStorage.removeItem(
 
@@ -90,6 +98,18 @@ localStorage.removeItem(
 
 );
 
+localStorage.removeItem(
+
+"firstName"
+
+);
+
+localStorage.removeItem(
+
+"lastName"
+
+);
+
 setPage(
 
 "home"
@@ -97,6 +117,9 @@ setPage(
 );
 
 };
+
+
+// ================= GUEST =================
 
 const handleStartFree = () => {
 
@@ -116,11 +139,22 @@ setPage(
 
 };
 
-return(
 
-<div className={`app ${darkMode ? "dark" : ""}`}>
+return (
 
+<div
 
+className={`app ${
+
+darkMode
+
+? "dark"
+
+: ""
+
+}`}
+
+>
 
 {
 
@@ -137,6 +171,7 @@ SpendWiseFamily.
 
 </h2>
 
+
 <div className="nav-actions">
 
 <button
@@ -145,7 +180,11 @@ className="nav-btn"
 
 onClick={()=>
 
-setPage("login")
+setPage(
+
+"login"
+
+)
 
 }
 
@@ -154,6 +193,7 @@ setPage("login")
 Login
 
 </button>
+
 
 <button
 
@@ -184,9 +224,10 @@ Sign Up
 
 <div className="hero-ai">
 
-AI Powered Family Finance Tracker
+*An Ai Powered Family Finance Tracker*
 
 </div>
+
 
 <h1>
 
@@ -195,6 +236,7 @@ Manage Family
 Expenses Smarter
 
 </h1>
+
 
 <p className="hero-para">
 
@@ -206,13 +248,23 @@ and grow together.
 
 </p>
 
+
 <div className="hero-buttons">
 
 <button
- className="main-btn"
- onClick={handleStartFree}
+
+className="main-btn"
+
+onClick={
+
+handleStartFree
+
+}
+
 >
- Start Exploring
+
+Start Exploring
+
 </button>
 
 </div>
@@ -238,6 +290,7 @@ Track all expenses.
 
 </div>
 
+
 <div className="card">
 
 <h3>
@@ -254,6 +307,7 @@ Visual spending charts.
 
 </div>
 
+
 <div className="card">
 
 <h3>
@@ -269,6 +323,7 @@ Track goals together.
 </p>
 
 </div>
+
 
 <div className="card">
 
@@ -311,7 +366,9 @@ Your Finances?
 
 </h2>
 
+
 <br/>
+
 
 <button
 
@@ -335,31 +392,57 @@ Get Started
 
 </section>
 
+
 <footer className="footer">
 
-<h2>SpendWiseFamily</h2>
+<h2>
+
+SpendWiseFamily
+
+</h2>
+
 
 <div className="footer-links">
 
-<span>Expense Tracking</span>
+<span>
+
+Expense Tracking
+
+</span>
 
 <span>•</span>
 
-<span>Savings Goals</span>
+<span>
+
+Savings Goals
+
+</span>
 
 <span>•</span>
 
-<span>AI Insights</span>
+<span>
+
+AI Insights
+
+</span>
 
 </div>
 
+
 <p>
+
 Helping families manage expenses, budgets and savings together.
+
 </p>
+
 
 <div className="footer-copy">
 
-© 2026 SpendWiseFamily. All rights reserved. By Jaswanth
+© 2026 SpendWiseFamily
+
+All rights reserved.
+
+By Jaswanth
 
 </div>
 
@@ -370,7 +453,6 @@ Helping families manage expenses, budgets and savings together.
 )
 
 }
-
 
 
 {
@@ -422,6 +504,16 @@ setPage(
 
 }
 
+goToDashboard={()=>
+
+setPage(
+
+"dashboard"
+
+)
+
+}
+
 />
 
 )
@@ -435,13 +527,29 @@ page==="dashboard" && (
 
 <Dashboard
 
-goHome={handleLogout}
+goHome={
 
-darkMode={darkMode}
+handleLogout
 
-setDarkMode={setDarkMode}
+}
 
-setPage={setPage}
+darkMode={
+
+darkMode
+
+}
+
+setDarkMode={
+
+setDarkMode
+
+}
+
+setPage={
+
+setPage
+
+}
 
 />
 

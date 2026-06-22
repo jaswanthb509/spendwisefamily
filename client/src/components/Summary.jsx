@@ -44,7 +44,7 @@ export default function Summary({
 
 <h1>
 
-Welcome Back 
+Welcome Back..
 
 </h1>
 
@@ -60,11 +60,6 @@ goals in one place.
 
 </div>
 
-<div className="welcome-badge">
-
-Smart Finance Tracker
-
-</div>
 
 </div>
 

@@ -1,194 +1,190 @@
 import { useState } from "react";
 
 import {
-
-Pencil,
-
-Trash2,
-
-Save,
-
-X,
-
-Search,
-
+  Pencil,
+  Trash2,
+  Save,
+  X,
+  Search,
 } from "lucide-react";
 
 export default function ExpenseList({
 
-expenses=[],
+  expenses = [],
 
-deleteExpense,
+  deleteExpense,
 
-updateExpense,
+  updateExpense,
 
-currentMember,
+  currentMember,
 
-isGuest,
+  isGuest,
 
-}){
+}) {
 
-const [filter,setFilter]=
+  console.log("isGuest:", isGuest);
 
-useState("");
+console.log("currentMember:", currentMember);
 
-const [editingId,setEditingId]=
+console.log("role:", currentMember?.role);
 
-useState(null);
+  const [filter, setFilter] = useState("");
 
-const [editTitle,setEditTitle]=
+  const [editingId, setEditingId] = useState(null);
 
-useState("");
+  const [editTitle, setEditTitle] = useState("");
 
-const [editAmount,setEditAmount]=
+  const [editAmount, setEditAmount] = useState("");
 
-useState("");
+  const [editCategory, setEditCategory] = useState("");
 
-const [editCategory,setEditCategory]=
+  const categories = [
 
-useState("");
+    "Food",
 
+    "Transport",
 
-const categories=[
+    "Bills",
 
-"Food",
+    "Shopping",
 
-"Transport",
+    "Health",
 
-"Bills",
+    "Education",
 
-"Shopping",
+    "Entertainment",
 
-"Health",
+    "Travel",
 
-"Education",
+    "Subscriptions",
 
-"Entertainment",
+    "Other",
 
-"Travel",
+  ];
 
-"Subscriptions",
 
-"Other",
+  const canModifyExpense = (expense) => {
 
-];
+    if (isGuest) {
 
+      return false;
 
-const canModifyExpense=(expense)=>{
+    }
 
-if(isGuest){
+    if (currentMember?.role === "admin") {
 
-return false;
+      return true;
 
-}
+    }
 
-if(currentMember?.role==="admin"){
+    return (
 
-return true;
+      expense.user?._id?.toString() ===
 
-}
+      currentMember?._id?.toString()
 
-const owner=
+    );
 
-expense.user?._id ||
+  };
 
-expense.user;
 
-return(
+  const startEdit = (expense) => {
 
-owner===
+    setEditingId(
 
-currentMember?._id
+      expense._id
 
-);
+    );
 
-};
+    setEditTitle(
 
+      expense.title
 
-const startEdit=(expense)=>{
+    );
 
-setEditingId(
+    setEditAmount(
 
-expense._id
+      expense.amount
 
-);
+    );
 
-setEditTitle(
+    setEditCategory(
 
-expense.title
+      expense.category
 
-);
+    );
 
-setEditAmount(
+  };
 
-expense.amount
 
-);
+  const cancelEdit = () => {
 
-setEditCategory(
+    setEditingId(
 
-expense.category
+      null
 
-);
+    );
 
-};
+  };
 
 
-const saveEdit=()=>{
+  const saveEdit = () => {
 
-updateExpense(
+    updateExpense(
 
-editingId,
+      editingId,
 
-{
+      {
 
-title:editTitle,
+        title: editTitle,
 
-amount:Number(
+        amount: Number(
 
-editAmount
+          editAmount
 
-),
+        ),
 
-category:
+        category:
 
-editCategory,
+          editCategory,
 
-}
+      }
 
-);
+    );
 
-setEditingId(null);
+    setEditingId(
 
-};
+      null
 
+    );
 
-const filteredExpenses=
+  };
 
-expenses.filter(
 
-(expense)=>
+  const filteredExpenses =
 
-expense.category
+    expenses.filter(
 
-?.toLowerCase()
+      (expense) =>
 
-.includes(
+        expense.category
 
-filter
+          ?.toLowerCase()
 
-.toLowerCase()
+          .includes(
 
-)
+            filter.toLowerCase()
 
-);
+          )
 
+    );
 
-return(
+
+  return (
 
 <div className="section-card">
 
-<h2>
+<h2 className="section-title">
 
 Expense History
 
@@ -199,7 +195,7 @@ Expense History
 
 <div className="search-box">
 
-<Search size={18}/>
+<Search size={18} />
 
 <input
 
@@ -230,6 +226,24 @@ e.target.value
 
 {
 
+filteredExpenses.length === 0
+
+? (
+
+<div className="empty-state">
+
+<h3>
+
+No expenses found
+
+</h3>
+
+</div>
+
+)
+
+: (
+
 filteredExpenses.map(
 
 (expense)=>(
@@ -241,6 +255,138 @@ key={expense._id}
 className="expense-card"
 
 >
+
+{
+
+editingId===
+
+expense._id
+
+? (
+
+<>
+
+<div className="edit-grid">
+
+<input
+
+value={editTitle}
+
+onChange={(e)=>
+
+setEditTitle(
+
+e.target.value
+
+)
+
+}
+
+/>
+
+<input
+
+type="number"
+
+value={editAmount}
+
+onChange={(e)=>
+
+setEditAmount(
+
+e.target.value
+
+)
+
+}
+
+/>
+
+<select
+
+value={editCategory}
+
+onChange={(e)=>
+
+setEditCategory(
+
+e.target.value
+
+)
+
+}
+
+>
+
+{
+
+categories.map(
+
+(item)=>(
+
+<option
+
+key={item}
+
+value={item}
+
+>
+
+{item}
+
+</option>
+
+)
+
+)
+
+}
+
+</select>
+
+</div>
+
+
+<div className="expense-actions">
+
+<button
+
+className="main-btn"
+
+onClick={saveEdit}
+
+>
+
+<Save size={16}/>
+
+Save
+
+</button>
+
+
+<button
+
+className="danger-btn"
+
+onClick={cancelEdit}
+
+>
+
+<X size={16}/>
+
+Cancel
+
+</button>
+
+</div>
+
+</>
+
+)
+
+: (
+
+<>
 
 <div className="expense-info">
 
@@ -334,7 +480,15 @@ Delete
 
 }
 
+</>
+
+)
+
+}
+
 </div>
+
+)
 
 )
 
