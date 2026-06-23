@@ -1277,13 +1277,33 @@ font-size:42px;
 
 }
 
+.family-actions{
+
+display:flex;
+
+align-items:center;
+
+gap:16px;
+
+margin-top:18px;
+
+margin-bottom:18px;
+
+flex-wrap:wrap;
+
+}
+
 .family-card{
 
 margin-top:25px;
 
 padding:38px;
 
+padding-left:40px;
+
 border-radius:30px;
+
+height:auto;
 
 min-height:290px;
 
@@ -1321,7 +1341,7 @@ rgba(
 
 .family-card h2{
 
-margin-bottom:25px;
+margin-bottom:20px;
 
 font-size:3rem;
 
