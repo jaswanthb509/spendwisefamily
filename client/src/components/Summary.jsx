@@ -32,7 +32,6 @@ export default function Summary({
 
 <>
 
-{/* Welcome Section */}
 
 <div className="dash-header">
 

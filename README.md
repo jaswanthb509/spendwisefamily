@@ -1,132 +1,94 @@
-<!--
-  MERN Expense Tracker - README
-  Polished for Hacktoberfest 2025: banner, badges, lightweight SVG tagline, concise sections.
--->
+# SpendWiseFamily
 
-# 💰 MERN Expense Tracker
+An AI-powered MERN family expense management platform that helps families collaboratively track expenses, manage budgets, achieve savings goals, and receive smart financial insights.
 
-A full-stack Expense Tracker application built with the MERN stack (MongoDB, Express, React, Node). This README is optimized for clarity and contributors, especially for Hacktoberfest 2025.
+## Features
 
----
+### Authentication
+- User registration and login
+- JWT authentication
+- Guest mode exploration
 
-<div align="center">
-  <!-- Green banner -->
-  <img src="https://img.shields.io/badge/MERN-Expense%20Tracker-%2300a86b?style=for-the-badge&logo=appveyor" alt="MERN Expense Tracker" />
+### Family Management
+- Create family groups
+- Join family groups using invite codes
+- Admin and member roles
 
-  <!-- Polished SVG header + subtitle -->
-  <p>
-    <img src="./client/src/assets/logo.svg" alt="MERN Expense Tracker" width="760"/>
-  </p>
+### Expense Management
+- Add expenses
+- Edit expenses
+- Delete expenses
+- Category filtering
+- Admin can manage all expenses
 
-  <!-- Tech badges -->
-  <p>
-    <img src="https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB" alt="React" />
-    <img src="https://img.shields.io/badge/Node.js-339933?style=flat&logo=node.js&logoColor=white" alt="Node.js" />
-    <img src="https://img.shields.io/badge/Express-000000?style=flat&logo=express&logoColor=white" alt="Express" />
-    <img src="https://img.shields.io/badge/MongoDB-47A248?style=flat&logo=mongodb&logoColor=white" alt="MongoDB" />
-    <img src="https://img.shields.io/badge/Tailwind-CB3837?style=flat&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
-    <img src="https://img.shields.io/badge/Bun-000000?style=flat&logo=bun&logoColor=white" alt="Bun" />
-  </p>
+### Budget Tracking
+- Create category-wise budgets
+- Progress indicators
+- Remaining budget calculations
 
-  <p><strong>A modern, responsive expense tracker built with the MERN stack.</strong></p>
-</div>
+### Savings Goals
+- Create savings goals
+- Track progress
+- Add savings contributions
 
----
+### Analytics Dashboard
+- Spending distribution charts
+- Family spending insights
+- Budget analysis
 
-## Highlights ✨
+### AI Insights
+- AI-powered financial recommendations
+- Spending analysis
+- Budget suggestions
 
-- 🔐 User authentication (JWT)
-- ✏️ Add, edit, delete expenses
-- 📊 Visual summary with interactive charts
-- 📱 Responsive UI and Tailwind-ready styles
+### Other Features
+- Dark mode
+- Export reports
+- Activity tracking
+- Notifications
 
-## Tech Stack 🧰
+## Tech Stack
 
-Frontend ⚛️
+Frontend:
+- React
+- Vite
+- CSS
+- Lucide React
 
-- React (Vite)
-- Tailwind CSS
-- Recharts
+Backend:
+- Node.js
+- Express.js
 
-Backend 🧩
+Database:
+- MongoDB Atlas
 
-- Node.js & Express
-- MongoDB (Mongoose)
-- JWT for authentication
+Authentication:
+- JWT
 
-## Quick Start 🚀
+AI:
+- Gemini API
 
-Prerequisites 🧾
+Deployment:
+- Vercel
+- Render
 
-- Node.js (v20+ recommended as Vite requires Node.js version 20.19+ or 22.12+)
-- MongoDB (local or Atlas)
-- Git
+## Installation
 
-Clone the repository ⤵️
-
-```powershell
-git clone https://github.com/Sathvikaeshkilla/mern-expense-tracker.git
-```
-
-```powershell
-cd mern-expense-tracker
-```
-
-Install server dependencies
-
-```powershell
-cd server; npm install
-```
-
-Install client dependencies
-
-```powershell
-cd ../client; npm install
-```
-
-Environment Variables : 
-
-Create a `.env` file in the `server` directory based on `.env.example`:
+### Frontend
 
 ```bash
-cp server/.env.example server/.env
-```
+cd client
 
-Run in development (two terminals)
+npm install
 
-```powershell
-# Terminal 1 - server
-cd server; npm start
+npm run dev
 
-# Terminal 2 - client
-cd client; npm run dev
-```
 
-## Contributing 🤝
+### Backend
 
-Contributions are welcome. Please:
+```bash
+cd server
 
-- 🐛 Open issues for bugs or feature requests
-- ✨ Send a focused pull request with a clear description
-- ✅ Keep changes small and test locally before opening a PR
+npm install
 
-For Hacktoberfest 2025: label your PR with `hacktoberfest` if it follows the project guidelines.
-
-## License 📄
-
-<div align="center">
-  <strong>MIT License</strong>
-
-  <p>This project is licensed under the MIT License. See the <code>LICENSE</code> file for details.</p>
-</div>
-
-## Support 💬
-
-<div align="center">
-  <p>If you find this project useful, consider starring the repo. For quick questions or coordination, open an issue and tag the maintainers.</p>
-</div>
-
----
-
-Maintainer: Assigned — coordinate via GitHub issues. 🧑‍🔧
-
+npm start

@@ -8,8 +8,8 @@ import ExpenseForm from "../components/ExpenseForm";
 import ExpenseList from "../components/ExpenseList";
 
 import BudgetSection from "../components/BudgetSection";
-
 import GoalsSection from "../components/GoalsSection";
+
 
 import FamilyCard from "../components/FamilyCard";
 
@@ -252,7 +252,7 @@ const fetchExpenses = async () => {
 
     const res = await fetch(
 
-      "http://localhost:5000/api/expenses",
+      `${import.meta.env.VITE_API_URL}/api/expenses`,
 
       {
 
@@ -306,7 +306,7 @@ const updateExpense = async (
 
     const res = await fetch(
 
-      `http://localhost:5000/api/expenses/${id}`,
+      `${import.meta.env.VITE_API_URL}/api/expenses/${id}`,
 
       {
 
@@ -380,7 +380,7 @@ try {
 
 const res = await fetch(
 
-"http://localhost:5000/api/family/me",
+`${import.meta.env.VITE_API_URL}/api/family/me`,
 
 {
 
@@ -433,7 +433,7 @@ const fetchBudgets = async () => {
 
     const res = await fetch(
 
-      "http://localhost:5000/api/budgets",
+      `${import.meta.env.VITE_API_URL}/api/budgets`,
 
       {
 
@@ -482,7 +482,7 @@ const fetchGoals = async () => {
 
     const res = await fetch(
 
-      "http://localhost:5000/api/goals",
+      `${import.meta.env.VITE_API_URL}/api/goals`,
 
       {
 
