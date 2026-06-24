@@ -6,12 +6,17 @@ const Expense = require("../models/Expense");
 
 const User = require("../models/User");
 
+const Family = require("../models/Family");
+
 const Activity = require("../models/Activity");
 
-const protect = require("../middleware/authMiddleware");
+const protect =
+require("../middleware/authMiddleware");
 
 
-// ================= GET =================
+/* ==========================
+   GET ALL EXPENSES
+========================== */
 
 router.get(
 
@@ -43,13 +48,19 @@ await Expense.find({
 
 family:user.family,
 
-}).populate({
+})
 
-path:"user",
+.populate(
 
-select:
+"user",
 
-"email firstName lastName role",
+"firstName lastName email"
+
+)
+
+.sort({
+
+createdAt:-1,
 
 });
 
@@ -65,17 +76,11 @@ catch(error){
 
 console.log(error);
 
-res.status(500)
-
-.json({
+res.status(500).json({
 
 message:
 
 "Failed to load expenses",
-
-error:
-
-error.message,
 
 });
 
@@ -86,7 +91,9 @@ error.message,
 );
 
 
-// ================= POST =================
+/* ==========================
+   ADD EXPENSE
+========================== */
 
 router.post(
 
@@ -105,6 +112,8 @@ title,
 amount,
 
 category,
+
+date,
 
 }=req.body;
 
@@ -143,11 +152,7 @@ req.user._id
 );
 
 
-if(
-
-!user.family
-
-){
+if(!user.family){
 
 return res
 
@@ -184,6 +189,8 @@ category:
 
 category.trim(),
 
+date,
+
 });
 
 
@@ -200,9 +207,7 @@ action:
 });
 
 
-res.status(201)
-
-.json({
+res.status(201).json({
 
 message:
 
@@ -218,17 +223,11 @@ catch(error){
 
 console.log(error);
 
-res.status(500)
-
-.json({
+res.status(500).json({
 
 message:
 
 "Failed to add expense",
-
-error:
-
-error.message,
 
 });
 
@@ -239,7 +238,9 @@ error.message,
 );
 
 
-// ================= UPDATE =================
+/* ==========================
+   UPDATE EXPENSE
+========================== */
 
 router.put(
 
@@ -286,27 +287,47 @@ req.user._id
 );
 
 
-const isOwner=
+const family=
 
-expense.user
+await Family.findById(
 
-.toString()===
+user.family
 
-req.user._id
+);
 
-.toString();
+
+const currentMember=
+
+family.members.find(
+
+(member)=>
+
+member.user.toString()===
+
+req.user._id.toString()
+
+);
 
 
 const isAdmin=
 
-user.role==="admin";
+currentMember?.role===
+
+"admin";
+
+
+const isOwner=
+
+expense.user.toString()===
+
+req.user._id.toString();
 
 
 if(
 
-!isOwner &&
+!isAdmin &&
 
-!isAdmin
+!isOwner
 
 ){
 
@@ -345,9 +366,13 @@ expense.title;
 
 expense.amount=
 
-amount !== undefined
+amount!==undefined
 
-? Number(amount)
+? Number(
+
+amount
+
+)
 
 : expense.amount;
 
@@ -399,17 +424,11 @@ catch(error){
 
 console.log(error);
 
-res.status(500)
-
-.json({
+res.status(500).json({
 
 message:
 
 "Update failed",
-
-error:
-
-error.message,
 
 });
 
@@ -420,7 +439,9 @@ error.message,
 );
 
 
-// ================= DELETE =================
+/* ==========================
+   DELETE EXPENSE
+========================== */
 
 router.delete(
 
@@ -467,27 +488,47 @@ req.user._id
 );
 
 
-const isOwner=
+const family=
 
-expense.user
+await Family.findById(
 
-.toString()===
+user.family
 
-req.user._id
+);
 
-.toString();
+
+const currentMember=
+
+family.members.find(
+
+(member)=>
+
+member.user.toString()===
+
+req.user._id.toString()
+
+);
 
 
 const isAdmin=
 
-user.role==="admin";
+currentMember?.role===
+
+"admin";
+
+
+const isOwner=
+
+expense.user.toString()===
+
+req.user._id.toString();
 
 
 if(
 
-!isOwner &&
+!isAdmin &&
 
-!isAdmin
+!isOwner
 
 ){
 
@@ -540,17 +581,11 @@ catch(error){
 
 console.log(error);
 
-res.status(500)
-
-.json({
+res.status(500).json({
 
 message:
 
 "Delete failed",
-
-error:
-
-error.message,
 
 });
 
@@ -560,4 +595,5 @@ error.message,
 
 );
 
-module.exports = router;
+
+module.exports=router;
