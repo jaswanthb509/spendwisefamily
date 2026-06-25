@@ -146,7 +146,6 @@ Create Goal
 
 </div>
 
-{/* Goal Progress */}
 
 <div className="goal-container">
 
@@ -346,7 +345,6 @@ Complete
 
 </span>
 
-{/* Active goals */}
 
 {!achieved &&
 
@@ -444,7 +442,6 @@ Delete
 
 )}
 
-{/* Achieved */}
 
 {achieved && (
 
@@ -488,7 +485,6 @@ Delete Goal
 
 )}
 
-{/* Expired */}
 
 {!achieved &&
 
