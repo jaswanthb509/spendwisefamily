@@ -15,7 +15,7 @@ import FamilyCard from "../components/FamilyCard";
 
 import AnalyticsSection from "../components/AnalyticsSection";
 
-import AISection from "../components/AiSection";
+import AISection from "../components/AISection";
 
 import ActivitySection from "../components/ActivitySection";
 
@@ -530,7 +530,7 @@ const fetchActivities = async () => {
 
     const res = await fetch(
 
-      "http://localhost:5000/api/activity",
+      `${import.meta.env.VITE_API_URL}/api/activity`,
 
       {
 
@@ -591,7 +591,7 @@ const createFamily = async () => {
 
     const res = await fetch(
 
-      "http://localhost:5000/api/family/create",
+      `${import.meta.env.VITE_API_URL}/api/family/create`,
 
       {
 
@@ -684,7 +684,7 @@ const joinFamily = async () => {
 
     const res = await fetch(
 
-      "http://localhost:5000/api/family/join",
+      `${import.meta.env.VITE_API_URL}/api/family/join`,
 
       {
 
@@ -769,7 +769,7 @@ const deleteExpense = async (
 
     const res = await fetch(
 
-      `http://localhost:5000/api/expenses/${expenseId}`,
+      `${import.meta.env.VITE_API_URL}/api/expenses/${expenseId}`,
 
       {
 
@@ -865,7 +865,7 @@ return;
 
     const res = await fetch(
 
-      "http://localhost:5000/api/budgets",
+      `${import.meta.env.VITE_API_URL}/api/budgets`,
 
       {
 
@@ -1000,7 +1000,7 @@ return;
 
     const res = await fetch(
 
-      "http://localhost:5000/api/goals",
+      `${import.meta.env.VITE_API_URL}/api/goals`,
 
       {
 
@@ -1103,7 +1103,7 @@ const addSavings = async (
 
     const res = await fetch(
 
-      `http://localhost:5000/api/goals/${goalId}/save`,
+      `${import.meta.env.VITE_API_URL}/api/goals/${goalId}/save`,
 
       {
 
@@ -1201,7 +1201,7 @@ const deleteGoal = async (
 
     const res = await fetch(
 
-      `http://localhost:5000/api/goals/${goalId}`,
+      `${import.meta.env.VITE_API_URL}/api/goals/${goalId}`,
 
       {
 
@@ -1672,7 +1672,7 @@ id:"ai",
 
 const res = await fetch(
 
-"http://localhost:5000/api/ai/recommend",
+`${import.meta.env.VITE_API_URL}/api/ai/recommend`,
 
 {
 
